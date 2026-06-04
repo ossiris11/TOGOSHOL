@@ -25,6 +25,7 @@ export function ProductCatalog() {
   const [activeGpuFilter, setActiveGpuFilter] = useState<GpuFilter>('Все');
   const [sortBy, setSortBy] = useState<SortOption>('price-asc');
   const [query, setQuery] = useState('');
+  const [showAll, setShowAll] = useState(false);
   const products = useMemo(() => getProductViews(vkProducts), []);
   const filteredProducts = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -39,7 +40,10 @@ export function ProductCatalog() {
         return a.priceValue - b.priceValue;
       });
   }, [activeFilter, activeGpuFilter, products, query, sortBy]);
+  const visibleProducts = showAll ? filteredProducts : filteredProducts.slice(0, 9);
   const minPrice = products[0]?.price || 'по запросу';
+
+  const resetLimit = () => setShowAll(false);
 
   return (
     <section id="catalog" className="section productCatalog">
@@ -66,14 +70,23 @@ export function ProductCatalog() {
             <input
               type="search"
               value={query}
-              onChange={(event) => setQuery(event.target.value)}
+              onChange={(event) => {
+                setQuery(event.target.value);
+                resetLimit();
+              }}
               placeholder="RTX 3070, Ryzen, 80 000..."
             />
           </label>
 
           <label className="catalogSort">
             <span>Сортировка</span>
-            <select value={sortBy} onChange={(event) => setSortBy(event.target.value as SortOption)}>
+            <select
+              value={sortBy}
+              onChange={(event) => {
+                setSortBy(event.target.value as SortOption);
+                resetLimit();
+              }}
+            >
               {sortOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
@@ -86,7 +99,15 @@ export function ProductCatalog() {
         <div className="catalogFilters" aria-label="Фильтр по бюджету" data-reveal>
           <span>Бюджет</span>
           {filters.map((filter) => (
-            <button className={activeFilter === filter ? 'isActive' : ''} key={filter} type="button" onClick={() => setActiveFilter(filter)}>
+            <button
+              className={activeFilter === filter ? 'isActive' : ''}
+              key={filter}
+              type="button"
+              onClick={() => {
+                setActiveFilter(filter);
+                resetLimit();
+              }}
+            >
               {filter}
             </button>
           ))}
@@ -95,7 +116,15 @@ export function ProductCatalog() {
         <div className="catalogFilters" aria-label="Фильтр по классу" data-reveal>
           <span>Класс</span>
           {gpuFilters.map((filter) => (
-            <button className={activeGpuFilter === filter ? 'isActive' : ''} key={filter} type="button" onClick={() => setActiveGpuFilter(filter)}>
+            <button
+              className={activeGpuFilter === filter ? 'isActive' : ''}
+              key={filter}
+              type="button"
+              onClick={() => {
+                setActiveGpuFilter(filter);
+                resetLimit();
+              }}
+            >
               {filter}
             </button>
           ))}
@@ -106,7 +135,7 @@ export function ProductCatalog() {
         </div>
 
         <div className="catalogGrid">
-          {filteredProducts.map((product) => (
+          {visibleProducts.map((product) => (
             <article className="productCard" key={product.vkUrl || product.title} data-reveal>
               <a className="productImage" href={product.vkUrl} target="_blank" rel="noreferrer" aria-label={`Открыть ${product.normalizedTitle} в VK`}>
                 <img
@@ -157,6 +186,12 @@ export function ProductCatalog() {
             </article>
           ))}
         </div>
+
+        {visibleProducts.length < filteredProducts.length && (
+          <button className="showMoreButton" type="button" onClick={() => setShowAll(true)}>
+            Показать ещё {filteredProducts.length - visibleProducts.length}
+          </button>
+        )}
       </div>
     </section>
   );
