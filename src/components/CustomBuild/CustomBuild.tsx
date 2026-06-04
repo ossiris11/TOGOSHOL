@@ -8,12 +8,14 @@ const resolutions = ['1080p', '1440p', '4K'] as const;
 const partConditions = ['Новые', 'Б/у выгоднее', 'Не важно'] as const;
 const ramOptions = ['16GB', '32GB', '64GB'] as const;
 const storageOptions = ['512GB', '1TB', '2TB'] as const;
+const caseStyles = ['Минимализм', 'RGB', 'Airflow'] as const;
 
 type Game = (typeof games)[number];
 type Resolution = (typeof resolutions)[number];
 type PartCondition = (typeof partConditions)[number];
 type RamOption = (typeof ramOptions)[number];
 type StorageOption = (typeof storageOptions)[number];
+type CaseStyle = (typeof caseStyles)[number];
 
 const included = [
   'Индивидуальный подбор комплектующих',
@@ -79,6 +81,7 @@ export function CustomBuild() {
   const [partCondition, setPartCondition] = useState<PartCondition>('Не важно');
   const [ramChoice, setRamChoice] = useState<RamOption>('32GB');
   const [storageChoice, setStorageChoice] = useState<StorageOption>('1TB');
+  const [caseStyle, setCaseStyle] = useState<CaseStyle>('RGB');
   const [copied, setCopied] = useState(false);
 
   const recommendation = useMemo(
@@ -95,6 +98,7 @@ export function CustomBuild() {
 Комплектующие: ${partCondition}
 RAM: ${ramChoice}
 SSD: ${storageChoice}
+Стиль корпуса: ${caseStyle}
 Рекомендация сайта: ${recommendation.buildClass}, ${recommendation.cpu}, ${recommendation.gpu}, ${recommendation.ram}, ${recommendation.storage}.`;
 
   const copyMessage = async () => {
@@ -123,6 +127,16 @@ SSD: ${storageChoice}
                   <b>Комфортный бюджет:</b>
                   <strong>{formatPrice(budget)}</strong>
                 </span>
+                <input
+                  className="budgetNumber"
+                  type="number"
+                  min="50000"
+                  max="300000"
+                  step="5000"
+                  value={budget}
+                  onChange={(event) => setBudget(Math.min(300000, Math.max(50000, Number(event.target.value) || 50000)))}
+                  aria-label="Ввести бюджет вручную"
+                />
                 <input
                   type="range"
                   min="50000"
@@ -205,6 +219,24 @@ SSD: ${storageChoice}
                 <div className="segmented segmentedCompact" role="radiogroup" aria-label="Накопитель">
                   {storageOptions.map((item) => (
                     <button className={storageChoice === item ? 'isActive' : ''} key={item} type="button" role="radio" aria-checked={storageChoice === item} onClick={() => setStorageChoice(item)}>
+                      {item}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="controlGroup">
+                <span>Стиль корпуса:</span>
+                <div className="segmented" role="radiogroup" aria-label="Стиль корпуса">
+                  {caseStyles.map((item) => (
+                    <button
+                      className={caseStyle === item ? 'isActive' : ''}
+                      key={item}
+                      type="button"
+                      role="radio"
+                      aria-checked={caseStyle === item}
+                      onClick={() => setCaseStyle(item)}
+                    >
                       {item}
                     </button>
                   ))}

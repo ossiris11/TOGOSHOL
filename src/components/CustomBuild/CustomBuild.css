@@ -90,6 +90,20 @@
   accent-color: var(--cyan);
 }
 
+.budgetNumber {
+  min-height: 44px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 10px 13px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-main);
+  outline: none;
+}
+
+.budgetNumber:focus {
+  border-color: rgba(0, 229, 255, 0.38);
+}
+
 .budgetControl i {
   display: flex;
   justify-content: space-between;

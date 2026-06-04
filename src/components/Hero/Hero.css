@@ -60,6 +60,38 @@
   animation-delay: 200ms;
 }
 
+.heroSelectedBuild {
+  display: grid;
+  width: fit-content;
+  max-width: 640px;
+  gap: 6px;
+  margin-top: 24px;
+  border: 1px solid rgba(0, 229, 255, 0.22);
+  border-radius: var(--radius-md);
+  padding: 15px 17px;
+  background: rgba(0, 229, 255, 0.065);
+  animation: fadeUp 700ms var(--ease-premium) forwards;
+  animation-delay: 250ms;
+  opacity: 0;
+}
+
+.heroSelectedBuild span {
+  color: var(--cyan);
+  font-size: 0.75rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.heroSelectedBuild strong {
+  color: var(--text-main);
+  font-size: clamp(1.05rem, 2vw, 1.25rem);
+}
+
+.heroSelectedBuild b {
+  color: var(--text-main);
+  font-size: 1.18rem;
+}
+
 .heroActions {
   display: flex;
   flex-wrap: wrap;

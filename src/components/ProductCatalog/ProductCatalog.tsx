@@ -1,11 +1,20 @@
 import { useMemo, useState } from 'react';
 import { vkProducts } from '../../data/vkProducts';
-import { getBudgetLabel, getProductViews } from '../../lib/products';
+import { getBudgetLabel, getProductSearchText, getProductViews } from '../../lib/products';
 import heroPc from '../../assets/hero-pc.png';
 import './ProductCatalog.css';
 
 const filters = ['Все', 'до 60k', '60–90k', '90–150k', '150k+'] as const;
+const gpuFilters = ['Все', 'Full HD', '2K', 'Топ'] as const;
+const sortOptions = [
+  { label: 'Сначала дешевле', value: 'price-asc' },
+  { label: 'Сначала дороже', value: 'price-desc' },
+  { label: 'Сначала мощнее', value: 'power-desc' },
+] as const;
+
 type Filter = (typeof filters)[number];
+type GpuFilter = (typeof gpuFilters)[number];
+type SortOption = (typeof sortOptions)[number]['value'];
 
 function buildMessage(title: string, price: string) {
   return encodeURIComponent(`Здравствуйте! Интересует сборка ${title} за ${price}. Хочу уточнить наличие и детали.`);
@@ -13,8 +22,23 @@ function buildMessage(title: string, price: string) {
 
 export function ProductCatalog() {
   const [activeFilter, setActiveFilter] = useState<Filter>('Все');
+  const [activeGpuFilter, setActiveGpuFilter] = useState<GpuFilter>('Все');
+  const [sortBy, setSortBy] = useState<SortOption>('price-asc');
+  const [query, setQuery] = useState('');
   const products = useMemo(() => getProductViews(vkProducts), []);
-  const filteredProducts = activeFilter === 'Все' ? products : products.filter((product) => getBudgetLabel(product.priceValue) === activeFilter);
+  const filteredProducts = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+
+    return products
+      .filter((product) => activeFilter === 'Все' || getBudgetLabel(product.priceValue) === activeFilter)
+      .filter((product) => activeGpuFilter === 'Все' || product.gpuTier === activeGpuFilter)
+      .filter((product) => !normalizedQuery || getProductSearchText(product).includes(normalizedQuery))
+      .sort((a, b) => {
+        if (sortBy === 'price-desc') return b.priceValue - a.priceValue;
+        if (sortBy === 'power-desc') return b.priceValue - a.priceValue;
+        return a.priceValue - b.priceValue;
+      });
+  }, [activeFilter, activeGpuFilter, products, query, sortBy]);
   const minPrice = products[0]?.price || 'по запросу';
 
   return (
@@ -36,12 +60,49 @@ export function ProductCatalog() {
           </div>
         </div>
 
+        <div className="catalogToolbar" data-reveal>
+          <label className="catalogSearch">
+            <span>Поиск</span>
+            <input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="RTX 3070, Ryzen, 80 000..."
+            />
+          </label>
+
+          <label className="catalogSort">
+            <span>Сортировка</span>
+            <select value={sortBy} onChange={(event) => setSortBy(event.target.value as SortOption)}>
+              {sortOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
         <div className="catalogFilters" aria-label="Фильтр по бюджету" data-reveal>
+          <span>Бюджет</span>
           {filters.map((filter) => (
             <button className={activeFilter === filter ? 'isActive' : ''} key={filter} type="button" onClick={() => setActiveFilter(filter)}>
               {filter}
             </button>
           ))}
+        </div>
+
+        <div className="catalogFilters" aria-label="Фильтр по классу" data-reveal>
+          <span>Класс</span>
+          {gpuFilters.map((filter) => (
+            <button className={activeGpuFilter === filter ? 'isActive' : ''} key={filter} type="button" onClick={() => setActiveGpuFilter(filter)}>
+              {filter}
+            </button>
+          ))}
+        </div>
+
+        <div className="catalogResultLine" data-reveal>
+          Найдено: <strong>{filteredProducts.length}</strong>
         </div>
 
         <div className="catalogGrid">
@@ -61,24 +122,35 @@ export function ProductCatalog() {
 
               <div className="productInfo">
                 <span className={`badge ${product.badgeType === 'available' ? 'badgeAvailable' : ''}`}>{product.badge}</span>
+                <div className="productChips" aria-label="Класс сборки">
+                  <span>{product.gpuTier}</span>
+                  <span>{product.useCase}</span>
+                </div>
                 <h3>{product.normalizedTitle}</h3>
                 <strong>{product.price}</strong>
 
-                <dl className="productSpecs">
-                  {product.cleanSpecs.slice(0, 4).map((spec) => (
-                    <div key={spec}>
-                      <dt>{spec.includes(':') ? spec.split(':')[0] : 'Характеристика'}</dt>
-                      <dd>{spec.includes(':') ? spec.split(':').slice(1).join(':').trim() : spec}</dd>
-                    </div>
-                  ))}
-                </dl>
+                <div className="productSpecChips">
+                  {[
+                    ['CPU', product.details.cpu],
+                    ['GPU', product.details.gpu],
+                    ['RAM', product.details.ram],
+                    ['SSD', product.details.storage],
+                  ]
+                    .filter(([, value]) => value)
+                    .map(([label, value]) => (
+                      <span key={label}>
+                        <b>{label}</b>
+                        {value}
+                      </span>
+                    ))}
+                </div>
 
                 <div className="productActions">
                   <a className="button buttonPrimary" href={`https://vk.me/tog_pc?message=${buildMessage(product.normalizedTitle, product.price)}`} target="_blank" rel="noreferrer">
-                    Написать
+                    Написать по сборке
                   </a>
                   <a className="button buttonSecondary" href={product.vkUrl} target="_blank" rel="noreferrer">
-                    VK
+                    Открыть VK
                   </a>
                 </div>
               </div>

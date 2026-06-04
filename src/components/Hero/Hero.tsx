@@ -11,6 +11,7 @@ export function Hero() {
   const visualRef = useHeroParallax<HTMLDivElement>();
   const products = getProductViews(vkProducts).filter((product) => product.priceValue >= 60000).slice(0, 6);
   const [activeBuild, setActiveBuild] = useState(products[1]?.vkUrl || products[0]?.vkUrl || '');
+  const selectedProduct = products.find((product) => product.vkUrl === activeBuild) || products[0];
 
   return (
     <section id="top" className="hero">
@@ -23,12 +24,19 @@ export function Hero() {
             Готовые сборки от 47 900 ₽ и кастомные ПК под твой бюджет. Подберём комплектующие, протестируем систему и
             подготовим к запуску.
           </p>
+          {selectedProduct && (
+            <div className="heroSelectedBuild" aria-live="polite">
+              <span>Выбрано из наличия</span>
+              <strong>{selectedProduct.normalizedTitle}</strong>
+              <b>{selectedProduct.price}</b>
+            </div>
+          )}
           <div className="heroActions">
             <a className="button buttonPrimary" href="https://vk.me/tog_pc" target="_blank" rel="noreferrer">
               Подобрать ПК
             </a>
-            <a className="button buttonSecondary" href="#catalog">
-              Смотреть сборки
+            <a className="button buttonSecondary" href={selectedProduct?.vkUrl || '#catalog'} target={selectedProduct?.vkUrl ? '_blank' : undefined} rel={selectedProduct?.vkUrl ? 'noreferrer' : undefined}>
+              Открыть выбранную
             </a>
           </div>
           <div className="heroMetrics">
@@ -64,6 +72,7 @@ export function Hero() {
                 onClick={(event) => {
                   if ((event.target as HTMLElement).closest('a')) return;
                   setActiveBuild(build.vkUrl || build.title);
+                  event.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                 }}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter' || event.key === ' ') {

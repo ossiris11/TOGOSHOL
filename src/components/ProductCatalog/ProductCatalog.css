@@ -31,11 +31,50 @@
   color: var(--text-muted);
 }
 
+.catalogToolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.28fr);
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.catalogSearch,
+.catalogSort {
+  display: grid;
+  gap: 8px;
+}
+
+.catalogSearch span,
+.catalogSort span,
+.catalogFilters > span {
+  color: var(--text-soft);
+  font-size: 0.78rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.catalogSearch input,
+.catalogSort select {
+  min-height: 48px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.045);
+  color: var(--text-main);
+  outline: none;
+}
+
+.catalogSearch input:focus,
+.catalogSort select:focus {
+  border-color: rgba(0, 229, 255, 0.38);
+}
+
 .catalogFilters {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 10px;
-  margin-bottom: 26px;
+  margin-bottom: 14px;
 }
 
 .catalogFilters button {
@@ -60,6 +99,15 @@
   background: rgba(0, 229, 255, 0.12);
   color: var(--text-main);
   transform: translateY(-1px);
+}
+
+.catalogResultLine {
+  margin: 20px 0 18px;
+  color: var(--text-muted);
+}
+
+.catalogResultLine strong {
+  color: var(--text-main);
 }
 
 .catalogGrid {
@@ -116,6 +164,22 @@
   padding: 22px;
 }
 
+.productChips,
+.productSpecChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.productChips span {
+  border-radius: var(--radius-pill);
+  padding: 7px 10px;
+  background: rgba(0, 229, 255, 0.1);
+  color: var(--cyan);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
 .productInfo h3 {
   display: -webkit-box;
   min-height: 2.45em;
@@ -131,32 +195,34 @@
   font-size: 1.35rem;
 }
 
-.productSpecs {
-  display: grid;
-  gap: 8px;
-  min-height: 122px;
-  margin: 0;
+.productSpecChips {
+  min-height: 112px;
+  align-content: start;
 }
 
-.productSpecs div {
+.productSpecChips span {
   display: grid;
-  grid-template-columns: 0.7fr 1.3fr;
-  gap: 10px;
+  min-width: calc(50% - 4px);
+  flex: 1 1 calc(50% - 4px);
+  gap: 4px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.03);
   color: var(--text-muted);
-  font-size: 0.92rem;
+  font-size: 0.86rem;
+  line-height: 1.25;
 }
 
-.productSpecs dt {
+.productSpecChips b {
   color: var(--text-soft);
-}
-
-.productSpecs dd {
-  margin: 0;
+  font-size: 0.72rem;
+  text-transform: uppercase;
 }
 
 .productActions {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr;
   gap: 10px;
 }
 
@@ -172,6 +238,10 @@
 }
 
 @media (max-width: 760px) {
+  .catalogToolbar {
+    grid-template-columns: 1fr;
+  }
+
   .catalogHeader {
     grid-template-columns: 1fr;
   }

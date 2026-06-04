@@ -13,6 +13,8 @@ export type ProductView = Build & {
   details: ProductDetails;
   priceValue: number;
   normalizedTitle: string;
+  gpuTier: string;
+  useCase: string;
 };
 
 const emptyDetails: ProductDetails = {
@@ -88,12 +90,16 @@ export function normalizeProductTitle(product: Build) {
 }
 
 export function toProductView(product: Build): ProductView {
+  const details = getProductDetails(product);
+
   return {
     ...product,
     cleanSpecs: getCleanSpecs(product),
-    details: { ...emptyDetails, ...getProductDetails(product) },
+    details: { ...emptyDetails, ...details },
     priceValue: parsePriceValue(product.price),
     normalizedTitle: normalizeProductTitle(product),
+    gpuTier: getGpuTier(details.gpu || product.title),
+    useCase: getUseCase(details.gpu || product.title, parsePriceValue(product.price)),
   };
 }
 
@@ -113,4 +119,34 @@ export function getBudgetLabel(priceValue: number) {
   if (priceValue < 90000) return '60–90k';
   if (priceValue < 150000) return '90–150k';
   return '150k+';
+}
+
+export function getGpuTier(value: string) {
+  if (/5080|5070|4070|4070\s?ti|7800x3d/i.test(value)) return 'Топ';
+  if (/3080|3070|6700|5060|4060/i.test(value)) return '2K';
+  if (/3060|3050|2060|5700|5600/i.test(value)) return 'Full HD';
+  return 'Подбор';
+}
+
+export function getUseCase(value: string, priceValue: number) {
+  if (/5080|5070|4070\s?ti|7800x3d/i.test(value) || priceValue >= 140000) return '4K / монтаж';
+  if (/3080|3070|6700|5060|4060/i.test(value) || priceValue >= 75000) return '2K-гейминг';
+  return 'Full HD';
+}
+
+export function getProductSearchText(product: ProductView) {
+  return [
+    product.normalizedTitle,
+    product.title,
+    product.price,
+    product.gpuTier,
+    product.useCase,
+    product.details.cpu,
+    product.details.gpu,
+    product.details.ram,
+    product.details.storage,
+    ...product.cleanSpecs,
+  ]
+    .join(' ')
+    .toLowerCase();
 }

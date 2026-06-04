@@ -1,7 +1,7 @@
 import './Footer.css';
 
 const sectionLinks = [
-  { label: 'Сборки', href: '#builds' },
+  { label: 'Сборки', href: '#catalog' },
   { label: 'Под заказ', href: '#custom' },
   { label: 'Почему мы', href: '#why' },
   { label: 'Как заказать', href: '#process' },
@@ -17,9 +17,11 @@ export function Footer() {
         </div>
         <div className="footerColumn">
           <h2>Контакты</h2>
-          <a href="tel:+70000000000">Телефон</a>
-          <a href="https://t.me/" target="_blank" rel="noreferrer">
-            Telegram
+          <a href="https://vk.me/tog_pc" target="_blank" rel="noreferrer">
+            VK сообщения
+          </a>
+          <a href="https://vk.com/market-214535058?screen=group" target="_blank" rel="noreferrer">
+            Товары VK
           </a>
           <a href="mailto:hello@togoshol.ru">Email</a>
         </div>

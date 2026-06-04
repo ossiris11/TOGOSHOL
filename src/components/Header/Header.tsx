@@ -41,8 +41,8 @@ export function Header() {
         </nav>
 
         <div className="headerActions">
-          <a className="phoneLink" href="tel:+70000000000">
-            +7 000 000-00-00
+          <a className="phoneLink" href="https://vk.me/tog_pc" target="_blank" rel="noreferrer">
+            vk.me/tog_pc
           </a>
           <a className="button buttonPrimary headerButton" href="https://vk.me/tog_pc" target="_blank" rel="noreferrer">
             Написать
@@ -75,8 +75,8 @@ export function Header() {
               {link.label}
             </a>
           ))}
-          <a href="tel:+70000000000" onClick={closeMenu}>
-            Позвонить
+          <a href="https://vk.me/tog_pc" target="_blank" rel="noreferrer" onClick={closeMenu}>
+            VK сообщения
           </a>
           <a className="button buttonPrimary" href="https://vk.me/tog_pc" target="_blank" rel="noreferrer" onClick={closeMenu}>
             Написать
