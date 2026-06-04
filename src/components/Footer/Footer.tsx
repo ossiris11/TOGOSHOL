@@ -1,3 +1,4 @@
+import { contacts } from '../../data/contacts';
 import './Footer.css';
 
 const sectionLinks = [
@@ -17,13 +18,16 @@ export function Footer() {
         </div>
         <div className="footerColumn">
           <h2>Контакты</h2>
-          <a href="https://vk.me/tog_pc" target="_blank" rel="noreferrer">
+          <a href={contacts.vk} target="_blank" rel="noreferrer">
             VK сообщения
           </a>
-          <a href="https://vk.com/market-214535058?screen=group" target="_blank" rel="noreferrer">
-            Товары VK
+          <a href={contacts.telegram} target="_blank" rel="noreferrer">
+            Telegram
           </a>
-          <a href="mailto:hello@togoshol.ru">Email</a>
+          <a href={contacts.max} target="_blank" rel="noreferrer">
+            Max
+          </a>
+          <a href={contacts.email}>Email</a>
         </div>
         <div className="footerColumn">
           <h2>Разделы</h2>

@@ -6,7 +6,7 @@ export type Build = {
   specs: string[];
   price: string;
   cta: string;
-  vkUrl?: string;
+  sourceId?: string;
   image?: string;
 };
 
@@ -19,7 +19,7 @@ export const builds: Build[] = [
     specs: ['RTX / Radeon на выбор', '16–32 ГБ RAM', 'SSD NVMe', 'Тихое охлаждение'],
     price: 'от 75 000 ₽',
     cta: 'Уточнить наличие',
-    vkUrl: 'https://vk.com/market-214535058?screen=group',
+    sourceId: 'fallback-start',
   },
   {
     badge: 'Хит',
@@ -29,7 +29,7 @@ export const builds: Build[] = [
     specs: ['Мощная видеокарта', '32 ГБ RAM', 'Быстрый NVMe SSD', 'RGB / airflow корпус'],
     price: 'от 125 000 ₽',
     cta: 'Подобрать PRO',
-    vkUrl: 'https://vk.com/market-214535058?screen=group',
+    sourceId: 'fallback-pro',
   },
   {
     badge: 'Под заказ',
@@ -39,6 +39,6 @@ export const builds: Build[] = [
     specs: ['Флагманская видеокарта', '32–64 ГБ RAM', 'СЖО / кастомное охлаждение', 'Индивидуальный дизайн'],
     price: 'от 190 000 ₽',
     cta: 'Собрать ULTRA',
-    vkUrl: 'https://vk.com/market-214535058?screen=group',
+    sourceId: 'fallback-ultra',
   },
 ];

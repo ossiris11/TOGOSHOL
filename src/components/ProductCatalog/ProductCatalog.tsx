@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { vkProducts } from '../../data/vkProducts';
-import { getBudgetLabel, getProductSearchText, getProductViews } from '../../lib/products';
+import { buildContactMessage, contacts } from '../../data/contacts';
+import { getBudgetLabel, getProductKey, getProductSearchText, getProductViews } from '../../lib/products';
 import heroPc from '../../assets/hero-pc.png';
 import './ProductCatalog.css';
 
@@ -17,7 +18,7 @@ type GpuFilter = (typeof gpuFilters)[number];
 type SortOption = (typeof sortOptions)[number]['value'];
 
 function buildMessage(title: string, price: string) {
-  return encodeURIComponent(`Здравствуйте! Интересует сборка ${title} за ${price}. Хочу уточнить наличие и детали.`);
+  return buildContactMessage(`Здравствуйте! Интересует сборка ${title} за ${price}. Хочу уточнить наличие и детали.`);
 }
 
 export function ProductCatalog() {
@@ -50,10 +51,10 @@ export function ProductCatalog() {
       <div className="container">
         <div className="catalogHeader" data-reveal>
           <div>
-            <span className="badge">Каталог из VK</span>
+            <span className="badge">Каталог сборок</span>
             <h2 className="sectionTitle">Все сборки TOGOSHOL</h2>
             <p className="sectionText">
-              Реальные карточки из VK: цены, фото и конфигурации. Выбери бюджет или напиши по конкретной сборке.
+              Актуальные сборки TOGOSHOL: цены, фото и конфигурации. Выбери бюджет или напиши по конкретной сборке.
             </p>
           </div>
           <div className="catalogStats" aria-label="Статистика каталога">
@@ -136,8 +137,8 @@ export function ProductCatalog() {
 
         <div className="catalogGrid">
           {visibleProducts.map((product) => (
-            <article className="productCard" key={product.vkUrl || product.title} data-reveal>
-              <a className="productImage" href={product.vkUrl} target="_blank" rel="noreferrer" aria-label={`Открыть ${product.normalizedTitle} в VK`}>
+            <article className="productCard" key={getProductKey(product)} data-reveal>
+              <div className="productImage" aria-label={product.normalizedTitle}>
                 <img
                   src={product.image || heroPc}
                   alt={product.normalizedTitle}
@@ -147,7 +148,7 @@ export function ProductCatalog() {
                     event.currentTarget.src = heroPc;
                   }}
                 />
-              </a>
+              </div>
 
               <div className="productInfo">
                 <span className={`badge ${product.badgeType === 'available' ? 'badgeAvailable' : ''}`}>{product.badge}</span>
@@ -175,11 +176,14 @@ export function ProductCatalog() {
                 </div>
 
                 <div className="productActions">
-                  <a className="button buttonPrimary" href={`https://vk.me/tog_pc?message=${buildMessage(product.normalizedTitle, product.price)}`} target="_blank" rel="noreferrer">
-                    Написать по сборке
+                  <a className="button buttonPrimary" href={`${contacts.vk}?message=${buildMessage(product.normalizedTitle, product.price)}`} target="_blank" rel="noreferrer">
+                    Написать в VK
                   </a>
-                  <a className="button buttonSecondary" href={product.vkUrl} target="_blank" rel="noreferrer">
-                    Открыть VK
+                  <a className="button buttonSecondary" href={contacts.telegram} target="_blank" rel="noreferrer">
+                    Telegram
+                  </a>
+                  <a className="button buttonSecondary" href={contacts.max} target="_blank" rel="noreferrer">
+                    Max
                   </a>
                 </div>
               </div>

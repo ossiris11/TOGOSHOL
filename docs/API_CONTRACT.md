@@ -34,8 +34,8 @@ Response:
         "psu": "650W"
       },
       "source": {
-        "type": "vk",
-        "url": "https://vk.com/market/product/-214535058_13706696"
+        "type": "import",
+        "externalId": "vk-13706696"
       }
     }
   ]
@@ -82,5 +82,7 @@ Response:
 ## Notes
 
 - Frontend currently uses static `src/data/vkProducts.ts`.
+- Product cards should not send users to the external product source as the purchase flow.
+- User-facing actions should route to contact channels: VK, Telegram, Max.
 - Backend can later replace that with `GET /api/products`.
 - Do not store VK tokens in frontend code.

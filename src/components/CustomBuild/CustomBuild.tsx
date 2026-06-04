@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { vkProducts } from '../../data/vkProducts';
-import { getClosestProducts } from '../../lib/products';
+import { contacts } from '../../data/contacts';
+import { getClosestProducts, getProductKey } from '../../lib/products';
 import './CustomBuild.css';
 
 const games = ['Cyberpunk 2077', 'Counter-Strike 2', 'Работа / 3D / AI'] as const;
@@ -258,7 +259,7 @@ SSD: ${storageChoice}
             </ul>
 
             <div className="configActions">
-              <a className="button buttonPrimary configButton" href="https://vk.me/tog_pc" target="_blank" rel="noreferrer">
+              <a className="button buttonPrimary configButton" href={contacts.vk} target="_blank" rel="noreferrer">
                 Обсудить эту сборку с инженером
               </a>
               <button className="button buttonSecondary configCopyButton" type="button" onClick={copyMessage}>
@@ -310,9 +311,9 @@ SSD: ${storageChoice}
             </div>
 
             <div className="closestProducts">
-              <span>Ближайшие товары из VK</span>
+              <span>Ближайшие готовые сборки</span>
               {closestProducts.map((product) => (
-                <a key={product.vkUrl || product.title} href={product.vkUrl} target="_blank" rel="noreferrer">
+                <a key={getProductKey(product)} href={contacts.vk} target="_blank" rel="noreferrer">
                   <b>{product.normalizedTitle}</b>
                   <small>{product.price}</small>
                 </a>

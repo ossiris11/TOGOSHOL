@@ -5,7 +5,7 @@ const ownerId = '-214535058';
 const apiVersion = '5.199';
 
 if (!token) {
-  console.error('Set VK_TOKEN or VK_ACCESS_TOKEN to import VK Market products.');
+  console.error('Set VK_TOKEN or VK_ACCESS_TOKEN to import VK product data.');
   process.exit(1);
 }
 
@@ -41,8 +41,8 @@ const products = payload.response.items.map((item) => {
     subtitle: specs.at(0) || 'Игровой ПК TOGOSHOL',
     specs: specs.length ? specs : ['Характеристики в карточке VK'],
     price,
-    cta: 'Открыть в VK',
-    vkUrl: `https://vk.com/market/product/${ownerId}_${item.id}`,
+    cta: 'Написать',
+    sourceId: `vk-${item.id}`,
     image: photo,
   };
 });

@@ -1,17 +1,18 @@
 import { useState } from 'react';
 import { useHeroParallax } from '../../hooks/useHeroParallax';
 import { vkProducts } from '../../data/vkProducts';
-import { getProductViews } from '../../lib/products';
+import { buildContactMessage, contacts } from '../../data/contacts';
+import { getProductKey, getProductViews } from '../../lib/products';
 import heroPc from '../../assets/hero-pc.png';
 import './Hero.css';
 
-const metrics = ['26 сборок из VK', 'Стресс-тест перед выдачей', 'Локальная поддержка'];
+const metrics = ['26 актуальных сборок', 'Стресс-тест перед выдачей', 'VK / TG / Max'];
 
 export function Hero() {
   const visualRef = useHeroParallax<HTMLDivElement>();
   const products = getProductViews(vkProducts).filter((product) => product.priceValue >= 60000).slice(0, 6);
-  const [activeBuild, setActiveBuild] = useState(products[1]?.vkUrl || products[0]?.vkUrl || '');
-  const selectedProduct = products.find((product) => product.vkUrl === activeBuild) || products[0];
+  const [activeBuild, setActiveBuild] = useState(products[1] ? getProductKey(products[1]) : products[0] ? getProductKey(products[0]) : '');
+  const selectedProduct = products.find((product) => getProductKey(product) === activeBuild) || products[0];
 
   return (
     <section id="top" className="hero">
@@ -32,11 +33,16 @@ export function Hero() {
             </div>
           )}
           <div className="heroActions">
-            <a className="button buttonPrimary" href="https://vk.me/tog_pc" target="_blank" rel="noreferrer">
+            <a className="button buttonPrimary" href={contacts.vk} target="_blank" rel="noreferrer">
               Подобрать ПК
             </a>
-            <a className="button buttonSecondary" href={selectedProduct?.vkUrl || '#catalog'} target={selectedProduct?.vkUrl ? '_blank' : undefined} rel={selectedProduct?.vkUrl ? 'noreferrer' : undefined}>
-              Открыть выбранную
+            <a
+              className="button buttonSecondary"
+              href={`${contacts.vk}?message=${buildContactMessage(`Здравствуйте! Интересует сборка ${selectedProduct?.normalizedTitle || 'TOGOSHOL'} за ${selectedProduct?.price || ''}.`)}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Обсудить выбранную
             </a>
           </div>
           <div className="heroMetrics">
@@ -61,23 +67,24 @@ export function Hero() {
         </div>
         <div className="heroBuildsTrack">
           {products.map((build) => {
-            const isActive = activeBuild === build.vkUrl;
+            const buildKey = getProductKey(build);
+            const isActive = activeBuild === buildKey;
 
             return (
               <article
                 className={`heroBuildCard ${isActive ? 'isActive' : ''}`}
-                key={build.vkUrl || build.title}
+                key={buildKey}
                 role="button"
                 tabIndex={0}
                 onClick={(event) => {
                   if ((event.target as HTMLElement).closest('a')) return;
-                  setActiveBuild(build.vkUrl || build.title);
+                  setActiveBuild(buildKey);
                   event.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                 }}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter' || event.key === ' ') {
                     event.preventDefault();
-                    setActiveBuild(build.vkUrl || build.title);
+                    setActiveBuild(buildKey);
                   }
                 }}
                 aria-pressed={isActive}
@@ -96,8 +103,13 @@ export function Hero() {
                     <i key={spec}>{spec}</i>
                   ))}
                 </span>
-                <a className="heroBuildCta" href={build.vkUrl} target="_blank" rel="noreferrer">
-                  Открыть в VK
+                <a
+                  className="heroBuildCta"
+                  href={`${contacts.vk}?message=${buildContactMessage(`Здравствуйте! Интересует сборка ${build.normalizedTitle} за ${build.price}.`)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Написать
                 </a>
               </article>
             );

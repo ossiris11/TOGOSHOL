@@ -150,3 +150,7 @@ export function getProductSearchText(product: ProductView) {
     .join(' ')
     .toLowerCase();
 }
+
+export function getProductKey(product: ProductView) {
+  return `${product.normalizedTitle}-${product.priceValue}-${product.image || product.title}`;
+}

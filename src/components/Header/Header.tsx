@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useHeaderScrolled } from '../../hooks/useHeaderScrolled';
+import { contacts } from '../../data/contacts';
 import './Header.css';
 
-const navLinks = [
+const navLinks: Array<{ label: string; href: string; external?: boolean }> = [
   { label: 'Сборки', href: '#catalog' },
   { label: 'Под заказ', href: '#custom' },
   { label: 'Почему мы', href: '#why' },
   { label: 'Как заказать', href: '#process' },
-  { label: 'Товары VK', href: 'https://vk.com/market-214535058?screen=group', external: true },
 ];
 
 export function Header() {
@@ -41,10 +41,10 @@ export function Header() {
         </nav>
 
         <div className="headerActions">
-          <a className="phoneLink" href="https://vk.me/tog_pc" target="_blank" rel="noreferrer">
-            vk.me/tog_pc
+          <a className="phoneLink" href={contacts.vk} target="_blank" rel="noreferrer">
+            VK / TG / Max
           </a>
-          <a className="button buttonPrimary headerButton" href="https://vk.me/tog_pc" target="_blank" rel="noreferrer">
+          <a className="button buttonPrimary headerButton" href={contacts.vk} target="_blank" rel="noreferrer">
             Написать
           </a>
         </div>
@@ -75,10 +75,16 @@ export function Header() {
               {link.label}
             </a>
           ))}
-          <a href="https://vk.me/tog_pc" target="_blank" rel="noreferrer" onClick={closeMenu}>
+          <a href={contacts.vk} target="_blank" rel="noreferrer" onClick={closeMenu}>
             VK сообщения
           </a>
-          <a className="button buttonPrimary" href="https://vk.me/tog_pc" target="_blank" rel="noreferrer" onClick={closeMenu}>
+          <a href={contacts.telegram} target="_blank" rel="noreferrer" onClick={closeMenu}>
+            Telegram
+          </a>
+          <a href={contacts.max} target="_blank" rel="noreferrer" onClick={closeMenu}>
+            Max
+          </a>
+          <a className="button buttonPrimary" href={contacts.vk} target="_blank" rel="noreferrer" onClick={closeMenu}>
             Написать
           </a>
         </nav>

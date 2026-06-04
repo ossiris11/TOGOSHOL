@@ -22,11 +22,12 @@ npm run dev
 npm run build
 ```
 
-## VK Products Import
+## Product Data Import
 
-Products are imported from VK Market into `src/data/vkProducts.ts`.
+Product data can be imported into `src/data/vkProducts.ts`.
+The frontend does not use the external product source as a purchase flow. Product cards route users only to contact channels instead.
 
-Create a VK token with market access, then run:
+If importing from VK data, create a token with product access, then run:
 
 ```bash
 VK_TOKEN=your_token npm run import:vk
@@ -46,7 +47,7 @@ Do not commit real tokens. Use `.env.example` only as a template.
 
 - Sticky header with city selector
 - Hero with PC visual and featured builds
-- Full VK product catalog
+- Product catalog
 - PC configurator
 - Why TOGOSHOL
 - Order process

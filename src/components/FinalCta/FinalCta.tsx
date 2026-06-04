@@ -1,3 +1,4 @@
+import { contacts } from '../../data/contacts';
 import './FinalCta.css';
 
 export function FinalCta() {
@@ -9,8 +10,14 @@ export function FinalCta() {
           <h2>Хочешь игровой ПК без долгого поиска комплектующих?</h2>
           <p>Напиши нам — подберём сборку под твой бюджет и задачи.</p>
           <div className="finalCtaActions">
-            <a className="button buttonPrimary" href="https://vk.me/tog_pc" target="_blank" rel="noreferrer">
+            <a className="button buttonPrimary" href={contacts.vk} target="_blank" rel="noreferrer">
               Написать в VK
+            </a>
+            <a className="button buttonSecondary" href={contacts.telegram} target="_blank" rel="noreferrer">
+              Telegram
+            </a>
+            <a className="button buttonSecondary" href={contacts.max} target="_blank" rel="noreferrer">
+              Max
             </a>
             <a className="button buttonSecondary" href="#custom">
               Собрать под задачу
