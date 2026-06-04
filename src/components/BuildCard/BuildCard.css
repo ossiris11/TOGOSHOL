@@ -1,0 +1,73 @@
+.buildCard {
+  display: flex;
+  min-height: 560px;
+  flex-direction: column;
+  padding: 30px;
+}
+
+.buildCard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 74% 22%, rgba(0, 229, 255, 0.16), transparent 36%);
+  opacity: 0.8;
+}
+
+.buildCard > * {
+  position: relative;
+  z-index: 1;
+}
+
+.buildCardTop h3 {
+  margin: 20px 0 8px;
+  font-size: clamp(1.8rem, 3vw, 2.45rem);
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.buildCardTop p {
+  min-height: 52px;
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.specList {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 28px;
+  padding: 0;
+  list-style: none;
+}
+
+.specList li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-muted);
+}
+
+.specList li::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 16px var(--glow-cyan);
+}
+
+.buildCardBottom {
+  display: grid;
+  gap: 18px;
+  margin-top: auto;
+}
+
+.buildCardBottom strong {
+  font-size: 1.45rem;
+}
+
+.buildCard-pro {
+  border-color: rgba(0, 229, 255, 0.18);
+  box-shadow: 0 0 0 1px rgba(0, 229, 255, 0.05);
+}

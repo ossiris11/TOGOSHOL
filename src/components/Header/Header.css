@@ -1,0 +1,179 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid transparent;
+  background: rgba(5, 5, 5, 0.42);
+  transition:
+    background 220ms ease,
+    border-color 220ms ease,
+    backdrop-filter 220ms ease;
+}
+
+.header.isScrolled {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  background: rgba(5, 5, 5, 0.72);
+  backdrop-filter: blur(16px);
+}
+
+.headerInner {
+  display: grid;
+  min-height: 78px;
+  grid-template-columns: auto auto 1fr auto;
+  align-items: center;
+  gap: 18px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-main);
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.desktopNav {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+}
+
+.citySelect {
+  position: relative;
+}
+
+.citySelect select {
+  min-height: 34px;
+  max-width: 176px;
+  appearance: none;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-pill);
+  padding: 7px 28px 7px 11px;
+  background:
+    linear-gradient(45deg, transparent 50%, var(--text-muted) 50%) calc(100% - 15px) 13px / 6px 6px no-repeat,
+    linear-gradient(135deg, var(--text-muted) 50%, transparent 50%) calc(100% - 10px) 13px / 6px 6px no-repeat,
+    rgba(255, 255, 255, 0.045);
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 650;
+  outline: none;
+}
+
+.citySelect select:focus {
+  border-color: var(--border-active);
+  color: var(--text-main);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.desktopNav a,
+.phoneLink {
+  color: var(--text-muted);
+  font-size: 0.94rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 180ms ease;
+}
+
+.desktopNav a:hover,
+.phoneLink:hover {
+  color: var(--text-main);
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.headerButton {
+  min-height: 42px;
+  padding: 11px 18px;
+}
+
+.menuButton {
+  display: none;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.menuButton span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: var(--text-main);
+}
+
+.mobileMenu {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .desktopNav,
+  .headerActions {
+    display: none;
+  }
+
+  .headerInner {
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .menuButton {
+    display: grid;
+    gap: 4px;
+  }
+
+  .mobileMenu {
+    display: block;
+    max-height: calc(100vh - 78px);
+    overflow: auto;
+    opacity: 0;
+    transform: translateY(-8px);
+    pointer-events: none;
+    transition:
+      opacity 200ms ease-out,
+      transform 200ms ease-out;
+  }
+
+  .mobileMenu.isOpen {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .mobileMenuInner {
+    display: grid;
+    gap: 10px;
+    padding-block: 10px 22px;
+  }
+
+  .mobileMenuInner a:not(.button) {
+    border-bottom: 1px solid var(--divider);
+    padding: 14px 0;
+    color: var(--text-main);
+    text-decoration: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .brand {
+    font-size: 0.88rem;
+  }
+
+  .citySelect select {
+    max-width: 142px;
+    font-size: 0.68rem;
+  }
+}

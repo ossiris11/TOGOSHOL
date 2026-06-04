@@ -1,0 +1,144 @@
+.pcMockup {
+  position: relative;
+  width: min(100%, 480px);
+  aspect-ratio: 0.86;
+  margin-inline: auto;
+}
+
+.pcMockup-mini {
+  width: 172px;
+  aspect-ratio: 1.08;
+  margin: 20px auto 16px;
+}
+
+.pcGlow {
+  position: absolute;
+  inset: 8% 4% 12%;
+  border-radius: 40%;
+  background:
+    radial-gradient(circle at 65% 20%, rgba(0, 229, 255, 0.45), transparent 32%),
+    radial-gradient(circle at 30% 70%, rgba(106, 53, 255, 0.45), transparent 38%);
+  filter: blur(36px);
+}
+
+.pcCase {
+  position: absolute;
+  inset: 6% 15% 16%;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 22px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.14), transparent 22%),
+    linear-gradient(160deg, #171a20, #060708 72%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+    0 34px 90px rgba(0, 0, 0, 0.7);
+}
+
+.pcGlass {
+  position: absolute;
+  inset: 9% 12%;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 17px;
+  background:
+    linear-gradient(115deg, rgba(255, 255, 255, 0.14), transparent 36%),
+    rgba(2, 7, 13, 0.68);
+}
+
+.pcGlass::before {
+  content: "";
+  position: absolute;
+  inset: 10% 44% 12% auto;
+  width: 2px;
+  background: linear-gradient(var(--cyan), transparent, var(--violet));
+  box-shadow: 0 0 24px var(--glow-cyan);
+}
+
+.pcFan {
+  position: absolute;
+  right: 13%;
+  width: 23%;
+  aspect-ratio: 1;
+  border: 6px solid rgba(0, 229, 255, 0.74);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.9) 0 9%, transparent 10%),
+    conic-gradient(from 120deg, var(--cyan), var(--violet), var(--blue), var(--cyan));
+  box-shadow:
+    0 0 26px var(--glow-cyan),
+    inset 0 0 18px rgba(255, 255, 255, 0.15);
+}
+
+.pcFanOne {
+  top: 11%;
+}
+
+.pcFanTwo {
+  top: 38%;
+  animation-delay: 0.4s;
+}
+
+.pcFanThree {
+  bottom: 11%;
+  animation-delay: 0.8s;
+}
+
+.pcLine {
+  position: absolute;
+  left: 12%;
+  height: 2px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--violet), var(--cyan), transparent);
+  box-shadow: 0 0 18px var(--glow-violet);
+}
+
+.pcLineTop {
+  top: 22%;
+  width: 42%;
+}
+
+.pcLineMid {
+  top: 47%;
+  width: 33%;
+}
+
+.pcLineBottom {
+  bottom: 27%;
+  width: 48%;
+}
+
+.pcGpu {
+  position: absolute;
+  left: 12%;
+  bottom: 14%;
+  width: 52%;
+  height: 14%;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 10px;
+  background: linear-gradient(90deg, rgba(31, 107, 255, 0.32), rgba(255, 255, 255, 0.08));
+}
+
+.pcReflection {
+  position: absolute;
+  right: 10%;
+  bottom: 4%;
+  left: 10%;
+  height: 9%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(0, 229, 255, 0.2), transparent 67%);
+  filter: blur(10px);
+}
+
+.pcMockup-mini .pcCase {
+  inset: 4% 18% 18%;
+  border-radius: 14px;
+}
+
+.pcMockup-mini .pcGlass {
+  inset: 11%;
+  border-radius: 10px;
+}
+
+.pcMockup-mini .pcFan {
+  border-width: 3px;
+}

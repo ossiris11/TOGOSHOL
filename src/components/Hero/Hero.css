@@ -1,0 +1,354 @@
+.hero {
+  position: relative;
+  overflow: visible;
+  padding: 92px 0 58px;
+}
+
+.heroBg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: transparent;
+  animation: heroBgScale 10s ease-out both;
+}
+
+@keyframes heroBgScale {
+  from {
+    transform: scale(1.03);
+  }
+
+  to {
+    transform: scale(1);
+  }
+}
+
+.heroInner {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(360px, 0.9fr);
+  align-items: center;
+  gap: 46px;
+}
+
+.heroBadge,
+.heroTitle,
+.heroSubtitle,
+.heroActions,
+.heroMetrics {
+  opacity: 0;
+  animation: fadeUp 700ms var(--ease-premium) forwards;
+}
+
+.heroBadge {
+  animation-delay: 40ms;
+}
+
+.heroTitle {
+  max-width: 820px;
+  margin: 22px 0 0;
+  font-size: clamp(3.2rem, 7vw, 5.25rem);
+  line-height: 0.94;
+  letter-spacing: 0;
+  animation-delay: 100ms;
+}
+
+.heroSubtitle {
+  max-width: 690px;
+  margin: 26px 0 0;
+  color: var(--text-muted);
+  font-size: clamp(1.03rem, 1.7vw, 1.18rem);
+  line-height: 1.65;
+  animation-delay: 200ms;
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 34px;
+  animation-delay: 300ms;
+}
+
+.heroMetrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 42px;
+  animation-delay: 400ms;
+}
+
+.heroMetrics div {
+  min-height: 76px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 17px;
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+.heroVisual {
+  min-width: 0;
+}
+
+.heroVisualInner {
+  position: relative;
+  display: grid;
+  place-items: center;
+  transform: translate3d(var(--parallax-x, 0), var(--parallax-y, 0), 0);
+  transition: transform 180ms ease-out;
+}
+
+.heroVisualInner img {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 590px);
+  height: auto;
+  filter: drop-shadow(0 34px 70px rgba(0, 0, 0, 0.68)) drop-shadow(0 0 34px rgba(0, 229, 255, 0.22));
+}
+
+.heroPcGlow {
+  position: absolute;
+  inset: 18% 8% 6%;
+  border-radius: 44%;
+  background:
+    radial-gradient(circle at 68% 32%, rgba(0, 229, 255, 0.24), transparent 34%),
+    radial-gradient(circle at 28% 70%, rgba(106, 53, 255, 0.24), transparent 42%);
+  filter: blur(34px);
+}
+
+.heroBuilds {
+  margin-top: 42px;
+  scroll-margin-top: 96px;
+}
+
+.heroBuildsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 12px;
+}
+
+.heroBuildsHeader span {
+  color: var(--text-main);
+  font-weight: 850;
+}
+
+.heroBuildsHeader a {
+  color: var(--cyan);
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.heroBuildsTrack {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  overflow-y: visible;
+  padding: 8px 4px 22px;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.heroBuildCard {
+  position: relative;
+  display: grid;
+  min-width: 220px;
+  min-height: 226px;
+  flex: 1 0 240px;
+  align-content: start;
+  gap: 9px;
+  overflow: clip;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025)),
+    rgba(8, 9, 11, 0.74);
+  color: var(--text-main);
+  text-align: left;
+  transition:
+    flex-basis 420ms var(--ease-premium),
+    min-width 420ms var(--ease-premium),
+    border-color 240ms ease,
+    box-shadow 240ms ease,
+    transform 240ms ease;
+}
+
+.heroBuildCard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: radial-gradient(circle at 82% 24%, rgba(0, 229, 255, 0.22), transparent 36%);
+  transition: opacity 260ms ease;
+}
+
+.heroBuildCard > * {
+  position: relative;
+  z-index: 1;
+}
+
+.heroBuildCard:hover,
+.heroBuildCard.isActive {
+  border-color: rgba(0, 229, 255, 0.28);
+  box-shadow: 0 22px 70px rgba(0, 229, 255, 0.11);
+  transform: translateY(-3px);
+}
+
+.heroBuildCard.isActive {
+  min-width: 560px;
+  flex-basis: 640px;
+}
+
+.heroBuildCard.isActive::before {
+  opacity: 1;
+}
+
+.heroBuildMedia {
+  position: absolute;
+  right: 8px;
+  bottom: 6px;
+  width: 178px;
+  opacity: 0.2;
+  transform: translateX(18px) scale(0.88);
+  transition:
+    opacity 280ms ease,
+    transform 420ms var(--ease-premium);
+}
+
+.heroBuildMedia img {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.55));
+}
+
+.heroBuildCard.isActive .heroBuildMedia {
+  opacity: 0.68;
+  transform: translateX(0) scale(1);
+}
+
+.heroBuildCopy {
+  display: grid;
+  max-width: 310px;
+  gap: 8px;
+}
+
+.heroBuildCard strong {
+  margin-top: 6px;
+  font-size: 1.65rem;
+  line-height: 1;
+}
+
+.heroBuildCard small {
+  max-width: 300px;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+.heroBuildPrice {
+  margin-top: 4px;
+  font-size: 1.18rem;
+  font-weight: 800;
+}
+
+.heroBuildSpecs {
+  display: grid;
+  max-height: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  max-width: 390px;
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.25;
+  opacity: 0;
+  transition:
+    max-height 420ms var(--ease-premium),
+    opacity 240ms ease;
+}
+
+.heroBuildCard.isActive .heroBuildSpecs {
+  max-height: 92px;
+  opacity: 1;
+}
+
+.heroBuildSpecs i {
+  font-style: normal;
+}
+
+.heroBuildCta {
+  width: fit-content;
+  margin-top: 4px;
+  border-radius: var(--radius-pill);
+  padding: 9px 13px;
+  background: #ffffff;
+  color: var(--text-inverse);
+  font-size: 0.86rem;
+  font-weight: 800;
+  text-decoration: none;
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+  transition:
+    opacity 220ms ease,
+    transform 220ms ease;
+}
+
+.heroBuildCard.isActive .heroBuildCta {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+@media (max-width: 1024px) {
+  .heroInner {
+    grid-template-columns: 1fr;
+  }
+
+  .heroVisual {
+    max-width: 520px;
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    min-height: 0;
+    padding: 54px 0 38px;
+  }
+
+  .heroTitle {
+    font-size: clamp(2.6rem, 12vw, 3rem);
+  }
+
+  .heroActions,
+  .heroMetrics {
+    grid-template-columns: 1fr;
+  }
+
+  .heroActions {
+    display: grid;
+  }
+
+  .heroBuilds {
+    margin-top: 28px;
+  }
+
+  .heroBuildCard,
+  .heroBuildCard.isActive {
+    min-width: 82vw;
+    flex-basis: 82vw;
+  }
+
+  .heroBuildMedia {
+    width: 130px;
+  }
+
+  .heroBuildSpecs {
+    grid-template-columns: 1fr;
+  }
+}
