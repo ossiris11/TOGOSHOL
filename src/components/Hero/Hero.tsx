@@ -6,11 +6,52 @@ import heroPc from '../../assets/hero-pc-2026-cutout.webp';
 import './Hero.css';
 
 const customSpecs = [
-  { label: 'Видеокарта', value: 'RTX / Radeon под бюджет' },
-  { label: 'Процессор', value: 'Ryzen 5-9 / Intel i5-i9' },
-  { label: 'Память', value: '32-64GB DDR4 / DDR5' },
-  { label: 'Охлаждение', value: 'Airflow / СЖО 240-360mm' },
-];
+  { label: 'Видеокарта', value: 'RTX / Radeon под бюджет', icon: 'gpu' },
+  { label: 'Процессор', value: 'Ryzen 5-9 / Intel i5-i9', icon: 'cpu' },
+  { label: 'Память', value: '32-64GB DDR4 / DDR5', icon: 'memory' },
+  { label: 'Охлаждение', value: 'Airflow / СЖО 240-360mm', icon: 'cooling' },
+] as const;
+
+type CustomSpecIcon = (typeof customSpecs)[number]['icon'];
+
+function SpecIcon({ icon }: { icon: CustomSpecIcon }) {
+  if (icon === 'gpu') {
+    return (
+      <svg viewBox="0 0 28 28" aria-hidden="true">
+        <rect x="5" y="8" width="17" height="12" rx="2.5" fill="none" stroke="currentColor" strokeWidth="2" />
+        <circle cx="12" cy="14" r="3.2" fill="none" stroke="currentColor" strokeWidth="2" />
+        <path d="M22 11h2.5M22 17h2.5M7 20v3M12 20v3M17 20v3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  if (icon === 'cpu') {
+    return (
+      <svg viewBox="0 0 28 28" aria-hidden="true">
+        <rect x="8" y="8" width="12" height="12" rx="2.2" fill="none" stroke="currentColor" strokeWidth="2" />
+        <rect x="11.5" y="11.5" width="5" height="5" rx="1" fill="currentColor" />
+        <path d="M10 4v3M14 4v3M18 4v3M10 21v3M14 21v3M18 21v3M4 10h3M4 14h3M4 18h3M21 10h3M21 14h3M21 18h3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  if (icon === 'memory') {
+    return (
+      <svg viewBox="0 0 28 28" aria-hidden="true">
+        <rect x="5" y="9" width="18" height="10" rx="2" fill="none" stroke="currentColor" strokeWidth="2" />
+        <path d="M8 19v3M12 19v3M16 19v3M20 19v3M9 13h2M14 13h2M19 13h1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 28 28" aria-hidden="true">
+      <circle cx="14" cy="14" r="8" fill="none" stroke="currentColor" strokeWidth="2" />
+      <path d="M14 6v8l5.6 5.6M14 14 8.4 19.6M14 14h7.8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <circle cx="14" cy="14" r="2" fill="currentColor" />
+    </svg>
+  );
+}
 
 type CustomSocialChannel = 'vk' | 'avito' | 'instagram';
 
@@ -187,8 +228,9 @@ export function Hero() {
             <div className="customPcSpecs" aria-label="Примеры характеристик">
               {customSpecs.map((spec, index) => (
                 <div className="customSpecRow" style={{ '--delay': `${index * 120}ms` } as CSSProperties} key={spec.label}>
-                  <span>{spec.label}</span>
-                  <strong>{spec.value}</strong>
+                  <span className="customSpecIcon"><SpecIcon icon={spec.icon} /></span>
+                  <span className="customSpecLabel">{spec.label}</span>
+                  <strong><span>{spec.value}</span></strong>
                   <i aria-hidden="true" />
                 </div>
               ))}
