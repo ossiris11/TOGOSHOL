@@ -29,14 +29,15 @@
 .brand {
   display: inline-flex;
   align-items: center;
-  width: 168px;
-  min-width: 168px;
+  width: 190px;
+  min-width: 190px;
   text-decoration: none;
 }
 
 .brand img {
-  width: 168px;
+  width: 190px;
   height: auto;
+  display: block;
 }
 
 .desktopNav {
@@ -196,12 +197,12 @@
   }
 
   .brand {
-    width: 132px;
-    min-width: 132px;
+    width: 142px;
+    min-width: 142px;
   }
 
   .brand img {
-    width: 132px;
+    width: 142px;
   }
 
   .menuButton {
@@ -258,7 +259,7 @@
 @media (max-width: 420px) {
   .brand,
   .brand img {
-    width: 118px;
-    min-width: 118px;
+    width: 126px;
+    min-width: 126px;
   }
 }

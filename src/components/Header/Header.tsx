@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { useHeaderScrolled } from '../../hooks/useHeaderScrolled';
 import { contacts } from '../../data/contacts';
 import { trackEvent } from '../../lib/api';
-import logo from '../../assets/tog-pc-logo.svg';
+import logo from '../../assets/tog-pc-logo-neon.webp';
 import './Header.css';
 
 const navLinks: Array<{ label: string; href: string; external?: boolean; action?: 'customParts' }> = [
