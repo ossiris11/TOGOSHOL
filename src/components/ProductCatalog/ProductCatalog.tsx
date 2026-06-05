@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { buildContactMessage, contacts } from '../../data/contacts';
 import { useProducts } from '../../hooks/useProducts';
 import { trackEvent } from '../../lib/api';
 import { getBudgetLabel, getProductKey, getProductSearchText, getProductViews } from '../../lib/products';
+import type { ProductView } from '../../lib/products';
 import heroPc from '../../assets/hero-pc.png';
 import './ProductCatalog.css';
 
@@ -50,12 +51,34 @@ const specIcons: Record<string, string> = {
   PSU: '▥',
 };
 
+function getSpecValue(product: ProductView, patterns: RegExp[]) {
+  const specs = [...product.cleanSpecs, ...product.specs];
+  const match = specs.find((spec) => patterns.some((pattern) => pattern.test(spec)));
+  if (!match) return 'Уточнить';
+
+  return match.split(':').slice(1).join(':').trim() || match.trim();
+}
+
+function getSpecificationRows(product: ProductView) {
+  return [
+    ['Видеокарта', product.details.gpu || getSpecValue(product, [/видеокарта/i, /\bgpu\b/i])],
+    ['Процессор', product.details.cpu || getSpecValue(product, [/процессор/i, /\bcpu\b/i])],
+    ['Материнская плата', getSpecValue(product, [/материн/i, /motherboard/i, /\b[abzhx]\d{3,4}\b/i, /\bh\d{3}\b/i])],
+    ['Оперативная память', product.details.ram || getSpecValue(product, [/оператив/i, /\bram\b/i, /\bddr[45]\b/i])],
+    ['SSD накопитель', product.details.storage || getSpecValue(product, [/накопитель/i, /\bssd\b/i])],
+    ['Охлаждение', getSpecValue(product, [/охлаж/i, /cool/i, /\bсжо\b/i])],
+    ['Блок питания', product.details.psu || getSpecValue(product, [/блок питания/i, /\bpsu\b/i])],
+    ['Корпус', getSpecValue(product, [/корпус/i, /\bcase\b/i, /airflow/i, /frgb/i, /argb/i])],
+  ];
+}
+
 export function ProductCatalog() {
   const [activeFilter, setActiveFilter] = useState<Filter>('Все');
   const [activeGpuFilter, setActiveGpuFilter] = useState<GpuFilter>('Все');
   const [sortBy, setSortBy] = useState<SortOption>('recommended');
   const [query, setQuery] = useState('');
   const [showAll, setShowAll] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<ProductView | null>(null);
   const { products: storefrontProducts } = useProducts();
   const products = useMemo(() => getProductViews(storefrontProducts), [storefrontProducts]);
   const filteredProducts = useMemo(() => {
@@ -76,6 +99,23 @@ export function ProductCatalog() {
   const minPrice = products[0]?.price || 'по запросу';
 
   const resetLimit = () => setShowAll(false);
+
+  useEffect(() => {
+    if (!selectedProduct) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSelectedProduct(null);
+    };
+
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedProduct]);
 
   return (
     <section id="catalog" className="section productCatalog">
@@ -218,7 +258,15 @@ export function ProductCatalog() {
                     >
                       Купить ПК <span>→</span>
                     </a>
-                    <a className="productDetailsButton" href="#custom" onClick={() => trackEvent('product_details_click', { productId: product.sourceId, placement: 'catalog' })}>
+                    <a
+                      className="productDetailsButton"
+                      href={`#spec-${getProductKey(product)}`}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        setSelectedProduct(product);
+                        trackEvent('product_details_click', { productId: product.sourceId, placement: 'catalog' });
+                      }}
+                    >
                       Подробнее о сборке <span>›</span>
                     </a>
                   </div>
@@ -273,6 +321,52 @@ export function ProductCatalog() {
           </button>
         )}
       </div>
+
+      {selectedProduct && (
+        <div
+          className="productSpecOverlay"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setSelectedProduct(null);
+          }}
+        >
+          <aside className="productSpecDrawer" role="dialog" aria-modal="true" aria-labelledby="product-spec-title">
+            <header className="productSpecHeader">
+              <h3 id="product-spec-title">Спецификация {getCardTitle(selectedProduct.gpuTier)}</h3>
+              <button type="button" className="productSpecClose" aria-label="Закрыть спецификацию" onClick={() => setSelectedProduct(null)}>
+                ×
+              </button>
+            </header>
+
+            <div className="productSpecBody">
+              <span className="productSpecEyebrow">Комплектующие</span>
+              <dl className="productSpecTable">
+                {getSpecificationRows(selectedProduct).map(([label, value]) => (
+                  <div key={label}>
+                    <dt>{label}</dt>
+                    <dd>{value}</dd>
+                  </div>
+                ))}
+              </dl>
+
+              <div className="productSpecActions">
+                <a
+                  className="productBuyButton"
+                  href={`${contacts.vk}?message=${buildMessage(selectedProduct.normalizedTitle, selectedProduct.price)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={() => trackEvent('product_cta_click', { productId: selectedProduct.sourceId, title: selectedProduct.normalizedTitle, channel: 'vk', placement: 'spec_drawer' })}
+                >
+                  Купить ПК <span>→</span>
+                </a>
+                <a className="productDetailsButton" href={contacts.telegram} target="_blank" rel="noreferrer">
+                  Telegram <span>›</span>
+                </a>
+              </div>
+            </div>
+          </aside>
+        </div>
+      )}
     </section>
   );
 }

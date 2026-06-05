@@ -447,6 +447,140 @@
   transform: translateY(-1px);
 }
 
+.productSpecOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 320;
+  display: flex;
+  justify-content: flex-end;
+  background: rgba(0, 0, 0, 0.62);
+  backdrop-filter: blur(12px);
+}
+
+.productSpecDrawer {
+  display: grid;
+  width: min(100%, 460px);
+  height: 100%;
+  grid-template-rows: auto 1fr;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  background: #101012;
+  color: #ffffff;
+  box-shadow: -28px 0 80px rgba(0, 0, 0, 0.46);
+  animation: specDrawerIn 220ms ease-out;
+}
+
+.productSpecHeader {
+  display: flex;
+  min-height: 68px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 20px 26px;
+}
+
+.productSpecHeader h3 {
+  margin: 0;
+  font-size: clamp(1.05rem, 2vw, 1.28rem);
+  font-weight: 950;
+  line-height: 1.2;
+}
+
+.productSpecClose {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 1.3rem;
+  line-height: 1;
+  transition:
+    background 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.productSpecClose:hover,
+.productSpecClose:focus-visible {
+  background: rgba(255, 255, 255, 0.09);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.productSpecBody {
+  overflow-y: auto;
+  padding: 26px;
+}
+
+.productSpecEyebrow {
+  display: inline-block;
+  color: #a45bff;
+  font-size: 0.68rem;
+  font-weight: 950;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.productSpecTable {
+  overflow: hidden;
+  margin: 16px 0 22px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  background: #171719;
+}
+
+.productSpecTable div {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.78fr) minmax(0, 1fr);
+  gap: 18px;
+  padding: 16px 18px;
+}
+
+.productSpecTable div + div {
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.productSpecTable dt,
+.productSpecTable dd {
+  margin: 0;
+}
+
+.productSpecTable dt {
+  color: rgba(255, 255, 255, 0.48);
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.productSpecTable dd {
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 900;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.productSpecActions {
+  display: grid;
+  gap: 12px;
+}
+
+@keyframes specDrawerIn {
+  from {
+    transform: translateX(24px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
 @media (max-width: 1180px) {
   .catalogGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -464,14 +598,178 @@
 
   .catalogGrid {
     grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .catalogFilters {
+    gap: 8px;
+    margin-right: -6px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+
+  .catalogFilters::-webkit-scrollbar {
+    display: none;
+  }
+
+  .catalogFilters button {
+    flex: 0 0 auto;
   }
 
   .productActions {
     grid-template-columns: 1fr;
   }
 
+  .productCard {
+    border-width: 6px;
+    border-radius: 18px;
+  }
+
+  .productCard:hover {
+    transform: none;
+  }
+
+  .productShowcase {
+    min-height: 292px;
+    border-radius: 12px;
+    padding: 22px 14px 18px;
+  }
+
+  .productBrandBadge {
+    top: 10px;
+    right: 10px;
+    border-width: 2px;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 0.68rem;
+  }
+
+  .productShowcase img {
+    width: min(100%, 216px);
+    height: 146px;
+  }
+
+  .productIntro {
+    gap: 7px;
+    margin-top: 10px;
+  }
+
+  .productIntro h3 {
+    font-size: 1.85rem;
+    letter-spacing: 0;
+  }
+
+  .productIntro p {
+    font-size: 1.12rem;
+  }
+
+  .productInfo {
+    gap: 14px;
+    padding: 16px 12px 17px;
+  }
+
+  .productMetaLine {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .productBuyButton,
+  .productDetailsButton {
+    min-height: 54px;
+    padding: 14px 16px;
+  }
+
+  .productFpsBox {
+    grid-template-columns: auto 1fr;
+    padding: 13px;
+  }
+
+  .productFpsBox button {
+    display: none;
+  }
+
+  .productSpecsList {
+    gap: 12px;
+  }
+
+  .productSpecsList div {
+    grid-template-columns: 40px 1fr;
+  }
+
+  .productSpecsList dd {
+    overflow-wrap: anywhere;
+  }
+
+  .productSpecOverlay {
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .productSpecDrawer {
+    width: 100%;
+    height: auto;
+    max-height: 88svh;
+    border-left: 0;
+    border-radius: 22px 22px 0 0;
+    box-shadow: 0 -24px 64px rgba(0, 0, 0, 0.5);
+    animation-name: specSheetIn;
+  }
+
+  .productSpecHeader {
+    min-height: 64px;
+    padding: 18px;
+  }
+
+  .productSpecBody {
+    padding: 20px 16px 22px;
+  }
+
+  .productSpecTable div {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    padding: 14px;
+  }
+
   .catalogEmpty div {
     display: grid;
     width: 100%;
+  }
+}
+
+@keyframes specSheetIn {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 420px) {
+  .catalogStats {
+    min-width: 0;
+    padding: 14px;
+  }
+
+  .productShowcase {
+    min-height: 272px;
+  }
+
+  .productShowcase img {
+    height: 132px;
+  }
+
+  .productIntro h3 {
+    font-size: 1.7rem;
+  }
+
+  .fpsRing {
+    width: 44px;
+    height: 44px;
   }
 }
