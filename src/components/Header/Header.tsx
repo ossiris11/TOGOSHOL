@@ -14,11 +14,56 @@ const navLinks: Array<{ label: string; href: string; external?: boolean; action?
 ];
 
 const socialLinks = [
-  { label: 'VK', href: contacts.vk, channel: 'vk' },
-  { label: 'TG', href: contacts.telegram, channel: 'telegram' },
-  { label: 'IG', href: contacts.instagram, channel: 'instagram' },
-  { label: 'AV', href: contacts.avito, channel: 'avito' },
+  { label: 'VK', title: 'VK', href: contacts.vk, channel: 'vk' },
+  { label: 'Telegram', title: 'Telegram', href: contacts.telegram, channel: 'telegram' },
+  { label: 'Instagram', title: 'Instagram', href: contacts.instagram, channel: 'instagram' },
+  { label: 'Avito', title: 'Avito', href: contacts.avito, channel: 'avito' },
 ] as const;
+
+type SocialChannel = (typeof socialLinks)[number]['channel'];
+
+function SocialIcon({ channel }: { channel: SocialChannel }) {
+  if (channel === 'vk') {
+    return (
+      <svg viewBox="0 0 28 28" aria-hidden="true">
+        <path
+          d="M5.2 9.1c.2 7.2 3.8 11.4 10 11.4h.4v-4.1c2.3.2 4 1.9 4.7 4.1h3.6c-.9-3.3-3.2-5.1-4.6-5.8 1.4-.9 3.7-3.2 4.2-5.6h-3.3c-.7 2.3-2.6 4.4-4.6 4.6V9.1h-3.4v8c-2.1-.5-4.8-2.8-4.9-8H5.2Z"
+          fill="currentColor"
+        />
+      </svg>
+    );
+  }
+
+  if (channel === 'telegram') {
+    return (
+      <svg viewBox="0 0 28 28" aria-hidden="true">
+        <path
+          d="M23.6 6.1 3.7 13.8c-1.2.5-1.2 1.2-.2 1.5l5.1 1.6 2 6.1c.3.8.5 1.1 1 1.1.5 0 .8-.2 1.2-.6l2.9-2.8 5.9 4.3c1.1.6 1.8.3 2.1-1l3.8-18c.4-1.4-.5-2-1.9-1.5Zm-5.1 4.3-9.7 8.8-.3 3.5-1.8-5.8 13.5-8.5c.6-.4 1.1-.2.5.4Z"
+          fill="currentColor"
+        />
+      </svg>
+    );
+  }
+
+  if (channel === 'instagram') {
+    return (
+      <svg viewBox="0 0 28 28" aria-hidden="true">
+        <rect x="6.3" y="6.3" width="15.4" height="15.4" rx="4.5" fill="none" stroke="currentColor" strokeWidth="2.1" />
+        <circle cx="14" cy="14" r="4" fill="none" stroke="currentColor" strokeWidth="2.1" />
+        <circle cx="19" cy="9" r="1.35" fill="currentColor" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 28 28" aria-hidden="true" className="avitoGlyph">
+      <circle cx="10" cy="9" r="4.1" fill="#00AEEF" />
+      <circle cx="18.2" cy="11.3" r="3.6" fill="#97CF26" />
+      <circle cx="11.5" cy="18.5" r="3.2" fill="#FF4053" />
+      <circle cx="19.5" cy="19.2" r="2.8" fill="#8C45FF" />
+    </svg>
+  );
+}
 
 export function Header() {
   const isScrolled = useHeaderScrolled();
@@ -60,11 +105,11 @@ export function Header() {
                 href={link.href}
                 target="_blank"
                 rel="noreferrer"
-                aria-label={link.label === 'AV' ? 'Avito TOGOSHOL' : `${link.label} TOGOSHOL`}
-                title={link.label === 'AV' ? 'Avito' : link.label}
+                aria-label={`${link.label} TOGOSHOL`}
+                title={link.title}
                 onClick={() => trackContact(link.channel, 'header_socials')}
               >
-                {link.label}
+                <SocialIcon channel={link.channel} />
               </a>
             ))}
           </div>
