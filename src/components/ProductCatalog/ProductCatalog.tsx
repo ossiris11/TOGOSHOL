@@ -16,7 +16,6 @@ const sortOptions = [
   { label: 'Сначала мощнее', value: 'power-desc' },
 ] as const;
 const specDrawerCloseMs = 420;
-const checkoutCloseMs = 260;
 
 type Filter = (typeof filters)[number];
 type GpuFilter = (typeof gpuFilters)[number];
@@ -45,6 +44,13 @@ function getFpsEstimate(priceValue: number, tier: string) {
   const base = tier === 'Топ' ? 170 : tier === '2K' ? 135 : tier === 'Full HD' ? 95 : 110;
   const budgetBoost = Math.min(45, Math.max(0, Math.round((priceValue - 65000) / 4500)));
   return Math.max(60, base + budgetBoost);
+}
+
+function getPerformanceLabel(tier: string) {
+  if (tier === 'Топ') return '4K, стриминг и тяжелые проекты';
+  if (tier === '2K') return 'Комфортный 2K и запас на апгрейд';
+  if (tier === 'Full HD') return 'Full HD, киберспорт и учеба';
+  return 'Под игры, работу и бюджет';
 }
 
 const specIcons: Record<string, string> = {
@@ -99,11 +105,9 @@ export function ProductCatalog() {
   const [showAll, setShowAll] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<ProductView | null>(null);
   const [isSpecClosing, setIsSpecClosing] = useState(false);
-  const [checkoutProduct, setCheckoutProduct] = useState<ProductView | null>(null);
-  const [isCheckoutClosing, setIsCheckoutClosing] = useState(false);
-  const [copyState, setCopyState] = useState<'idle' | 'copied'>('idle');
   const closeSpecTimer = useRef<number | null>(null);
-  const closeCheckoutTimer = useRef<number | null>(null);
+  const productSpecDrawerRef = useRef<HTMLElement | null>(null);
+  const lastFocusedElementRef = useRef<HTMLElement | null>(null);
   const { products: storefrontProducts } = useProducts();
   const products = useMemo(() => getProductViews(storefrontProducts), [storefrontProducts]);
   const filteredProducts = useMemo(() => {
@@ -126,6 +130,7 @@ export function ProductCatalog() {
   const resetLimit = () => setShowAll(false);
 
   const openSpecDrawer = (product: ProductView) => {
+    lastFocusedElementRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     if (closeSpecTimer.current) {
       window.clearTimeout(closeSpecTimer.current);
       closeSpecTimer.current = null;
@@ -143,67 +148,47 @@ export function ProductCatalog() {
       setSelectedProduct(null);
       setIsSpecClosing(false);
       closeSpecTimer.current = null;
+      lastFocusedElementRef.current?.focus();
     }, specDrawerCloseMs);
   }, [isSpecClosing, selectedProduct]);
 
-  const openCheckout = (product: ProductView) => {
-    if (closeCheckoutTimer.current) {
-      window.clearTimeout(closeCheckoutTimer.current);
-      closeCheckoutTimer.current = null;
-    }
-
-    setCopyState('idle');
-    setIsCheckoutClosing(false);
-    setCheckoutProduct(product);
-    trackEvent('product_cta_click', { productId: product.sourceId, title: product.normalizedTitle, channel: 'checkout_modal', placement: 'catalog' });
-  };
-
-  const closeCheckout = useCallback(() => {
-    if (!checkoutProduct || isCheckoutClosing) return;
-
-    setIsCheckoutClosing(true);
-    closeCheckoutTimer.current = window.setTimeout(() => {
-      setCheckoutProduct(null);
-      setIsCheckoutClosing(false);
-      setCopyState('idle');
-      closeCheckoutTimer.current = null;
-    }, checkoutCloseMs);
-  }, [checkoutProduct, isCheckoutClosing]);
-
-  const copyCheckoutText = async () => {
-    if (!checkoutProduct) return;
-
-    try {
-      await navigator.clipboard.writeText(buildOrderText(checkoutProduct));
-      setCopyState('copied');
-      window.setTimeout(() => setCopyState('idle'), 1600);
-    } catch {
-      setCopyState('idle');
-    }
-  };
-
   useEffect(() => {
-    if (!selectedProduct && !checkoutProduct) return;
+    if (!selectedProduct) return undefined;
 
     const previousOverflow = document.body.style.overflow;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') closeSpecDrawer();
-      if (event.key === 'Escape') closeCheckout();
+      if (event.key !== 'Tab') return;
+
+      const focusable = productSpecDrawerRef.current?.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])',
+      );
+      if (!focusable || focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
 
     document.body.style.overflow = 'hidden';
     window.addEventListener('keydown', handleKeyDown);
+    window.setTimeout(() => productSpecDrawerRef.current?.querySelector<HTMLElement>('button, a')?.focus(), 0);
 
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [checkoutProduct, closeCheckout, closeSpecDrawer, selectedProduct]);
+  }, [closeSpecDrawer, selectedProduct]);
 
   useEffect(
     () => () => {
       if (closeSpecTimer.current) window.clearTimeout(closeSpecTimer.current);
-      if (closeCheckoutTimer.current) window.clearTimeout(closeCheckoutTimer.current);
     },
     [],
   );
@@ -302,6 +287,7 @@ export function ProductCatalog() {
             const cardTitle = getCardTitle(product.gpuTier);
             const processorBrand = getProcessorBrand(product.details.cpu || product.normalizedTitle);
             const fps = getFpsEstimate(product.priceValue, product.gpuTier);
+            const orderMessage = buildOrderText(product);
             const specs = [
               ['GPU', 'Видеокарта', product.details.gpu],
               ['CPU', 'Процессор', product.details.cpu],
@@ -342,13 +328,12 @@ export function ProductCatalog() {
                   <div className="productActions">
                     <a
                       className="productBuyButton"
-                      href={`#order-${getProductKey(product)}`}
-                      onClick={(event) => {
-                        event.preventDefault();
-                        openCheckout(product);
-                      }}
+                      href={`${contacts.vk}?message=${buildContactMessage(orderMessage)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={() => trackEvent('product_cta_click', { productId: product.sourceId, title: product.normalizedTitle, channel: 'vk', placement: 'catalog_card' })}
                     >
-                      Купить ПК <span>→</span>
+                      Написать по сборке <span>→</span>
                     </a>
                     <a
                       className="productDetailsButton"
@@ -370,9 +355,8 @@ export function ProductCatalog() {
                     </div>
                     <div>
                       <b>Показатели в играх</b>
-                      <span>Средний FPS в играх</span>
+                      <span>{getPerformanceLabel(product.gpuTier)}</span>
                     </div>
-                    <button type="button" aria-label="Подробнее о FPS">?</button>
                   </div>
 
                   <dl className="productSpecsList">
@@ -422,7 +406,7 @@ export function ProductCatalog() {
             if (event.target === event.currentTarget) closeSpecDrawer();
           }}
         >
-          <aside className="productSpecDrawer" role="dialog" aria-modal="true" aria-labelledby="product-spec-title">
+          <aside ref={productSpecDrawerRef} className="productSpecDrawer" role="dialog" aria-modal="true" aria-labelledby="product-spec-title">
             <header className="productSpecHeader">
               <h3 id="product-spec-title">Спецификация {getCardTitle(selectedProduct.gpuTier)}</h3>
               <button type="button" className="productSpecClose" aria-label="Закрыть спецификацию" onClick={closeSpecDrawer}>
@@ -444,13 +428,12 @@ export function ProductCatalog() {
               <div className="productSpecActions">
                 <a
                   className="productBuyButton"
-                  href={`#order-${getProductKey(selectedProduct)}`}
-                  onClick={(event) => {
-                    event.preventDefault();
-                    openCheckout(selectedProduct);
-                  }}
+                  href={`${contacts.vk}?message=${buildContactMessage(buildOrderText(selectedProduct))}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={() => trackEvent('product_cta_click', { productId: selectedProduct.sourceId, title: selectedProduct.normalizedTitle, channel: 'vk', placement: 'spec_drawer' })}
                 >
-                  Купить ПК <span>→</span>
+                  Написать по сборке <span>→</span>
                 </a>
                 <a className="productDetailsButton" href={contacts.telegram} target="_blank" rel="noreferrer">
                   Telegram <span>›</span>
@@ -461,50 +444,6 @@ export function ProductCatalog() {
         </div>
       )}
 
-      {checkoutProduct && (
-        <div
-          className={`checkoutOverlay ${isCheckoutClosing ? 'isClosing' : ''}`}
-          role="presentation"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) closeCheckout();
-          }}
-        >
-          <aside className="checkoutModal" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
-            <button type="button" className="checkoutClose" aria-label="Закрыть оформление" onClick={closeCheckout}>
-              ×
-            </button>
-            <h3 id="checkout-title">Оформление</h3>
-            <p>Скопируйте заявку и отправьте нам в удобный мессенджер. Мы быстро уточним детали и наличие.</p>
-
-            <div className="checkoutHint">
-              <span>!</span>
-              <b>1. Скопируйте текст ниже<br />2. Выберите канал для отправки</b>
-            </div>
-
-            <pre className="checkoutText">{buildOrderText(checkoutProduct)}</pre>
-
-            <div className="checkoutActions">
-              <button className="checkoutCopyButton" type="button" onClick={copyCheckoutText}>
-                {copyState === 'copied' ? 'Скопировано' : 'Скопировать'} <span>⧉</span>
-              </button>
-              <a href={contacts.avito} target="_blank" rel="noreferrer" onClick={() => trackEvent('product_cta_click', { productId: checkoutProduct.sourceId, channel: 'avito', placement: 'checkout_modal' })}>
-                Avito <span>→</span>
-              </a>
-              <a
-                href={`${contacts.vk}?message=${buildContactMessage(buildOrderText(checkoutProduct))}`}
-                target="_blank"
-                rel="noreferrer"
-                onClick={() => trackEvent('product_cta_click', { productId: checkoutProduct.sourceId, channel: 'vk', placement: 'checkout_modal' })}
-              >
-                VK <span>→</span>
-              </a>
-              <a href={contacts.telegram} target="_blank" rel="noreferrer" onClick={() => trackEvent('product_cta_click', { productId: checkoutProduct.sourceId, channel: 'telegram', placement: 'checkout_modal' })}>
-                Telegram <span>→</span>
-              </a>
-            </div>
-          </aside>
-        </div>
-      )}
     </section>
   );
 }

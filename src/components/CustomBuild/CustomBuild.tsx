@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { contacts } from '../../data/contacts';
 import { useProducts } from '../../hooks/useProducts';
 import { createCustomerRequest, fetchCustomComponents, trackEvent, type ComponentOption } from '../../lib/api';
@@ -43,6 +43,17 @@ const componentOrder: ComponentOption['category'][] = ['gpu', 'cpu', 'motherboar
 
 function formatPrice(value: number) {
   return new Intl.NumberFormat('ru-RU').format(value) + ' ₽';
+}
+
+function getContactError(value: string) {
+  const contact = value.trim();
+  if (!contact) return 'Укажи телефон, Telegram или VK, чтобы мы могли ответить.';
+  if (contact.length < 3) return 'Контакт выглядит слишком коротким.';
+  if (/^@[\w.]{3,}$/i.test(contact)) return '';
+  if (/t\.me\/|vk\.com\/|vk\.me\/|telegram/i.test(contact)) return '';
+  if (/^\+?[\d\s()\-]{7,}$/.test(contact)) return '';
+  if (/^[\w.+-]+@[\w.-]+\.[a-z]{2,}$/i.test(contact)) return '';
+  return 'Напиши телефон, @telegram, ссылку VK или email.';
 }
 
 function getBuildClass(budget: number, resolution: Resolution) {
@@ -108,6 +119,8 @@ export function CustomBuild() {
   const [customContact, setCustomContact] = useState('');
   const [customRequestState, setCustomRequestState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const { products } = useProducts();
+  const customPartsModalRef = useRef<HTMLDivElement | null>(null);
+  const lastFocusedElementRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -121,8 +134,18 @@ export function CustomBuild() {
     };
   }, []);
 
+  const openCustomParts = () => {
+    lastFocusedElementRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    setCustomOpen(true);
+  };
+
+  const closeCustomParts = () => {
+    setCustomOpen(false);
+    window.setTimeout(() => lastFocusedElementRef.current?.focus(), 0);
+  };
+
   useEffect(() => {
-    const open = () => setCustomOpen(true);
+    const open = () => openCustomParts();
     window.addEventListener('togoshol:open-custom-parts', open);
     return () => window.removeEventListener('togoshol:open-custom-parts', open);
   }, []);
@@ -132,11 +155,28 @@ export function CustomBuild() {
 
     const previousOverflow = document.body.style.overflow;
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setCustomOpen(false);
+      if (event.key === 'Escape') closeCustomParts();
+      if (event.key !== 'Tab') return;
+
+      const focusable = customPartsModalRef.current?.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])',
+      );
+      if (!focusable || focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
 
     document.body.style.overflow = 'hidden';
     window.addEventListener('keydown', closeOnEscape);
+    window.setTimeout(() => customPartsModalRef.current?.querySelector<HTMLElement>('button, select, input')?.focus(), 0);
 
     return () => {
       document.body.style.overflow = previousOverflow;
@@ -185,7 +225,7 @@ SSD: ${storageChoice}
   };
 
   const submitRequest = async () => {
-    if (!contact.trim()) {
+    if (getContactError(contact)) {
       setRequestState('error');
       return;
     }
@@ -213,7 +253,7 @@ SSD: ${storageChoice}
   };
 
   const submitCustomRequest = async () => {
-    if (!customContact.trim() || selectedList.length === 0) {
+    if (getContactError(customContact) || selectedList.length === 0) {
       setCustomRequestState('error');
       return;
     }
@@ -390,7 +430,7 @@ SSD: ${storageChoice}
               <a className="button buttonPrimary configButton" href={contacts.vk} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_vk', { placement: 'configurator' })}>
                 Обсудить эту сборку с инженером
               </a>
-              <button className="button buttonSecondary configCopyButton" type="button" onClick={() => setCustomOpen(true)}>
+              <button id="custom-parts" className="button buttonSecondary configCopyButton" type="button" onClick={openCustomParts}>
                 Собрать из комплектующих
               </button>
               <button className="button buttonSecondary configCopyButton" type="button" onClick={copyMessage}>
@@ -398,17 +438,25 @@ SSD: ${storageChoice}
               </button>
             </div>
             <div className="configLeadForm" aria-label="Оставить заявку">
-              <input
-                type="text"
-                value={contact}
-                onChange={(event) => setContact(event.target.value)}
-                placeholder="Телефон, Telegram или VK"
-              />
+              <label className="configContactField">
+                <span>Контакт для ответа</span>
+                <input
+                  type="text"
+                  value={contact}
+                  onChange={(event) => {
+                    setContact(event.target.value);
+                    if (requestState === 'error') setRequestState('idle');
+                  }}
+                  placeholder="Телефон, @telegram или VK"
+                  aria-invalid={requestState === 'error'}
+                />
+              </label>
               <button className="button buttonPrimary" type="button" onClick={submitRequest} disabled={requestState === 'sending'}>
                 {requestState === 'sending' ? 'Отправляем' : requestState === 'sent' ? 'Заявка отправлена' : 'Оставить заявку'}
               </button>
             </div>
-            {requestState === 'error' && <p className="configWarning">Укажи контакт, чтобы мы могли ответить по сборке.</p>}
+            {requestState === 'error' && <p className="configWarning">{getContactError(contact)}</p>}
+            {requestState === 'sent' && <p className="configSuccess">Заявка ушла. Ответим по указанному контакту и уточним наличие комплектующих.</p>}
             <p className="configNote">
               Расчёт ориентировочный. Итоговую конфигурацию уточним по наличию, ценам комплектующих и состоянию деталей.
             </p>
@@ -473,17 +521,17 @@ SSD: ${storageChoice}
           aria-modal="true"
           aria-labelledby="custom-parts-title"
           onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setCustomOpen(false);
+            if (event.target === event.currentTarget) closeCustomParts();
           }}
         >
-          <div className="customPartsModal">
+          <div className="customPartsModal" ref={customPartsModalRef}>
             <header className="customPartsHeader">
               <div>
                 <span className="badge">Под заказ</span>
                 <h3 id="custom-parts-title">Собери ПК из доступных комплектующих</h3>
                 <p>Выбирай только то, что нужно. Ничего не предвыбрано: итог появится после твоего выбора.</p>
               </div>
-              <button type="button" onClick={() => setCustomOpen(false)} aria-label="Закрыть">×</button>
+              <button type="button" onClick={closeCustomParts} aria-label="Закрыть">×</button>
             </header>
 
             <div className="customPartsLayout">
@@ -572,11 +620,23 @@ SSD: ${storageChoice}
                 {missingCore.length > 0 && selectedList.length > 0 && (
                   <p className="partsHint">Не хватает: {missingCore.map((category) => componentLabels[category]).join(', ')}.</p>
                 )}
-                <input value={customContact} onChange={(event) => setCustomContact(event.target.value)} placeholder="Телефон, Telegram или VK" />
+                <label className="customContactField">
+                  <span>Контакт для ответа</span>
+                  <input
+                    value={customContact}
+                    onChange={(event) => {
+                      setCustomContact(event.target.value);
+                      if (customRequestState === 'error') setCustomRequestState('idle');
+                    }}
+                    placeholder="Телефон, @telegram или VK"
+                    aria-invalid={customRequestState === 'error'}
+                  />
+                </label>
                 <button className="button buttonPrimary" type="button" onClick={submitCustomRequest} disabled={customRequestState === 'sending'}>
                   {customRequestState === 'sending' ? 'Отправляем' : customRequestState === 'sent' ? 'Заявка отправлена' : 'Отправить сборку'}
                 </button>
-                {customRequestState === 'error' && <p className="partsHint isError">Выбери хотя бы одну деталь и оставь контакт.</p>}
+                {customRequestState === 'error' && <p className="partsHint isError">{selectedList.length === 0 ? 'Выбери хотя бы одну деталь.' : getContactError(customContact)}</p>}
+                {customRequestState === 'sent' && <p className="partsHint isSuccess">Сборка отправлена. Мы проверим совместимость и ответим по контакту.</p>}
               </aside>
             </div>
           </div>

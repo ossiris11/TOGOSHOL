@@ -1,4 +1,4 @@
-import { useState, type MouseEvent } from 'react';
+import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { useHeaderScrolled } from '../../hooks/useHeaderScrolled';
 import { contacts } from '../../data/contacts';
 import { trackEvent } from '../../lib/api';
@@ -9,7 +9,7 @@ const navLinks: Array<{ label: string; href: string; external?: boolean; action?
   { label: 'Каталог ПК', href: '#catalog' },
   { label: 'Этапы работы', href: '#process' },
   { label: 'Фото', href: '#works-title' },
-  { label: 'Отзывы', href: '#why' },
+  { label: 'Отзывы', href: '#reviews' },
   { label: 'Под заказ', href: '#custom-parts', action: 'customParts' },
 ];
 
@@ -68,8 +68,13 @@ function SocialIcon({ channel }: { channel: SocialChannel }) {
 export function Header() {
   const isScrolled = useHeaderScrolled();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
-  const closeMenu = () => setIsMobileMenuOpen(false);
+  const closeMenu = (restoreFocus = false) => {
+    setIsMobileMenuOpen(false);
+    if (restoreFocus) window.setTimeout(() => menuButtonRef.current?.focus(), 0);
+  };
   const handleNavClick = (event: MouseEvent<HTMLAnchorElement>, action?: 'customParts') => {
     if (action === 'customParts') {
       event.preventDefault();
@@ -81,10 +86,29 @@ export function Header() {
     trackEvent(`contact_click_${channel}`, { placement });
   };
 
+  useEffect(() => {
+    if (!isMobileMenuOpen) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    const firstLink = mobileMenuRef.current?.querySelector<HTMLAnchorElement>('a');
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') closeMenu(true);
+    };
+
+    document.body.style.overflow = 'hidden';
+    firstLink?.focus();
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isMobileMenuOpen]);
+
   return (
     <header className={`header ${isScrolled ? 'isScrolled' : ''}`}>
       <div className="headerInner container">
-        <a className="brand" href="#top" onClick={closeMenu} aria-label="TOGOSHOL, на главный экран">
+        <a className="brand" href="#top" onClick={() => closeMenu()} aria-label="TOGOSHOL, на главный экран">
           <img src={logo} alt="TOG PC" />
         </a>
 
@@ -119,6 +143,7 @@ export function Header() {
         </div>
 
         <button
+          ref={menuButtonRef}
           className="menuButton"
           type="button"
           aria-label={isMobileMenuOpen ? 'Закрыть меню' : 'Открыть меню'}
@@ -131,8 +156,15 @@ export function Header() {
         </button>
       </div>
 
-      <div id="mobile-menu" className={`mobileMenu ${isMobileMenuOpen ? 'isOpen' : ''}`}>
-        <nav className="mobileMenuInner container" aria-label="Мобильная навигация">
+      <div
+        id="mobile-menu"
+        className={`mobileMenu ${isMobileMenuOpen ? 'isOpen' : ''}`}
+        role="presentation"
+        onMouseDown={(event) => {
+          if (event.target === event.currentTarget) closeMenu(true);
+        }}
+      >
+        <nav ref={mobileMenuRef} className="mobileMenuInner container" aria-label="Мобильная навигация">
           {navLinks.map((link) => (
             <a
               key={link.href}

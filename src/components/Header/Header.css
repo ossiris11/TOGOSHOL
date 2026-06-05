@@ -211,19 +211,28 @@
 
   .mobileMenu {
     display: block;
-    max-height: 0;
+    position: fixed;
+    top: 78px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    max-height: none;
     overflow: hidden;
+    background: rgba(2, 4, 8, 0);
     opacity: 0;
     transform: translateY(-8px);
     pointer-events: none;
+    backdrop-filter: blur(0);
     transition:
-      max-height 220ms ease-out,
+      background 200ms ease-out,
+      backdrop-filter 200ms ease-out,
       opacity 200ms ease-out,
       transform 200ms ease-out;
   }
 
   .mobileMenu.isOpen {
-    max-height: calc(100vh - 78px);
+    background: rgba(2, 4, 8, 0.76);
+    backdrop-filter: blur(14px);
     overflow: auto;
     opacity: 1;
     transform: translateY(0);
@@ -233,7 +242,9 @@
   .mobileMenuInner {
     display: grid;
     gap: 10px;
-    padding-block: 10px 22px;
+    max-height: calc(100svh - 78px);
+    overflow-y: auto;
+    padding-block: 14px 28px;
   }
 
   .mobileMenuInner a:not(.button) {

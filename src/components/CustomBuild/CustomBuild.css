@@ -163,6 +163,18 @@
   color: #ffc2ca;
 }
 
+.configSuccess {
+  max-width: 620px;
+  margin: 18px 0 0;
+  border: 1px solid rgba(77, 255, 136, 0.24);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  background: rgba(77, 255, 136, 0.07);
+  color: #c8ffd7;
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
 .segmented button:hover,
 .segmented button:focus-visible {
   border-color: rgba(0, 229, 255, 0.44);
@@ -222,6 +234,20 @@
   max-width: 620px;
 }
 
+.configContactField,
+.customContactField {
+  display: grid;
+  gap: 7px;
+}
+
+.configContactField span,
+.customContactField span {
+  color: var(--text-soft);
+  font-size: 0.72rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
 .configLeadForm input {
   min-height: 52px;
   border: 1px solid var(--border-soft);
@@ -234,6 +260,11 @@
 
 .configLeadForm input:focus {
   border-color: rgba(0, 229, 255, 0.42);
+}
+
+.configLeadForm input[aria-invalid="true"],
+.customPartsSummary input[aria-invalid="true"] {
+  border-color: rgba(255, 59, 78, 0.48);
 }
 
 .configLeadForm button:disabled {
@@ -629,6 +660,14 @@
   padding: 10px;
   background: rgba(255, 59, 78, 0.07);
   color: #ffc2ca;
+}
+
+.partsHint.isSuccess {
+  border: 1px solid rgba(77, 255, 136, 0.24);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  background: rgba(77, 255, 136, 0.07);
+  color: #c8ffd7;
 }
 
 @media (max-width: 1024px) {

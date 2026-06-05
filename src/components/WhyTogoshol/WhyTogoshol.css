@@ -27,6 +27,11 @@
   line-height: 1.58;
 }
 
+.reviewsAnchor {
+  display: block;
+  scroll-margin-top: 104px;
+}
+
 .bestReviews {
   display: grid;
   gap: 18px;

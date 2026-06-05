@@ -9,28 +9,12 @@ const bestReviewGroups = [
   { key: 'site', title: 'Сайт', note: 'Отзывы, оставленные через сайт' },
 ] as const;
 
-type ReviewPlaceholder = {
-  id: string;
-  placeholder: true;
-  sourceTitle: string;
-};
-
 function sourceMatches(review: ApiReview, source: string) {
   if (source === 'site') return ['site', 'manual', 'screenshot'].includes(review.source);
   return review.source === source;
 }
 
-function renderReviewShot(review: ApiReview | ReviewPlaceholder, index: number) {
-  if ('placeholder' in review) {
-    return (
-      <article className="reviewShot isEmpty" key={review.id}>
-        <span>{String(index + 1).padStart(2, '0')}</span>
-        <strong>Слот под широкий скрин отзыва</strong>
-        <small>Добавь отзыв в админке: источник {review.sourceTitle}, статус опубликован.</small>
-      </article>
-    );
-  }
-
+function renderReviewShot(review: ApiReview) {
   return (
     <article className="reviewShot" key={review.id}>
       {review.imageUrl ? (
@@ -66,24 +50,16 @@ export function WhyTogoshol() {
   }, []);
 
   const groupedReviews = useMemo(() => {
-    return bestReviewGroups.map((group) => ({
-      ...group,
-      items: reviews.filter((review) => sourceMatches(review, group.key)).slice(0, 8),
-    }));
+    return bestReviewGroups
+      .map((group) => ({
+        ...group,
+        items: reviews.filter((review) => sourceMatches(review, group.key)).slice(0, 8),
+      }))
+      .filter((group) => group.items.length > 0);
   }, [reviews]);
-  const topReviews = useMemo<Array<ApiReview | ReviewPlaceholder>>(() => {
-    const realReviews = reviews.slice(0, 3);
-    if (realReviews.length === 3) return realReviews;
-
-    return [
-      ...realReviews,
-      ...bestReviewGroups.slice(realReviews.length, 3).map((group, index) => ({
-        id: `top-${group.key}-${index}`,
-        placeholder: true as const,
-        sourceTitle: group.title,
-      })),
-    ];
-  }, [reviews]);
+  const topReviews = useMemo(() => reviews.slice(0, 3), [reviews]);
+  const hasReviews = reviews.length > 0;
+  const hasExpandedReviews = groupedReviews.some((group) => group.items.length > 3) || reviews.length > 3;
 
   return (
     <section id="why" className="section why">
@@ -101,6 +77,8 @@ export function WhyTogoshol() {
           ))}
         </div>
 
+        <span id="reviews" className="reviewsAnchor" aria-hidden="true" />
+        {hasReviews && (
         <div className={`bestReviews ${isReviewsExpanded ? 'isExpanded' : ''}`}>
           <div className="bestReviewsHeader">
             <div>
@@ -108,15 +86,18 @@ export function WhyTogoshol() {
               <h3>Топ отзывов TOGOSHOL</h3>
               <p>Короткая витрина показывает три сильных отзыва. Внутри можно раскрыть больше скринов из Avito, VK и сайта.</p>
             </div>
+            {hasExpandedReviews && (
             <button type="button" onClick={() => setIsReviewsExpanded((value) => !value)} aria-expanded={isReviewsExpanded} aria-controls="best-reviews-expanded">
               {isReviewsExpanded ? 'Свернуть' : 'Показать больше'}
             </button>
+            )}
           </div>
 
           <div className="bestReviewsTop" aria-label="Топ 3 отзыва">
-            {topReviews.map((review, index) => renderReviewShot(review, index))}
+            {topReviews.map((review) => renderReviewShot(review))}
           </div>
 
+          {hasExpandedReviews && (
           <div id="best-reviews-expanded" className="bestReviewsExpanded" aria-hidden={!isReviewsExpanded}>
             {groupedReviews.map((group) => (
               <section className="bestReviewColumn" key={group.key} aria-label={`Отзывы ${group.title}`}>
@@ -125,15 +106,14 @@ export function WhyTogoshol() {
                   <span>{group.note}</span>
                 </header>
                 <div className="bestReviewStack">
-                  {(group.items.length > 0
-                    ? group.items
-                    : Array.from({ length: 6 }, (_, index) => ({ id: `${group.key}-${index}`, placeholder: true as const, sourceTitle: group.title }))
-                  ).map((review, index) => renderReviewShot(review, index))}
+                  {group.items.map((review) => renderReviewShot(review))}
                 </div>
               </section>
             ))}
           </div>
+          )}
         </div>
+        )}
       </div>
     </section>
   );
