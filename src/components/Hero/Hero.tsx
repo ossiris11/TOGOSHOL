@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { useHeroParallax } from '../../hooks/useHeroParallax';
 import { contacts } from '../../data/contacts';
 import { trackEvent } from '../../lib/api';
-import heroPc from '../../assets/hero-pc-main.jpg';
+import heroPc from '../../assets/hero-pc-main-cutout.png';
 import './Hero.css';
 
 const customSpecs = [
