@@ -5,6 +5,7 @@ import './Header.css';
 
 const navLinks: Array<{ label: string; href: string; external?: boolean }> = [
   { label: 'Сборки', href: '#catalog' },
+  { label: 'Конфигуратор', href: '#custom' },
   { label: 'Под заказ', href: '#custom' },
   { label: 'Почему мы', href: '#why' },
   { label: 'Как заказать', href: '#process' },

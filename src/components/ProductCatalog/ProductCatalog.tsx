@@ -6,8 +6,9 @@ import heroPc from '../../assets/hero-pc.png';
 import './ProductCatalog.css';
 
 const filters = ['Все', 'до 60k', '60–90k', '90–150k', '150k+'] as const;
-const gpuFilters = ['Все', 'Full HD', '2K', 'Топ'] as const;
+const gpuFilters = ['Все', 'Full HD', '2K', 'Топ', 'Работа'] as const;
 const sortOptions = [
+  { label: 'Рекомендуем', value: 'recommended' },
   { label: 'Сначала дешевле', value: 'price-asc' },
   { label: 'Сначала дороже', value: 'price-desc' },
   { label: 'Сначала мощнее', value: 'power-desc' },
@@ -24,7 +25,7 @@ function buildMessage(title: string, price: string) {
 export function ProductCatalog() {
   const [activeFilter, setActiveFilter] = useState<Filter>('Все');
   const [activeGpuFilter, setActiveGpuFilter] = useState<GpuFilter>('Все');
-  const [sortBy, setSortBy] = useState<SortOption>('price-asc');
+  const [sortBy, setSortBy] = useState<SortOption>('recommended');
   const [query, setQuery] = useState('');
   const [showAll, setShowAll] = useState(false);
   const products = useMemo(() => getProductViews(vkProducts), []);
@@ -33,11 +34,12 @@ export function ProductCatalog() {
 
     return products
       .filter((product) => activeFilter === 'Все' || getBudgetLabel(product.priceValue) === activeFilter)
-      .filter((product) => activeGpuFilter === 'Все' || product.gpuTier === activeGpuFilter)
+      .filter((product) => activeGpuFilter === 'Все' || product.gpuTier === activeGpuFilter || (activeGpuFilter === 'Работа' && /монтаж|работ|3d|ai/i.test(product.useCase)))
       .filter((product) => !normalizedQuery || getProductSearchText(product).includes(normalizedQuery))
       .sort((a, b) => {
         if (sortBy === 'price-desc') return b.priceValue - a.priceValue;
         if (sortBy === 'power-desc') return b.priceValue - a.priceValue;
+        if (sortBy === 'recommended') return b.priceValue - a.priceValue;
         return a.priceValue - b.priceValue;
       });
   }, [activeFilter, activeGpuFilter, products, query, sortBy]);
@@ -190,6 +192,21 @@ export function ProductCatalog() {
             </article>
           ))}
         </div>
+
+        {filteredProducts.length === 0 && (
+          <div className="catalogEmpty" data-reveal>
+            <h3>Под такие параметры ничего не нашли</h3>
+            <p>Напиши нам или открой конфигуратор — подберём сборку вручную под бюджет, игры и монитор.</p>
+            <div>
+              <a className="button buttonPrimary" href="#custom">
+                Открыть конфигуратор
+              </a>
+              <a className="button buttonSecondary" href={contacts.vk} target="_blank" rel="noreferrer">
+                Написать в VK
+              </a>
+            </div>
+          </div>
+        )}
 
         {visibleProducts.length < filteredProducts.length && (
           <button className="showMoreButton" type="button" onClick={() => setShowAll(true)}>

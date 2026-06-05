@@ -110,6 +110,37 @@
   color: var(--text-main);
 }
 
+.catalogEmpty {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: clamp(28px, 5vw, 48px);
+  background: rgba(255, 255, 255, 0.035);
+  text-align: center;
+}
+
+.catalogEmpty h3 {
+  margin: 0;
+  font-size: clamp(1.45rem, 3vw, 2rem);
+}
+
+.catalogEmpty p {
+  max-width: 620px;
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.catalogEmpty div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
 .catalogGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -277,5 +308,10 @@
 
   .productActions {
     grid-template-columns: 1fr;
+  }
+
+  .catalogEmpty div {
+    display: grid;
+    width: 100%;
   }
 }

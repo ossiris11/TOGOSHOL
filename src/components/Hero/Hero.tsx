@@ -33,16 +33,14 @@ export function Hero() {
             </div>
           )}
           <div className="heroActions">
-            <a className="button buttonPrimary" href={contacts.vk} target="_blank" rel="noreferrer">
+            <a className="button buttonPrimary" href="#custom">
               Подобрать ПК
             </a>
             <a
               className="button buttonSecondary"
-              href={`${contacts.vk}?message=${buildContactMessage(`Здравствуйте! Интересует сборка ${selectedProduct?.normalizedTitle || 'TOGOSHOL'} за ${selectedProduct?.price || ''}.`)}`}
-              target="_blank"
-              rel="noreferrer"
+              href="#catalog"
             >
-              Обсудить выбранную
+              Смотреть сборки
             </a>
           </div>
           <div className="heroMetrics">

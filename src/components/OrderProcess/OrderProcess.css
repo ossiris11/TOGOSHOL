@@ -1,7 +1,7 @@
 .stepsGrid {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 18px;
 }
 
@@ -17,10 +17,10 @@
 
 .stepCard {
   position: relative;
-  min-height: 210px;
+  min-height: 230px;
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-lg);
-  padding: 26px;
+  padding: 24px;
   background: rgba(255, 255, 255, 0.035);
 }
 
@@ -39,7 +39,7 @@
 
 .stepCard h3 {
   margin: 30px 0 10px;
-  font-size: 1.45rem;
+  font-size: 1.25rem;
 }
 
 .stepCard p {
@@ -48,12 +48,23 @@
   line-height: 1.55;
 }
 
+@media (max-width: 1180px) {
+  .stepsGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .stepsGrid::before {
+    display: none;
+  }
+}
+
 @media (max-width: 900px) {
   .stepsGrid {
     grid-template-columns: 1fr;
   }
 
   .stepsGrid::before {
+    display: block;
     top: 0;
     bottom: 0;
     left: 34px;
