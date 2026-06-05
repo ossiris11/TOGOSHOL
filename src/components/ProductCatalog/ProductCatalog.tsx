@@ -23,6 +23,33 @@ function buildMessage(title: string, price: string) {
   return buildContactMessage(`Здравствуйте! Интересует сборка ${title} за ${price}. Хочу уточнить наличие и детали.`);
 }
 
+function getCardTitle(tier: string) {
+  if (tier === 'Топ') return 'Ultra';
+  if (tier === '2K') return 'Pro';
+  if (tier === 'Full HD') return 'Start';
+  return 'Custom';
+}
+
+function getChipBrand(gpu: string) {
+  if (/rx|radeon/i.test(gpu)) return 'AMD';
+  if (/rtx|gtx|nvidia/i.test(gpu)) return 'NVIDIA';
+  return 'TOG PC';
+}
+
+function getFpsEstimate(priceValue: number, tier: string) {
+  const base = tier === 'Топ' ? 170 : tier === '2K' ? 135 : tier === 'Full HD' ? 95 : 110;
+  const budgetBoost = Math.min(45, Math.max(0, Math.round((priceValue - 65000) / 4500)));
+  return Math.max(60, base + budgetBoost);
+}
+
+const specIcons: Record<string, string> = {
+  GPU: '▣',
+  CPU: '◈',
+  RAM: '▤',
+  SSD: '◎',
+  PSU: '▥',
+};
+
 export function ProductCatalog() {
   const [activeFilter, setActiveFilter] = useState<Filter>('Все');
   const [activeGpuFilter, setActiveGpuFilter] = useState<GpuFilter>('Все');
@@ -140,62 +167,89 @@ export function ProductCatalog() {
         </div>
 
         <div className="catalogGrid">
-          {visibleProducts.map((product) => (
-            <article className="productCard" key={getProductKey(product)} data-reveal>
-              <div className="productImage" aria-label={product.normalizedTitle}>
-                <img
-                  src={product.image || heroPc}
-                  alt={product.normalizedTitle}
-                  loading="lazy"
-                  decoding="async"
-                  onError={(event) => {
-                    event.currentTarget.src = heroPc;
-                  }}
-                />
-              </div>
+          {visibleProducts.map((product) => {
+            const cardTitle = getCardTitle(product.gpuTier);
+            const brand = getChipBrand(product.details.gpu);
+            const fps = getFpsEstimate(product.priceValue, product.gpuTier);
+            const specs = [
+              ['GPU', 'Видеокарта', product.details.gpu],
+              ['CPU', 'Процессор', product.details.cpu],
+              ['RAM', 'ОЗУ', product.details.ram],
+              ['SSD', 'Накопитель', product.details.storage],
+              ['PSU', 'Питание', product.details.psu],
+            ].filter(([, , value]) => value);
 
-              <div className="productInfo">
-                <span className={`badge ${product.badgeType === 'available' ? 'badgeAvailable' : ''}`}>{product.badge}</span>
-                <div className="productChips" aria-label="Класс сборки">
-                  <span>{product.gpuTier}</span>
-                  <span>{product.useCase}</span>
+            return (
+              <article className="productCard" key={getProductKey(product)} data-reveal>
+                <div className="productShowcase" aria-label={product.normalizedTitle}>
+                  <span className="productBrandBadge">{brand}</span>
+                  <img
+                    src={product.image || heroPc}
+                    alt={product.normalizedTitle}
+                    loading="lazy"
+                    decoding="async"
+                    onError={(event) => {
+                      event.currentTarget.src = heroPc;
+                    }}
+                  />
+                  <div className="productIntro">
+                    <span>TOG PC ({brand})</span>
+                    <h3>{cardTitle}</h3>
+                    <p>
+                      <small>от</small>
+                      {product.price}
+                    </p>
+                  </div>
                 </div>
-                <h3>{product.normalizedTitle}</h3>
-                <strong>{product.price}</strong>
 
-                <div className="productSpecChips">
-                  {[
-                    ['CPU', product.details.cpu],
-                    ['GPU', product.details.gpu],
-                    ['RAM', product.details.ram],
-                    ['SSD', product.details.storage],
-                  ]
-                    .filter(([, value]) => value)
-                    .map(([label, value]) => (
-                      <span key={label}>
-                        <b>{label}</b>
-                        {value}
-                      </span>
+                <div className="productInfo">
+                  <div className="productMetaLine">
+                    <span className={`productStatus ${product.badgeType === 'available' ? 'isAvailable' : ''}`}>{product.badge}</span>
+                    <span>{product.useCase}</span>
+                  </div>
+
+                  <div className="productActions">
+                    <a
+                      className="productBuyButton"
+                      href={`${contacts.vk}?message=${buildMessage(product.normalizedTitle, product.price)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={() => trackEvent('product_cta_click', { productId: product.sourceId, title: product.normalizedTitle, channel: 'vk', placement: 'catalog' })}
+                    >
+                      Купить ПК <span>→</span>
+                    </a>
+                    <a className="productDetailsButton" href="#custom" onClick={() => trackEvent('product_details_click', { productId: product.sourceId, placement: 'catalog' })}>
+                      Подробнее о сборке <span>›</span>
+                    </a>
+                  </div>
+
+                  <div className="productFpsBox">
+                    <div className="fpsRing">
+                      <strong>{fps}</strong>
+                      <small>FPS</small>
+                    </div>
+                    <div>
+                      <b>Показатели в играх</b>
+                      <span>Средний FPS в играх</span>
+                    </div>
+                    <button type="button" aria-label="Подробнее о FPS">?</button>
+                  </div>
+
+                  <dl className="productSpecsList">
+                    {specs.map(([key, label, value]) => (
+                      <div key={key}>
+                        <dt>
+                          <span>{specIcons[key] || '•'}</span>
+                          {label}
+                        </dt>
+                        <dd>{value}</dd>
+                      </div>
                     ))}
+                  </dl>
                 </div>
-
-                <div className="productActions">
-                  <a
-                    className="button buttonPrimary"
-                    href={`${contacts.vk}?message=${buildMessage(product.normalizedTitle, product.price)}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    onClick={() => trackEvent('product_cta_click', { productId: product.sourceId, title: product.normalizedTitle, channel: 'vk', placement: 'catalog' })}
-                  >
-                    Написать в VK
-                  </a>
-                  <a className="button buttonSecondary" href={contacts.telegram} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_telegram', { productId: product.sourceId, placement: 'catalog' })}>
-                    Telegram
-                  </a>
-                </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            );
+          })}
         </div>
 
         {filteredProducts.length === 0 && (

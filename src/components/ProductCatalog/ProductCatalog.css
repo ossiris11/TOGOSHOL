@@ -144,17 +144,18 @@
 .catalogGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
+  gap: 22px;
 }
 
 .productCard {
   display: grid;
   overflow: hidden;
-  border: 1px solid var(--border-soft);
+  border: 8px solid #121215;
   border-radius: 22px;
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02)),
-    rgba(8, 9, 11, 0.76);
+  background: #101012;
+  box-shadow:
+    0 18px 56px rgba(0, 0, 0, 0.38),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
   transition:
     transform 240ms ease,
     border-color 240ms ease,
@@ -163,103 +164,262 @@
 
 .productCard:hover {
   transform: translateY(-5px);
-  border-color: rgba(0, 229, 255, 0.22);
-  box-shadow: 0 24px 70px rgba(0, 229, 255, 0.1);
+  border-color: #1a1a1f;
+  box-shadow:
+    0 28px 80px rgba(0, 0, 0, 0.46),
+    0 18px 52px rgba(142, 74, 244, 0.16);
 }
 
-.productImage {
+.productShowcase {
+  position: relative;
   display: grid;
-  min-height: 250px;
-  place-items: center;
+  min-height: 352px;
+  align-content: start;
+  justify-items: center;
   overflow: hidden;
+  border-radius: 14px;
+  padding: 26px 22px 22px;
   background:
-    radial-gradient(circle at 50% 44%, rgba(0, 229, 255, 0.13), transparent 44%),
-    rgba(0, 0, 0, 0.28);
+    radial-gradient(circle at 50% 26%, rgba(12, 12, 12, 0.04), transparent 34%),
+    #f8f8f8;
+  color: #09090b;
 }
 
-.productImage img {
-  width: 100%;
-  height: 250px;
+.productBrandBadge {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  border: 3px solid #ff3048;
+  border-radius: 10px;
+  padding: 9px 12px;
+  background: #ffffff;
+  color: #101012;
+  font-size: 0.78rem;
+  font-weight: 950;
+  line-height: 1;
+  box-shadow: 0 8px 20px rgba(255, 48, 72, 0.22);
+}
+
+.productShowcase img {
+  width: min(100%, 250px);
+  height: 178px;
   object-fit: contain;
-  padding: 18px;
+  margin-top: 8px;
+  filter: drop-shadow(0 24px 28px rgba(0, 0, 0, 0.16));
   transition: transform 320ms ease;
 }
 
-.productCard:hover .productImage img {
+.productCard:hover .productShowcase img {
   transform: scale(1.04);
+}
+
+.productIntro {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  text-align: center;
+}
+
+.productIntro span {
+  color: #8a93a5;
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.productIntro h3 {
+  margin: 0;
+  color: #050505;
+  font-size: clamp(1.7rem, 3vw, 2.15rem);
+  font-weight: 950;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-shadow: 2px 2px 0 rgba(255, 48, 72, 0.24);
+}
+
+.productIntro p {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  color: #050505;
+  font-size: 1.26rem;
+  font-weight: 950;
+}
+
+.productIntro small {
+  color: #5f6673;
+  font-size: 0.78rem;
+  font-weight: 700;
 }
 
 .productInfo {
   display: grid;
-  gap: 14px;
-  padding: 22px;
+  gap: 18px;
+  padding: 22px 16px 20px;
 }
 
-.productChips,
-.productSpecChips {
+.productMetaLine {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.52);
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
-.productChips span {
+.productStatus {
   border-radius: var(--radius-pill);
   padding: 7px 10px;
-  background: rgba(0, 229, 255, 0.1);
-  color: var(--cyan);
-  font-size: 0.78rem;
-  font-weight: 850;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.72);
 }
 
-.productInfo h3 {
-  display: -webkit-box;
-  min-height: 2.45em;
-  margin: 0;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  font-size: 1.35rem;
-  line-height: 1.22;
-}
-
-.productInfo > strong {
-  font-size: 1.35rem;
-}
-
-.productSpecChips {
-  min-height: 112px;
-  align-content: start;
-}
-
-.productSpecChips span {
-  display: grid;
-  min-width: calc(50% - 4px);
-  flex: 1 1 calc(50% - 4px);
-  gap: 4px;
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-sm);
-  padding: 10px;
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--text-muted);
-  font-size: 0.86rem;
-  line-height: 1.25;
-}
-
-.productSpecChips b {
-  color: var(--text-soft);
-  font-size: 0.72rem;
-  text-transform: uppercase;
+.productStatus.isAvailable {
+  background: rgba(77, 255, 136, 0.14);
+  color: #77ff9d;
 }
 
 .productActions {
   display: grid;
-  grid-template-columns: 1fr 0.72fr;
-  gap: 10px;
+  gap: 12px;
 }
 
-.productActions .button {
-  min-height: 46px;
-  padding: 12px 18px;
+.productBuyButton,
+.productDetailsButton {
+  display: inline-flex;
+  min-height: 58px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 9px;
+  padding: 15px 18px;
+  font-weight: 950;
+  text-decoration: none;
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease,
+    background 200ms ease;
+}
+
+.productBuyButton {
+  background: linear-gradient(135deg, #a45bff, #7c2df2);
+  color: #ffffff;
+  box-shadow: 0 16px 34px rgba(128, 58, 238, 0.28);
+}
+
+.productDetailsButton {
+  background: #ffffff;
+  color: #050505;
+}
+
+.productBuyButton:hover,
+.productDetailsButton:hover,
+.productBuyButton:focus-visible,
+.productDetailsButton:focus-visible {
+  transform: translateY(-1px);
+}
+
+.productFpsBox {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 14px;
+  background: #171719;
+}
+
+.fpsRing {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border: 4px solid rgba(154, 93, 255, 0.9);
+  border-right-color: rgba(255, 255, 255, 0.16);
+  border-radius: 50%;
+  line-height: 1;
+}
+
+.fpsRing strong {
+  font-size: 0.82rem;
+}
+
+.fpsRing small {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.52rem;
+  font-weight: 900;
+}
+
+.productFpsBox b {
+  display: block;
+  margin-bottom: 3px;
+  color: #ffffff;
+  font-size: 0.86rem;
+}
+
+.productFpsBox span {
+  color: rgba(255, 255, 255, 0.48);
+  font-size: 0.74rem;
+}
+
+.productFpsBox button {
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 900;
+}
+
+.productSpecsList {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+}
+
+.productSpecsList div {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 0 12px;
+}
+
+.productSpecsList dt {
+  display: contents;
+  color: rgba(255, 255, 255, 0.48);
+  font-size: 0.73rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.productSpecsList dt span {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  grid-row: span 2;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.54);
+  font-size: 0.74rem;
+}
+
+.productSpecsList dd {
+  grid-column: 2;
+  margin: -14px 0 0;
+  color: #ffffff;
+  font-size: 0.89rem;
+  font-weight: 900;
+  line-height: 1.25;
 }
 
 .showMoreButton {
