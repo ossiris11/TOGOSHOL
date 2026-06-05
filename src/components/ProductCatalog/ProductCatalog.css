@@ -201,6 +201,28 @@
   box-shadow: 0 8px 20px rgba(255, 48, 72, 0.22);
 }
 
+.productBrandBadge.isIntel {
+  border-color: #0071c5;
+  color: #0071c5;
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  text-transform: lowercase;
+  box-shadow: 0 8px 20px rgba(0, 113, 197, 0.24);
+}
+
+.productBrandBadge.isAmd {
+  border-color: #ff3048;
+  color: #101012;
+  box-shadow: 0 8px 20px rgba(255, 48, 72, 0.22);
+}
+
+.productBrandBadge.isNeutral {
+  border-color: rgba(16, 16, 18, 0.24);
+  color: #101012;
+  box-shadow: 0 8px 20px rgba(16, 16, 18, 0.12);
+}
+
 .productShowcase img {
   width: min(100%, 250px);
   height: 178px;
@@ -713,6 +735,10 @@
     border-radius: 8px;
     padding: 8px 10px;
     font-size: 0.68rem;
+  }
+
+  .productBrandBadge.isIntel {
+    font-size: 0.88rem;
   }
 
   .productShowcase img {

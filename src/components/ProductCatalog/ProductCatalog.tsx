@@ -32,10 +32,16 @@ function getCardTitle(tier: string) {
   return 'Custom';
 }
 
-function getChipBrand(gpu: string) {
-  if (/rx|radeon/i.test(gpu)) return 'AMD';
-  if (/rtx|gtx|nvidia/i.test(gpu)) return 'NVIDIA';
-  return 'TOG PC';
+function getProcessorBrand(cpu: string) {
+  if (/ryzen|threadripper|\bamd\b/i.test(cpu)) {
+    return { badge: 'AMD', intro: 'AMD', className: 'isAmd' };
+  }
+
+  if (/intel|core|celeron|pentium|\bi[3579][-\s]?\d/i.test(cpu)) {
+    return { badge: 'intel.', intro: 'Intel', className: 'isIntel' };
+  }
+
+  return { badge: 'CPU', intro: 'CPU', className: 'isNeutral' };
 }
 
 function getFpsEstimate(priceValue: number, tier: string) {
@@ -240,7 +246,7 @@ export function ProductCatalog() {
         <div className="catalogGrid">
           {visibleProducts.map((product) => {
             const cardTitle = getCardTitle(product.gpuTier);
-            const brand = getChipBrand(product.details.gpu);
+            const processorBrand = getProcessorBrand(product.details.cpu || product.normalizedTitle);
             const fps = getFpsEstimate(product.priceValue, product.gpuTier);
             const specs = [
               ['GPU', 'Видеокарта', product.details.gpu],
@@ -253,7 +259,7 @@ export function ProductCatalog() {
             return (
               <article className="productCard" key={getProductKey(product)} data-reveal>
                 <div className="productShowcase" aria-label={product.normalizedTitle}>
-                  <span className="productBrandBadge">{brand}</span>
+                  <span className={`productBrandBadge ${processorBrand.className}`}>{processorBrand.badge}</span>
                   <img
                     src={product.image || heroPc}
                     alt={product.normalizedTitle}
@@ -264,7 +270,7 @@ export function ProductCatalog() {
                     }}
                   />
                   <div className="productIntro">
-                    <span>TOG PC ({brand})</span>
+                    <span>TOG PC ({processorBrand.intro})</span>
                     <h3>{cardTitle}</h3>
                     <p>
                       <small>от</small>
