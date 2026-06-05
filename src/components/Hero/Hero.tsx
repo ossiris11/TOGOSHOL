@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { useHeroParallax } from '../../hooks/useHeroParallax';
 import { contacts } from '../../data/contacts';
 import { trackEvent } from '../../lib/api';
-import heroPc from '../../assets/hero-pc-main-cutout.png';
+import heroPc from '../../assets/hero-pc-2026.webp';
 import './Hero.css';
 
 const customSpecs = [
@@ -122,15 +122,15 @@ export function Hero() {
       <div className="heroBg" aria-hidden="true" />
       <div className="heroInner container">
         <div className="heroContent">
-          <span className="badge heroBadge">Готовые и кастомные игровые ПК</span>
+          <span className="badge heroBadge">Готовые и кастомные игровые компьютеры</span>
           <h1 className="heroTitle">
-            <span>Игровые ПК</span>
-            <span>в <b>Великом</b></span>
-            <span><b>Новгороде</b></span>
+            <span>Игровые</span>
+            <span><b>компьютеры</b></span>
+            <span>по <b>всей России</b></span>
           </h1>
           <p className="heroSubtitle">
-            Собираем мощные компьютеры под игры, стриминг и работу. Подберём комплектующие, протестируем систему и
-            поможем с подключением. Локальная поддержка под ключ.
+            Собираем мощные компьютеры под игры, стриминг и работу. Подберём комплектующие, протестируем систему,
+            подготовим к отправке и поможем с подключением.
           </p>
           <div className="heroActions">
             <a className="button buttonPrimary" href="#custom">
@@ -154,8 +154,8 @@ export function Hero() {
               <span>стресс-тест перед выдачей</span>
             </div>
             <div>
-              <strong>Локально</strong>
-              <span>новгородская поддержка</span>
+              <strong>В Новгороде</strong>
+              <span>территориально в Великом Новгороде</span>
             </div>
           </div>
         </div>
@@ -163,7 +163,7 @@ export function Hero() {
         <div className="heroVisual" ref={visualRef}>
           <div className="heroVisualInner">
             <div className="heroPcPhotoFrame">
-              <img src={heroPc} alt="Мощный игровой ПК TOGOSHOL с RGB-подсветкой" />
+              <img src={heroPc} alt="Топовый игровой компьютер 2026 с RGB-подсветкой" />
               <span className="heroPcPhotoGlow" aria-hidden="true" />
             </div>
           </div>
@@ -174,7 +174,7 @@ export function Hero() {
         <div className="container customPcLayout">
           <article className="customPcCard">
             <div className="customPcImage">
-              <img src={heroPc} alt="Кастомный игровой ПК TOGOSHOL" />
+              <img src={heroPc} alt="Кастомный игровой компьютер 2026" />
             </div>
             <div className="customPcCopy">
               <span className="customPcEyebrow">Custom PC</span>
