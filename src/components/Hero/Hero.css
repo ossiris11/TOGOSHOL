@@ -452,21 +452,29 @@
   display: grid;
   place-items: center;
   padding: clamp(12px, 2.2vw, 20px);
-  background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(16px);
+  background:
+    radial-gradient(circle at 28% 18%, rgba(0, 229, 255, 0.16), transparent 34%),
+    radial-gradient(circle at 78% 82%, rgba(116, 65, 255, 0.2), transparent 36%),
+    rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(18px);
 }
 
 .customOrderModal {
   position: relative;
   display: grid;
-  width: min(100%, 600px);
-  max-height: min(90svh, 720px);
+  width: min(100%, 640px);
+  max-height: min(91svh, 740px);
   overflow-y: auto;
-  border-radius: 24px;
-  padding: clamp(20px, 2.6vw, 30px);
-  background: #ffffff;
-  color: #08080a;
-  box-shadow: 0 28px 78px rgba(0, 0, 0, 0.38);
+  border: 1px solid rgba(0, 229, 255, 0.18);
+  border-radius: 22px;
+  padding: clamp(20px, 2.8vw, 32px);
+  background:
+    linear-gradient(145deg, rgba(13, 16, 22, 0.98), rgba(5, 7, 12, 0.96)),
+    radial-gradient(circle at 86% 10%, rgba(0, 229, 255, 0.13), transparent 28%);
+  color: #ffffff;
+  box-shadow:
+    0 30px 90px rgba(0, 0, 0, 0.56),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
   animation: customModalIn 320ms var(--ease-premium) both;
 }
 
@@ -478,10 +486,10 @@
   width: 42px;
   height: 42px;
   place-items: center;
-  border: 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 50%;
-  background: #f1f1f3;
-  color: #050505;
+  background: rgba(255, 255, 255, 0.07);
+  color: #ffffff;
   font-size: 1.55rem;
 }
 
@@ -495,7 +503,7 @@
 
 .customOrderModal > p {
   margin: 8px 0 18px;
-  color: #66666f;
+  color: rgba(255, 255, 255, 0.62);
   font-weight: 700;
 }
 
@@ -508,7 +516,7 @@
 .customOrderGrid label {
   display: grid;
   gap: 8px;
-  color: #050505;
+  color: rgba(255, 255, 255, 0.88);
   font-size: 0.9rem;
   font-weight: 900;
 }
@@ -520,14 +528,25 @@
 .customOrderGrid input,
 .customOrderGrid textarea {
   min-height: 52px;
-  border: 1px solid #dedee3;
-  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
   padding: 0 18px;
-  background: #f3f3f5;
-  color: #050505;
+  background: rgba(255, 255, 255, 0.055);
+  color: #ffffff;
   font-weight: 800;
   outline: none;
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.06);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.customOrderGrid input::placeholder,
+.customOrderGrid textarea::placeholder {
+  color: rgba(255, 255, 255, 0.36);
+}
+
+.customOrderGrid input:focus,
+.customOrderGrid textarea:focus {
+  border-color: rgba(0, 229, 255, 0.42);
+  box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.1);
 }
 
 .customOrderGrid textarea {
@@ -554,7 +573,7 @@
 
 .customOrderToggles legend {
   margin-bottom: 8px;
-  color: #050505;
+  color: rgba(255, 255, 255, 0.9);
   font-size: 0.9rem;
   font-weight: 950;
 }
@@ -563,24 +582,24 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   overflow: hidden;
-  border: 1px solid #dedee3;
-  border-radius: 16px;
-  background: #f0f0f2;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.055);
 }
 
 .customOrderToggles button {
   min-height: 46px;
   border: 0;
-  border-radius: 14px;
+  border-radius: 12px;
   background: transparent;
-  color: #727783;
+  color: rgba(255, 255, 255, 0.54);
   font-weight: 900;
 }
 
 .customOrderToggles button.isActive {
-  background: #ffffff;
-  color: #050505;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.94), rgba(48, 121, 255, 0.94));
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(0, 143, 255, 0.22);
 }
 
 .customOrderAddress {
@@ -589,10 +608,10 @@
   gap: 12px;
   align-items: center;
   margin-top: 18px;
-  border: 1px solid #dedee3;
-  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
   padding: 12px 16px;
-  background: #fafafa;
+  background: rgba(255, 255, 255, 0.045);
 }
 
 .customOrderAddress span {
@@ -600,47 +619,64 @@
   width: 32px;
   height: 32px;
   place-items: center;
-  border: 1px solid #d7d8dd;
+  border: 1px solid rgba(0, 229, 255, 0.24);
   border-radius: 50%;
+  color: #00e5ff;
 }
 
 .customOrderAddress p {
   margin: 0;
-  color: #343843;
+  color: rgba(255, 255, 255, 0.7);
   line-height: 1.4;
 }
 
 .customOrderAddress b {
   display: block;
-  color: #737989;
+  color: rgba(255, 255, 255, 0.9);
   text-transform: uppercase;
 }
 
 .customOrderHint {
   margin-top: 18px;
-  border-radius: 16px;
+  border: 1px solid rgba(139, 92, 255, 0.22);
+  border-radius: 14px;
   padding: 15px 18px;
-  background: #f0e7ff;
-  color: #050505;
+  background: rgba(139, 92, 255, 0.13);
+  color: #ffffff;
   font-weight: 950;
   line-height: 1.25;
 }
 
 .customOrderActions {
   display: grid;
-  grid-template-columns: minmax(170px, 1.25fr) repeat(3, minmax(112px, 0.75fr));
-  gap: 12px;
+  grid-template-columns: minmax(160px, 1.1fr) repeat(3, minmax(98px, 0.7fr));
+  gap: 10px;
   margin-top: 20px;
 }
 
 .customOrderCopy {
-  background: linear-gradient(135deg, #b867ff, #8d48f8);
+  background: linear-gradient(135deg, #00dff5, #2b7dff 48%, #7c3cff);
   color: #ffffff;
-  box-shadow: 0 20px 46px rgba(142, 74, 244, 0.24);
+  box-shadow: 0 16px 34px rgba(43, 125, 255, 0.26);
 }
 
 .customOrderActions a {
-  background: #050505;
+  min-width: 0;
+  background: rgba(255, 255, 255, 0.07);
+  color: #ffffff;
+  overflow: hidden;
+}
+
+.customOrderActions a:nth-of-type(1) {
+  background: linear-gradient(135deg, #196eff, #1c92ff);
+}
+
+.customOrderActions a:nth-of-type(2) {
+  background: linear-gradient(135deg, #2473ff, #1788ff);
+}
+
+.customOrderActions a:nth-of-type(3) {
+  background: linear-gradient(135deg, #feda75, #d62976 48%, #4f5bd5);
 }
 
 @keyframes specSlideIn {
@@ -807,9 +843,16 @@
   }
 
   .customOrderGrid,
-  .customOrderToggles,
-  .customOrderActions {
+  .customOrderToggles {
     grid-template-columns: 1fr;
+  }
+
+  .customOrderActions {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .customOrderCopy {
+    grid-column: 1 / -1;
   }
 
   .customOrderClose {
@@ -871,10 +914,36 @@
     border-radius: 20px 20px 14px 14px;
     padding-inline: 14px;
   }
+
+  .customOrderActions {
+    gap: 8px;
+  }
+
+  .customOrderActions a,
+  .customOrderCopy {
+    min-height: 48px;
+    gap: 8px;
+    padding: 0 12px;
+    font-size: 0.88rem;
+  }
+
+  .customOrderActions span,
+  .customOrderCopy span {
+    width: 28px;
+    height: 28px;
+  }
 }
 
 @media (max-width: 360px) {
   .customPcContacts h3 {
     font-size: 0.92rem;
+  }
+
+  .customOrderActions {
+    grid-template-columns: 1fr;
+  }
+
+  .customOrderCopy {
+    grid-column: auto;
   }
 }
