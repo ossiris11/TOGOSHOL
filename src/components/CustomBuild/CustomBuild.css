@@ -421,14 +421,14 @@
   z-index: 260;
   display: grid;
   place-items: center;
-  padding: 18px;
+  padding: clamp(10px, 2vw, 18px);
   background: rgba(2, 4, 8, 0.78);
   backdrop-filter: blur(16px);
 }
 
 .customPartsModal {
-  width: min(1060px, 100%);
-  max-height: min(760px, calc(100vh - 36px));
+  width: min(1020px, 100%);
+  max-height: min(720px, calc(100svh - 32px));
   overflow: hidden;
   border: 1px solid rgba(0, 229, 255, 0.2);
   border-radius: var(--radius-lg);
@@ -443,14 +443,14 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 20px;
+  gap: 16px;
   border-bottom: 1px solid var(--border-soft);
-  padding: clamp(20px, 3vw, 30px);
+  padding: clamp(18px, 2.5vw, 26px);
 }
 
 .customPartsHeader h3 {
-  margin: 14px 0 8px;
-  font-size: clamp(1.65rem, 3.4vw, 2.65rem);
+  margin: 12px 0 6px;
+  font-size: clamp(1.55rem, 3vw, 2.35rem);
   line-height: 1;
 }
 
@@ -462,8 +462,8 @@
 }
 
 .customPartsHeader > button {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   flex: 0 0 auto;
   border: 1px solid var(--border-soft);
   border-radius: 50%;
@@ -477,15 +477,15 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(300px, 0.34fr);
   gap: 0;
-  min-height: 480px;
+  min-height: min(460px, calc(100svh - 170px));
 }
 
 .partsSelectorList {
   display: grid;
   gap: 10px;
-  max-height: calc(100vh - 190px);
+  max-height: calc(100svh - 178px);
   overflow: auto;
-  padding: clamp(16px, 2.4vw, 24px);
+  padding: clamp(14px, 2vw, 22px);
 }
 
 .partSelectRow {
@@ -591,7 +591,7 @@
   align-content: start;
   gap: 13px;
   border-left: 1px solid var(--border-soft);
-  padding: clamp(16px, 2.4vw, 24px);
+  padding: clamp(14px, 2vw, 22px);
   background: rgba(0, 0, 0, 0.2);
 }
 
@@ -690,6 +690,18 @@
 }
 
 @media (max-width: 700px) {
+  .customPartsOverlay {
+    align-items: end;
+    padding: 8px;
+  }
+
+  .customPartsModal {
+    width: min(100%, 560px);
+    max-height: 94svh;
+    overflow-y: auto;
+    border-radius: 22px 22px 14px 14px;
+  }
+
   .segmented,
   .configIncluded {
     grid-template-columns: 1fr;
@@ -739,5 +751,24 @@
 
   .customPartsHeader {
     align-items: stretch;
+    padding: 16px;
+  }
+
+  .customPartsHeader h3 {
+    font-size: 1.65rem;
+  }
+
+  .customPartsLayout {
+    min-height: 0;
+  }
+
+  .partsSelectorList {
+    max-height: none;
+    overflow: visible;
+    padding: 14px;
+  }
+
+  .customPartsSummary {
+    padding: 14px;
   }
 }
