@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { useHeroParallax } from '../../hooks/useHeroParallax';
 import { contacts } from '../../data/contacts';
 import { trackEvent } from '../../lib/api';
-import heroPc from '../../assets/hero-pc-2026.webp';
+import heroPc from '../../assets/hero-pc-2026-cutout.webp';
 import './Hero.css';
 
 const customSpecs = [
@@ -163,7 +163,7 @@ export function Hero() {
         <div className="heroVisual" ref={visualRef}>
           <div className="heroVisualInner">
             <div className="heroPcPhotoFrame">
-              <img src={heroPc} alt="Топовый игровой компьютер 2026 с RGB-подсветкой" />
+              <img src={heroPc} alt="Топовый игровой компьютер 2026 без фона с RGB-подсветкой" />
               <span className="heroPcPhotoGlow" aria-hidden="true" />
             </div>
           </div>
