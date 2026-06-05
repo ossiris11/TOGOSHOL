@@ -12,11 +12,11 @@ const specDrawerCloseMs = 420;
 
 type Filter = (typeof filters)[number];
 
-function getCardTitle(tier: string) {
-  if (tier === 'Топ') return 'Ultra';
-  if (tier === '2K') return 'Pro';
-  if (tier === 'Full HD') return 'Start';
-  return 'Custom';
+function getCardTitle(priceValue: number) {
+  if (priceValue < 65000) return 'Start';
+  if (priceValue < 85000) return 'Medium';
+  if (priceValue < 140000) return 'PRO';
+  return 'Ultra';
 }
 
 function getProcessorBrand(cpu: string) {
@@ -106,7 +106,7 @@ function buildOrderText(product: ProductView) {
 
   return `— Заявка с сайта TOG PC —
 Бюджет: ${product.price}
-Сборка: TOG PC ${getCardTitle(product.gpuTier)}
+Сборка: TOG PC ${getCardTitle(product.priceValue)}
 
 — Конфигурация —
 ${rows}
@@ -223,7 +223,7 @@ export function ProductCatalog() {
 
         <div className="catalogGrid">
           {visibleProducts.map((product) => {
-            const cardTitle = getCardTitle(product.gpuTier);
+            const cardTitle = getCardTitle(product.priceValue);
             const processorBrand = getProcessorBrand(product.details.cpu || product.normalizedTitle);
             const fps = getFpsEstimate(product.priceValue, product.gpuTier);
             const orderMessage = buildOrderText(product);
@@ -347,7 +347,7 @@ export function ProductCatalog() {
         >
           <aside ref={productSpecDrawerRef} className="productSpecDrawer" role="dialog" aria-modal="true" aria-labelledby="product-spec-title">
             <header className="productSpecHeader">
-              <h3 id="product-spec-title">Спецификация {getCardTitle(selectedProduct.gpuTier)}</h3>
+              <h3 id="product-spec-title">Спецификация {getCardTitle(selectedProduct.priceValue)}</h3>
               <button type="button" className="productSpecClose" aria-label="Закрыть спецификацию" onClick={closeSpecDrawer}>
                 ×
               </button>
