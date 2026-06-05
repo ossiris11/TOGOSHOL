@@ -1,25 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useRef } from 'react';
 import { useHeroParallax } from '../../hooks/useHeroParallax';
-import { buildContactMessage, contacts } from '../../data/contacts';
-import { useProducts } from '../../hooks/useProducts';
 import { trackEvent } from '../../lib/api';
-import { getProductKey, getProductViews } from '../../lib/products';
 import heroPc from '../../assets/hero-pc.png';
 import './Hero.css';
 
 export function Hero() {
   const visualRef = useHeroParallax<HTMLDivElement>();
-  const trackRef = useRef<HTMLDivElement>(null);
-  const { products: allProducts, featuredProducts } = useProducts();
-  const products = useMemo(() => {
-    const source = featuredProducts.length > 0 ? featuredProducts : allProducts;
-    return getProductViews(source).slice(0, 6);
-  }, [allProducts, featuredProducts]);
-  const [activeBuild, setActiveBuild] = useState('');
-
-  useEffect(() => {
-    if (!activeBuild && products[0]) setActiveBuild(products[1] ? getProductKey(products[1]) : getProductKey(products[0]));
-  }, [activeBuild, products]);
 
   return (
     <section id="top" className="hero">
@@ -71,68 +57,6 @@ export function Hero() {
               <span className="heroPcPhotoGlow" aria-hidden="true" />
             </div>
           </div>
-        </div>
-      </div>
-
-      <div id="builds" className="heroBuilds container" aria-label="Готовые сборки">
-        <div className="heroBuildsHeader">
-          <span>Рекомендуемые сборки</span>
-          <div className="heroBuildsControls">
-            <button type="button" onClick={() => trackRef.current?.scrollBy({ left: -360, behavior: 'smooth' })} aria-label="Назад">‹</button>
-            <button type="button" onClick={() => trackRef.current?.scrollBy({ left: 360, behavior: 'smooth' })} aria-label="Вперед">›</button>
-            <a href="#catalog">Все {allProducts.length} товаров</a>
-          </div>
-        </div>
-        <div className="heroBuildsTrack" ref={trackRef}>
-          {products.map((build) => {
-            const buildKey = getProductKey(build);
-            const isActive = activeBuild === buildKey;
-
-            return (
-              <article
-                className={`heroBuildCard ${isActive ? 'isActive' : ''}`}
-                key={buildKey}
-                role="button"
-                tabIndex={0}
-                onClick={(event) => {
-                  if ((event.target as HTMLElement).closest('a')) return;
-                  setActiveBuild(buildKey);
-                  event.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-                }}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter' || event.key === ' ') {
-                    event.preventDefault();
-                    setActiveBuild(buildKey);
-                  }
-                }}
-                aria-pressed={isActive}
-              >
-                <span className={`badge ${build.badgeType === 'available' ? 'badgeAvailable' : ''}`}>{build.badge}</span>
-                <span className="heroBuildMedia" aria-hidden="true">
-                  <img src={build.image || heroPc} alt="" />
-                </span>
-                <span className="heroBuildCopy">
-                  <strong>{build.normalizedTitle}</strong>
-                  <small>{build.cleanSpecs.slice(0, 2).join(' / ')}</small>
-                  <span className="heroBuildPrice">{build.price}</span>
-                </span>
-                <span className="heroBuildSpecs">
-                  {build.cleanSpecs.map((spec) => (
-                    <i key={spec}>{spec}</i>
-                  ))}
-                </span>
-                <a
-                  className="heroBuildCta"
-                  href={`${contacts.vk}?message=${buildContactMessage(`Здравствуйте! Интересует сборка ${build.normalizedTitle} за ${build.price}.`)}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  onClick={() => trackEvent('product_cta_click', { productId: build.sourceId, title: build.normalizedTitle, channel: 'vk', placement: 'hero' })}
-                >
-                  Написать
-                </a>
-              </article>
-            );
-          })}
         </div>
       </div>
     </section>
