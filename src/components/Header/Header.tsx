@@ -8,7 +8,6 @@ import './Header.css';
 const navLinks: Array<{ label: string; href: string; external?: boolean; action?: 'customParts' }> = [
   { label: 'Каталог ПК', href: '#catalog' },
   { label: 'Этапы работы', href: '#process' },
-  { label: 'Фото', href: '#works-title' },
   { label: 'Отзывы', href: '#reviews' },
   { label: 'Под заказ', href: '#custom-parts', action: 'customParts' },
 ];

@@ -7,7 +7,6 @@ import { CustomBuild } from '../components/CustomBuild/CustomBuild';
 import { WhyTogoshol } from '../components/WhyTogoshol/WhyTogoshol';
 import { TrustConditions } from '../components/TrustConditions/TrustConditions';
 import { OrderProcess } from '../components/OrderProcess/OrderProcess';
-import { SocialProof } from '../components/SocialProof/SocialProof';
 import { Faq } from '../components/Faq/Faq';
 import { FinalCta } from '../components/FinalCta/FinalCta';
 import { Footer } from '../components/Footer/Footer';
@@ -36,7 +35,6 @@ export function App() {
         <WhyTogoshol />
         <TrustConditions />
         <OrderProcess />
-        <SocialProof />
         <Faq />
         <FinalCta />
       </main>
