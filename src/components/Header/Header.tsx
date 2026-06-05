@@ -109,7 +109,7 @@ export function Header() {
     <header className={`header ${isScrolled ? 'isScrolled' : ''}`}>
       <div className="headerInner container">
         <a className="brand" href="#top" onClick={() => closeMenu()} aria-label="TOGOSHOL, на главный экран">
-          <img src={logo} alt="TOGOSHOL PC" />
+          <img src={logo} alt="T-PC" />
         </a>
 
         <nav className="desktopNav" aria-label="Основная навигация">
