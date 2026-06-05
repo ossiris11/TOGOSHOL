@@ -196,7 +196,7 @@ export function Hero() {
             </div>
             <div>
               <strong>В Новгороде</strong>
-              <span>территориально в Великом Новгороде</span>
+              <span>офис и выдача</span>
             </div>
           </div>
         </div>

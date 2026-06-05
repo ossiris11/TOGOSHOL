@@ -106,9 +106,9 @@
 
 .heroStats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
   gap: 12px;
-  max-width: 700px;
+  max-width: 760px;
   margin-top: 42px;
   animation: fadeUp 700ms var(--ease-premium) 360ms forwards;
 }
@@ -117,7 +117,7 @@
   display: grid;
   gap: 10px;
   min-width: 0;
-  min-height: 104px;
+  min-height: 112px;
   align-content: center;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
@@ -138,10 +138,11 @@
 
 .heroStats span {
   color: rgba(255, 255, 255, 0.48);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 750;
   line-height: 1.35;
   text-transform: lowercase;
+  overflow-wrap: normal;
 }
 
 .heroVisual {
@@ -932,7 +933,7 @@
 
   .heroStats div {
     min-height: 78px;
-    grid-template-columns: minmax(150px, auto) minmax(0, 1fr);
+    grid-template-columns: minmax(148px, auto) minmax(0, 1fr);
     align-items: center;
     gap: 14px;
     padding: 14px 16px;
@@ -1150,11 +1151,11 @@
 
 @media (max-width: 360px) {
   .heroStats strong {
-    font-size: 1.22rem;
+    font-size: 1.18rem;
   }
 
   .heroStats div {
-    grid-template-columns: minmax(136px, auto) minmax(0, 1fr);
+    grid-template-columns: minmax(130px, auto) minmax(0, 1fr);
     gap: 10px;
   }
 
