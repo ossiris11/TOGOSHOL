@@ -12,13 +12,16 @@ export function FinalCta() {
           <p>Напиши нам — подберём сборку под твой бюджет и задачи.</p>
           <div className="finalCtaActions">
             <a className="button buttonPrimary" href={contacts.vk} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_vk', { placement: 'final_cta' })}>
-              Написать в VK
+              Консультация в VK
             </a>
             <a className="button buttonSecondary" href={contacts.telegram} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_telegram', { placement: 'final_cta' })}>
               Telegram
             </a>
-            <a className="button buttonSecondary" href={contacts.max} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_max', { placement: 'final_cta' })}>
-              Max
+            <a className="button buttonSecondary" href={contacts.instagram} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_instagram', { placement: 'final_cta' })}>
+              Instagram
+            </a>
+            <a className="button buttonSecondary" href={contacts.avito} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_avito', { placement: 'final_cta' })}>
+              Avito
             </a>
             <a className="button buttonSecondary" href="#custom">
               Собрать под задачу

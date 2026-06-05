@@ -253,7 +253,7 @@
 
 .productActions {
   display: grid;
-  grid-template-columns: 1fr 0.7fr 0.7fr;
+  grid-template-columns: 1fr 0.72fr;
   gap: 10px;
 }
 

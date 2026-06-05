@@ -24,8 +24,11 @@ export function Footer() {
           <a href={contacts.telegram} target="_blank" rel="noreferrer">
             Telegram
           </a>
-          <a href={contacts.max} target="_blank" rel="noreferrer">
-            Max
+          <a href={contacts.instagram} target="_blank" rel="noreferrer">
+            Instagram
+          </a>
+          <a href={contacts.avito} target="_blank" rel="noreferrer">
+            Avito
           </a>
           <a href={contacts.email}>Email</a>
         </div>

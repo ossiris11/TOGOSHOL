@@ -76,8 +76,7 @@
   white-space: nowrap;
 }
 
-.desktopNav a,
-.phoneLink {
+.desktopNav a {
   color: var(--text-muted);
   font-size: 0.94rem;
   font-weight: 600;
@@ -85,15 +84,47 @@
   transition: color 180ms ease;
 }
 
-.desktopNav a:hover,
-.phoneLink:hover {
+.desktopNav a:hover {
   color: var(--text-main);
 }
 
 .headerActions {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
+}
+
+.headerSocials {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.socialIcon {
+  display: inline-grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid var(--border-soft);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.045);
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-decoration: none;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    color 180ms ease;
+}
+
+.socialIcon:hover,
+.socialIcon:focus-visible {
+  border-color: rgba(0, 229, 255, 0.42);
+  background: rgba(0, 229, 255, 0.12);
+  color: var(--text-main);
+  transform: translateY(-1px);
 }
 
 .headerButton {

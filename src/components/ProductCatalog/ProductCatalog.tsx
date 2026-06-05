@@ -192,9 +192,6 @@ export function ProductCatalog() {
                   <a className="button buttonSecondary" href={contacts.telegram} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_telegram', { productId: product.sourceId, placement: 'catalog' })}>
                     Telegram
                   </a>
-                  <a className="button buttonSecondary" href={contacts.max} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_max', { productId: product.sourceId, placement: 'catalog' })}>
-                    Max
-                  </a>
                 </div>
               </div>
             </article>

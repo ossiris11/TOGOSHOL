@@ -12,6 +12,13 @@ const navLinks: Array<{ label: string; href: string; external?: boolean; action?
   { label: 'Как заказать', href: '#process' },
 ];
 
+const socialLinks = [
+  { label: 'VK', href: contacts.vk, channel: 'vk' },
+  { label: 'TG', href: contacts.telegram, channel: 'telegram' },
+  { label: 'IG', href: contacts.instagram, channel: 'instagram' },
+  { label: 'AV', href: contacts.avito, channel: 'avito' },
+] as const;
+
 export function Header() {
   const isScrolled = useHeaderScrolled();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -25,7 +32,7 @@ export function Header() {
     }
     closeMenu();
   };
-  const trackContact = (channel: 'vk' | 'telegram' | 'max', placement: string) => {
+  const trackContact = (channel: 'vk' | 'telegram' | 'instagram' | 'avito', placement: string) => {
     trackEvent(`contact_click_${channel}`, { placement });
   };
 
@@ -53,11 +60,24 @@ export function Header() {
         </nav>
 
         <div className="headerActions">
-          <a className="phoneLink" href={contacts.vk} target="_blank" rel="noreferrer" onClick={() => trackContact('vk', 'header_contacts')}>
-            VK / TG / Max
-          </a>
+          <div className="headerSocials" aria-label="Социальные сети">
+            {socialLinks.map((link) => (
+              <a
+                key={link.channel}
+                className={`socialIcon socialIcon-${link.channel}`}
+                href={link.href}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={link.label === 'AV' ? 'Avito TOGOSHOL' : `${link.label} TOGOSHOL`}
+                title={link.label === 'AV' ? 'Avito' : link.label}
+                onClick={() => trackContact(link.channel, 'header_socials')}
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
           <a className="button buttonPrimary headerButton" href={contacts.vk} target="_blank" rel="noreferrer" onClick={() => trackContact('vk', 'header_button')}>
-            Написать
+            Консультация
           </a>
         </div>
 
@@ -93,11 +113,14 @@ export function Header() {
           <a href={contacts.telegram} target="_blank" rel="noreferrer" onClick={() => { trackContact('telegram', 'mobile_menu'); closeMenu(); }}>
             Telegram
           </a>
-          <a href={contacts.max} target="_blank" rel="noreferrer" onClick={() => { trackContact('max', 'mobile_menu'); closeMenu(); }}>
-            Max
+          <a href={contacts.instagram} target="_blank" rel="noreferrer" onClick={() => { trackContact('instagram', 'mobile_menu'); closeMenu(); }}>
+            Instagram
+          </a>
+          <a href={contacts.avito} target="_blank" rel="noreferrer" onClick={() => { trackContact('avito', 'mobile_menu'); closeMenu(); }}>
+            Avito
           </a>
           <a className="button buttonPrimary" href={contacts.vk} target="_blank" rel="noreferrer" onClick={() => { trackContact('vk', 'mobile_menu_button'); closeMenu(); }}>
-            Написать
+            Консультация
           </a>
         </nav>
       </div>
