@@ -15,6 +15,7 @@ const sortOptions = [
   { label: 'Сначала дороже', value: 'price-desc' },
   { label: 'Сначала мощнее', value: 'power-desc' },
 ] as const;
+const specDrawerCloseMs = 420;
 
 type Filter = (typeof filters)[number];
 type GpuFilter = (typeof gpuFilters)[number];
@@ -120,7 +121,7 @@ export function ProductCatalog() {
       setSelectedProduct(null);
       setIsSpecClosing(false);
       closeSpecTimer.current = null;
-    }, 260);
+    }, specDrawerCloseMs);
   }, [isSpecClosing, selectedProduct]);
 
   useEffect(() => {
@@ -316,10 +317,10 @@ export function ProductCatalog() {
                   <dl className="productSpecsList">
                     {specs.map(([key, label, value]) => (
                       <div key={key}>
-                        <dt>
-                          <span>{specIcons[key] || '•'}</span>
-                          {label}
-                        </dt>
+                        <span className="productSpecIcon" aria-hidden="true">
+                          {specIcons[key] || '•'}
+                        </span>
+                        <dt>{label}</dt>
                         <dd>{value}</dd>
                       </div>
                     ))}
