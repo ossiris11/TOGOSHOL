@@ -29,13 +29,13 @@
 .brand {
   display: inline-flex;
   align-items: center;
-  width: 96px;
-  min-width: 96px;
+  width: 168px;
+  min-width: 168px;
   text-decoration: none;
 }
 
 .brand img {
-  width: 96px;
+  width: 168px;
   height: auto;
 }
 
@@ -196,12 +196,12 @@
   }
 
   .brand {
-    width: 84px;
-    min-width: 84px;
+    width: 132px;
+    min-width: 132px;
   }
 
   .brand img {
-    width: 84px;
+    width: 132px;
   }
 
   .menuButton {
@@ -247,7 +247,7 @@
 @media (max-width: 420px) {
   .brand,
   .brand img {
-    width: 76px;
-    min-width: 76px;
+    width: 118px;
+    min-width: 118px;
   }
 }
