@@ -2,14 +2,15 @@ import { useState, type MouseEvent } from 'react';
 import { useHeaderScrolled } from '../../hooks/useHeaderScrolled';
 import { contacts } from '../../data/contacts';
 import { trackEvent } from '../../lib/api';
+import logo from '../../assets/tog-pc-logo.svg';
 import './Header.css';
 
 const navLinks: Array<{ label: string; href: string; external?: boolean; action?: 'customParts' }> = [
-  { label: 'Сборки', href: '#catalog' },
-  { label: 'Конфигуратор', href: '#custom' },
+  { label: 'Каталог ПК', href: '#catalog' },
+  { label: 'Этапы работы', href: '#process' },
+  { label: 'Фото', href: '#works-title' },
+  { label: 'Отзывы', href: '#why' },
   { label: 'Под заказ', href: '#custom-parts', action: 'customParts' },
-  { label: 'Почему мы', href: '#why' },
-  { label: 'Как заказать', href: '#process' },
 ];
 
 const socialLinks = [
@@ -22,7 +23,6 @@ const socialLinks = [
 export function Header() {
   const isScrolled = useHeaderScrolled();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [city, setCity] = useState('Великий Новгород');
 
   const closeMenu = () => setIsMobileMenuOpen(false);
   const handleNavClick = (event: MouseEvent<HTMLAnchorElement>, action?: 'customParts') => {
@@ -40,16 +40,8 @@ export function Header() {
     <header className={`header ${isScrolled ? 'isScrolled' : ''}`}>
       <div className="headerInner container">
         <a className="brand" href="#top" onClick={closeMenu} aria-label="TOGOSHOL, на главный экран">
-          <span>TOGOSHOL</span>
+          <img src={logo} alt="TOG PC" />
         </a>
-
-        <label className="citySelect">
-          <span className="srOnly">Выберите город</span>
-          <select value={city} onChange={(event) => setCity(event.target.value)} aria-label="Выберите город">
-            <option>Великий Новгород</option>
-            <option>Санкт-Петербург</option>
-          </select>
-        </label>
 
         <nav className="desktopNav" aria-label="Основная навигация">
           {navLinks.map((link) => (

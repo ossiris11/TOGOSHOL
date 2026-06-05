@@ -1,0 +1,7 @@
+<svg width="292" height="112" viewBox="0 0 292 112" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="292" height="112" fill="none"/>
+  <path d="M22 33.5L82 18.5C91 16.3 98 23.1 98 32.2V67.4C98 72.4 95.3 77 91 79.6L51.6 103.5C45.1 107.5 36.7 102.8 36.7 95.2V50.8L22 54.6V33.5Z" stroke="#F2263D" stroke-width="14" stroke-linejoin="round"/>
+  <path d="M94 72L63 99" stroke="#F2263D" stroke-width="14" stroke-linecap="round"/>
+  <text x="120" y="48" fill="#D8D8DA" font-family="Montserrat, Arial, sans-serif" font-size="44" font-weight="900" letter-spacing="1">TOG</text>
+  <text x="120" y="94" fill="#D8D8DA" font-family="Montserrat, Arial, sans-serif" font-size="44" font-weight="900" letter-spacing="1">PC</text>
+</svg>
