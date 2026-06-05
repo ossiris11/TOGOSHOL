@@ -109,9 +109,39 @@
   border-radius: 14px;
   padding: 26px 22px 22px;
   background:
-    radial-gradient(circle at 50% 26%, rgba(12, 12, 12, 0.04), transparent 34%),
-    #f8f8f8;
-  color: #09090b;
+    radial-gradient(circle at 50% 34%, rgba(0, 229, 255, 0.2), transparent 34%),
+    radial-gradient(circle at 24% 72%, rgba(142, 74, 244, 0.22), transparent 42%),
+    radial-gradient(circle at 78% 12%, rgba(255, 48, 152, 0.1), transparent 30%),
+    linear-gradient(145deg, #101321 0%, #080a12 56%, #050506 100%);
+  color: #ffffff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.productShowcase::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: radial-gradient(circle at 50% 38%, rgba(0, 0, 0, 0.75), transparent 72%);
+  opacity: 0.42;
+  pointer-events: none;
+}
+
+.productShowcase::after {
+  content: "";
+  position: absolute;
+  right: 18%;
+  bottom: 112px;
+  left: 18%;
+  height: 24px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.58), transparent 70%);
+  filter: blur(10px);
+  pointer-events: none;
 }
 
 .productBrandBadge {
@@ -119,45 +149,49 @@
   top: 14px;
   right: 14px;
   z-index: 2;
-  border: 3px solid #ff3048;
+  border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 10px;
   padding: 9px 12px;
-  background: #ffffff;
-  color: #101012;
+  background: rgba(8, 10, 18, 0.82);
+  color: #ffffff;
   font-size: 0.78rem;
   font-weight: 950;
   line-height: 1;
-  box-shadow: 0 8px 20px rgba(255, 48, 72, 0.22);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
 }
 
 .productBrandBadge.isIntel {
-  border-color: #0071c5;
-  color: #0071c5;
+  border-color: rgba(0, 229, 255, 0.52);
+  color: #8af4ff;
   font-size: 1rem;
   font-weight: 900;
   letter-spacing: -0.02em;
   text-transform: lowercase;
-  box-shadow: 0 8px 20px rgba(0, 113, 197, 0.24);
+  box-shadow: 0 0 24px rgba(0, 229, 255, 0.14);
 }
 
 .productBrandBadge.isAmd {
-  border-color: #ff3048;
-  color: #101012;
-  box-shadow: 0 8px 20px rgba(255, 48, 72, 0.22);
+  border-color: rgba(255, 48, 152, 0.62);
+  color: #ff9fd0;
+  box-shadow: 0 0 24px rgba(255, 48, 152, 0.14);
 }
 
 .productBrandBadge.isNeutral {
-  border-color: rgba(16, 16, 18, 0.24);
-  color: #101012;
-  box-shadow: 0 8px 20px rgba(16, 16, 18, 0.12);
+  border-color: rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.78);
 }
 
 .productShowcase img {
+  position: relative;
+  z-index: 1;
   width: min(100%, 250px);
   height: 178px;
   object-fit: contain;
   margin-top: 8px;
-  filter: drop-shadow(0 24px 28px rgba(0, 0, 0, 0.16));
+  filter:
+    drop-shadow(0 24px 32px rgba(0, 0, 0, 0.38))
+    drop-shadow(0 0 24px rgba(0, 229, 255, 0.16));
   transition: transform 320ms ease;
 }
 
@@ -166,6 +200,8 @@
 }
 
 .productIntro {
+  position: relative;
+  z-index: 1;
   display: grid;
   justify-items: center;
   gap: 8px;
@@ -174,7 +210,7 @@
 }
 
 .productIntro span {
-  color: #8a93a5;
+  color: rgba(255, 255, 255, 0.54);
   font-size: 0.74rem;
   font-weight: 900;
   letter-spacing: 0.16em;
@@ -183,12 +219,12 @@
 
 .productIntro h3 {
   margin: 0;
-  color: #050505;
+  color: #ffffff;
   font-size: clamp(1.7rem, 3vw, 2.15rem);
   font-weight: 950;
   letter-spacing: -0.02em;
   line-height: 1;
-  text-shadow: 2px 2px 0 rgba(255, 48, 72, 0.24);
+  text-shadow: 0 0 26px rgba(0, 229, 255, 0.22);
 }
 
 .productIntro p {
@@ -196,13 +232,13 @@
   align-items: baseline;
   gap: 8px;
   margin: 0;
-  color: #050505;
+  color: #ffffff;
   font-size: 1.26rem;
   font-weight: 950;
 }
 
 .productIntro small {
-  color: #5f6673;
+  color: rgba(255, 255, 255, 0.52);
   font-size: 0.78rem;
   font-weight: 700;
 }
