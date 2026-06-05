@@ -130,9 +130,10 @@
   background: linear-gradient(100deg, #ffffff 0%, #00e5ff 46%, #7a46ff 100%);
   background-clip: text;
   color: transparent;
-  font-size: clamp(1.45rem, 2.35vw, 1.95rem);
+  font-size: clamp(1.34rem, 1.9vw, 1.72rem);
   font-weight: 950;
   line-height: 0.95;
+  white-space: nowrap;
 }
 
 .heroStats span {
@@ -867,7 +868,7 @@
 
   .heroStats div {
     min-height: 78px;
-    grid-template-columns: minmax(108px, auto) minmax(0, 1fr);
+    grid-template-columns: minmax(150px, auto) minmax(0, 1fr);
     align-items: center;
     gap: 14px;
     padding: 14px 16px;
@@ -1037,6 +1038,15 @@
 }
 
 @media (max-width: 360px) {
+  .heroStats strong {
+    font-size: 1.22rem;
+  }
+
+  .heroStats div {
+    grid-template-columns: minmax(136px, auto) minmax(0, 1fr);
+    gap: 10px;
+  }
+
   .customPcContacts h3 {
     font-size: 0.92rem;
   }
