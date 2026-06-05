@@ -198,63 +198,69 @@
 
 .customPcBand {
   position: relative;
-  margin-top: clamp(42px, 6vw, 82px);
-  padding: clamp(68px, 8vw, 112px) 0 clamp(76px, 9vw, 122px);
-  background: #f7f7f8;
-  color: #08080a;
+  margin-top: clamp(30px, 4.5vw, 58px);
+  padding: clamp(44px, 5.6vw, 74px) 0 clamp(52px, 6vw, 84px);
+  background:
+    radial-gradient(circle at 16% 76%, rgba(117, 55, 255, 0.16), transparent 34%),
+    radial-gradient(circle at 74% 18%, rgba(0, 177, 255, 0.18), transparent 36%),
+    linear-gradient(180deg, #030506 0%, #05070b 52%, #020202 100%);
+  color: #ffffff;
   overflow: hidden;
 }
 
 .customPcBand::before {
   content: "";
   position: absolute;
-  top: -1px;
+  top: 0;
   right: 0;
   left: 0;
-  height: clamp(58px, 8vw, 112px);
-  background: var(--bg-main);
-  clip-path: ellipse(74% 100% at 50% 0);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.34), rgba(122, 83, 255, 0.34), transparent);
+  opacity: 0.85;
 }
 
 .customPcLayout {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.38fr);
-  gap: 22px;
+  max-width: 1180px;
+  grid-template-columns: minmax(0, 1fr) minmax(250px, 0.34fr);
+  gap: 16px;
   align-items: stretch;
 }
 
 .customPcCard,
 .customPcContacts {
-  border-radius: 24px;
-  background: #08080b;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  background: rgba(8, 9, 13, 0.88);
   color: #ffffff;
-  box-shadow: 0 32px 70px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 22px 56px rgba(0, 0, 0, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .customPcCard {
   display: grid;
-  grid-template-columns: minmax(220px, 0.42fr) minmax(220px, 0.45fr) minmax(240px, 0.42fr);
-  gap: clamp(18px, 3vw, 34px);
-  padding: clamp(18px, 2.4vw, 28px);
+  grid-template-columns: minmax(180px, 0.36fr) minmax(220px, 0.45fr) minmax(210px, 0.39fr);
+  gap: clamp(16px, 2.2vw, 24px);
+  padding: clamp(16px, 2vw, 22px);
 }
 
 .customPcImage {
   display: grid;
-  min-height: 270px;
+  min-height: 228px;
   place-items: center;
   overflow: hidden;
-  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
   background:
-    radial-gradient(circle at 50% 50%, rgba(0, 229, 255, 0.18), transparent 44%),
-    #f0f2f5;
+    radial-gradient(circle at 52% 48%, rgba(0, 229, 255, 0.2), transparent 45%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.025));
 }
 
 .customPcImage img {
-  width: min(92%, 330px);
+  width: min(88%, 280px);
   height: auto;
-  filter: drop-shadow(0 20px 38px rgba(0, 0, 0, 0.32));
+  filter: drop-shadow(0 18px 34px rgba(0, 153, 255, 0.22)) drop-shadow(0 20px 30px rgba(0, 0, 0, 0.36));
 }
 
 .customPcCopy {
@@ -274,7 +280,7 @@
 .customPcCopy h2 {
   margin: 0;
   color: #ffffff;
-  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-size: clamp(1.75rem, 3.1vw, 2.55rem);
   font-weight: 950;
   line-height: 0.96;
 }
@@ -286,25 +292,26 @@
 .customPcCopy p {
   margin: 0;
   color: rgba(255, 255, 255, 0.62);
+  font-size: 0.95rem;
   font-weight: 700;
   line-height: 1.5;
 }
 
 .customPcButton {
   display: inline-flex;
-  width: min(100%, 300px);
-  min-height: 58px;
+  width: min(100%, 260px);
+  min-height: 52px;
   align-items: center;
   justify-content: center;
   gap: 12px;
   border: 0;
   border-radius: 11px;
-  margin-top: 16px;
+  margin-top: 10px;
   padding: 0 22px;
-  background: linear-gradient(135deg, #b867ff, #7d32ee);
+  background: linear-gradient(135deg, #00dff5, #2b7dff 48%, #7c3cff);
   color: #ffffff;
   font-weight: 950;
-  box-shadow: 0 18px 42px rgba(137, 73, 245, 0.36);
+  box-shadow: 0 16px 38px rgba(43, 125, 255, 0.26);
 }
 
 .customPcButton span {
@@ -314,7 +321,7 @@
 .customPcSpecs {
   display: grid;
   align-content: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .customSpecRow {
@@ -323,9 +330,9 @@
   gap: 7px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 13px;
-  padding: 13px 14px;
-  background: rgba(255, 255, 255, 0.035);
+  border-radius: 12px;
+  padding: 11px 12px;
+  background: rgba(255, 255, 255, 0.04);
   opacity: 0;
   transform: translateX(20px);
   animation: specSlideIn 680ms var(--ease-premium) var(--delay) forwards;
@@ -333,7 +340,7 @@
 
 .customSpecRow span {
   color: rgba(255, 255, 255, 0.42);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 950;
   text-transform: uppercase;
 }
@@ -342,13 +349,13 @@
   position: relative;
   z-index: 1;
   color: #ffffff;
-  font-size: 0.95rem;
+  font-size: 0.88rem;
   line-height: 1.25;
 }
 
 .customSpecRow i {
   display: block;
-  height: 5px;
+  height: 4px;
   overflow: hidden;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.08);
@@ -368,14 +375,14 @@
 .customPcContacts {
   display: grid;
   align-content: center;
-  gap: 14px;
-  padding: clamp(22px, 3vw, 34px);
+  gap: 12px;
+  padding: clamp(20px, 2.4vw, 28px);
 }
 
 .customPcContacts h3 {
   margin: 0;
   color: #ffffff;
-  font-size: clamp(1.45rem, 2.4vw, 2.05rem);
+  font-size: clamp(1.28rem, 2vw, 1.72rem);
   font-weight: 950;
   line-height: 1.05;
   text-transform: uppercase;
@@ -384,6 +391,7 @@
 .customPcContacts p {
   margin: 0 0 10px;
   color: rgba(255, 255, 255, 0.62);
+  font-size: 0.92rem;
   line-height: 1.55;
 }
 
@@ -391,13 +399,13 @@
 .customOrderActions a,
 .customOrderCopy {
   display: inline-flex;
-  min-height: 56px;
+  min-height: 50px;
   align-items: center;
   justify-content: space-between;
   gap: 14px;
   border: 0;
-  border-radius: 12px;
-  padding: 0 20px;
+  border-radius: 11px;
+  padding: 0 16px;
   background: #111111;
   color: #ffffff;
   font-weight: 950;
@@ -420,8 +428,8 @@
 .customOrderActions span,
 .customOrderCopy span {
   display: grid;
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   place-items: center;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.94);
@@ -442,14 +450,14 @@
 .customOrderModal {
   position: relative;
   display: grid;
-  width: min(100%, 680px);
-  max-height: min(92svh, 820px);
+  width: min(100%, 620px);
+  max-height: min(92svh, 760px);
   overflow-y: auto;
-  border-radius: 34px;
-  padding: clamp(24px, 4vw, 40px);
+  border-radius: 28px;
+  padding: clamp(22px, 3vw, 32px);
   background: #ffffff;
   color: #08080a;
-  box-shadow: 0 34px 90px rgba(0, 0, 0, 0.34);
+  box-shadow: 0 28px 78px rgba(0, 0, 0, 0.38);
   animation: customModalIn 320ms var(--ease-premium) both;
 }
 
@@ -458,8 +466,8 @@
   top: 22px;
   right: 22px;
   display: grid;
-  width: 42px;
-  height: 42px;
+  width: 38px;
+  height: 38px;
   place-items: center;
   border: 0;
   border-radius: 50%;
@@ -471,13 +479,13 @@
 .customOrderModal h2 {
   max-width: calc(100% - 56px);
   margin: 0;
-  font-size: clamp(2.1rem, 5vw, 3rem);
+  font-size: clamp(1.9rem, 4vw, 2.55rem);
   font-weight: 950;
   line-height: 1;
 }
 
 .customOrderModal > p {
-  margin: 10px 0 26px;
+  margin: 8px 0 22px;
   color: #66666f;
   font-weight: 700;
 }
@@ -485,7 +493,7 @@
 .customOrderGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 18px;
+  gap: 14px;
 }
 
 .customOrderGrid label {
@@ -501,10 +509,10 @@
 
 .customOrderGrid input,
 .customOrderGrid textarea {
-  min-height: 58px;
+  min-height: 52px;
   border: 1px solid #dedee3;
-  border-radius: 20px;
-  padding: 0 20px;
+  border-radius: 16px;
+  padding: 0 18px;
   background: #f3f3f5;
   color: #050505;
   font-weight: 800;
@@ -513,16 +521,16 @@
 }
 
 .customOrderGrid textarea {
-  min-height: 86px;
-  padding-top: 18px;
+  min-height: 78px;
+  padding-top: 16px;
   resize: vertical;
 }
 
 .customOrderToggles {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 18px;
-  margin-top: 22px;
+  gap: 14px;
+  margin-top: 18px;
 }
 
 .customOrderToggles fieldset {
@@ -545,12 +553,12 @@
   grid-template-columns: 1fr 1fr;
   overflow: hidden;
   border: 1px solid #dedee3;
-  border-radius: 18px;
+  border-radius: 16px;
   background: #f0f0f2;
 }
 
 .customOrderToggles button {
-  min-height: 50px;
+  min-height: 46px;
   border: 0;
   border-radius: 14px;
   background: transparent;
@@ -569,10 +577,10 @@
   grid-template-columns: 38px minmax(0, 1fr);
   gap: 12px;
   align-items: center;
-  margin-top: 22px;
+  margin-top: 18px;
   border: 1px solid #dedee3;
-  border-radius: 18px;
-  padding: 14px 18px;
+  border-radius: 16px;
+  padding: 12px 16px;
   background: #fafafa;
 }
 
@@ -598,9 +606,9 @@
 }
 
 .customOrderHint {
-  margin-top: 22px;
-  border-radius: 18px;
-  padding: 18px 20px;
+  margin-top: 18px;
+  border-radius: 16px;
+  padding: 15px 18px;
   background: #f0e7ff;
   color: #050505;
   font-weight: 950;
@@ -611,7 +619,7 @@
   display: grid;
   grid-template-columns: minmax(170px, 1.25fr) repeat(3, minmax(112px, 0.75fr));
   gap: 12px;
-  margin-top: 24px;
+  margin-top: 20px;
 }
 
 .customOrderCopy {
@@ -668,7 +676,7 @@
   }
 
   .customPcCard {
-    grid-template-columns: minmax(220px, 0.8fr) minmax(240px, 1fr);
+    grid-template-columns: minmax(190px, 0.7fr) minmax(230px, 1fr);
   }
 
   .customPcSpecs {
@@ -737,21 +745,21 @@
   }
 
   .customPcBand {
-    margin-top: 26px;
-    padding-block: 70px 76px;
+    margin-top: 22px;
+    padding-block: 42px 54px;
   }
 
   .customPcBand::before {
-    height: 56px;
+    height: 1px;
   }
 
   .customPcCard {
     grid-template-columns: 1fr;
-    border-radius: 20px;
+    border-radius: 18px;
   }
 
   .customPcImage {
-    min-height: 220px;
+    min-height: 210px;
   }
 
   .customPcCopy {
@@ -767,7 +775,7 @@
   }
 
   .customPcContacts {
-    border-radius: 20px;
+    border-radius: 18px;
   }
 
   .customOrderOverlay {
@@ -823,7 +831,15 @@
 
   .customPcCard,
   .customPcContacts {
-    border-radius: 18px;
+    border-radius: 16px;
+  }
+
+  .customPcImage {
+    min-height: 190px;
+  }
+
+  .customPcImage img {
+    width: min(84%, 240px);
   }
 
   .customOrderModal {
