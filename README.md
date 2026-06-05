@@ -1,6 +1,6 @@
 # TOGOSHOL
 
-Frontend landing for TOGOSHOL: a local premium gaming PC brand for Veliky Novgorod.
+Frontend site for TOGOSHOL: a local premium gaming PC brand for Veliky Novgorod.
 
 ## Stack
 
@@ -45,12 +45,16 @@ Do not commit real tokens. Use `.env.example` only as a template.
 
 ## Current Frontend Sections
 
-- Sticky header with city selector
+- Sticky header with contacts
 - Hero with PC visual and featured builds
-- Product catalog
+- Product catalog with filters
 - PC configurator
+- Custom build section
 - Why TOGOSHOL
+- Trust conditions
 - Order process
+- Reviews / social proof
+- FAQ
 - Final CTA
 - Footer
 

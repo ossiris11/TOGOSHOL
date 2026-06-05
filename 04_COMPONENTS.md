@@ -16,21 +16,39 @@ src/
     PcMockup/
       PcMockup.tsx
       PcMockup.css
-    ReadyBuilds/
-      ReadyBuilds.tsx
-      ReadyBuilds.css
-    BuildCard/
-      BuildCard.tsx
-      BuildCard.css
+    FeaturedBuilds/
+      FeaturedBuilds.tsx
+      FeaturedBuilds.css
+    ProductCatalog/
+      ProductCatalog.tsx
+      ProductCatalog.css
+    ProductFilters/
+      ProductFilters.tsx
+      ProductFilters.css
+    ProductCard/
+      ProductCard.tsx
+      ProductCard.css
+    Configurator/
+      Configurator.tsx
+      Configurator.css
     CustomBuild/
       CustomBuild.tsx
       CustomBuild.css
     WhyTogoshol/
       WhyTogoshol.tsx
       WhyTogoshol.css
+    TrustConditions/
+      TrustConditions.tsx
+      TrustConditions.css
     OrderProcess/
       OrderProcess.tsx
       OrderProcess.css
+    Reviews/
+      Reviews.tsx
+      Reviews.css
+    Faq/
+      Faq.tsx
+      Faq.css
     FinalCta/
       FinalCta.tsx
       FinalCta.css
@@ -38,9 +56,16 @@ src/
       Footer.tsx
       Footer.css
   data/
-    builds.ts
+    products.ts
+    featuredBuilds.ts
     benefits.ts
+    conditions.ts
     steps.ts
+    reviews.ts
+    faq.ts
+  lib/
+    products.ts
+    contacts.ts
   hooks/
     useScrollReveal.ts
     useHeaderScrolled.ts
@@ -52,7 +77,7 @@ src/
   main.tsx
 ```
 
-Если проект маленький, можно сократить структуру, но не складывать всю страницу в один огромный файл.
+Если проект маленький, можно объединять CSS и данные, но нельзя превращать всю страницу в один огромный компонент.
 
 ---
 
@@ -69,10 +94,15 @@ export function App() {
       <Header />
       <main>
         <Hero />
-        <ReadyBuilds />
+        <FeaturedBuilds />
+        <ProductCatalog />
+        <Configurator />
         <CustomBuild />
         <WhyTogoshol />
+        <TrustConditions />
         <OrderProcess />
+        <Reviews />
+        <Faq />
         <FinalCta />
       </main>
       <Footer />
@@ -83,34 +113,52 @@ export function App() {
 
 ---
 
+# Contacts
+
+## Назначение
+
+Хранить все каналы связи в одном месте.
+
+```ts
+export const contacts = {
+  vk: 'https://vk.me/tog_pc',
+  telegram: '',
+  max: '',
+  phone: '',
+  email: '',
+};
+```
+
+Не размазывать URL и телефоны по компонентам. Если канала нет, не показывать кнопку-заглушку.
+
+---
+
 # Header
-
-## Props
-
-Можно без props.
 
 ## State
 
 - `isScrolled`
 - `isMobileMenuOpen`
 
-## Поведение
-
-- sticky top;
-- blur при scrollY > 12;
-- mobile menu;
-- плавное открытие mobile menu.
-
 ## Links
 
 ```ts
 const navLinks = [
-  { label: 'Сборки', href: '#builds' },
+  { label: 'Сборки', href: '#catalog' },
+  { label: 'Конфигуратор', href: '#configurator' },
   { label: 'Под заказ', href: '#custom' },
   { label: 'Почему мы', href: '#why' },
   { label: 'Как заказать', href: '#process' },
 ];
 ```
+
+## Поведение
+
+- sticky top;
+- blur при scrollY > 12;
+- mobile menu;
+- плавное открытие mobile menu;
+- CTA ведёт в рабочий канал связи.
 
 ---
 
@@ -123,15 +171,17 @@ const navLinks = [
 - subtitle;
 - CTA group;
 - metrics;
-- PC visual.
+- визуал ПК или активной сборки;
+- короткая лента рекомендованных сборок.
 
 ## Требования
 
 - H1 должен быть главным визуальным акцентом;
-- не перегружать текст;
-- справа должен быть премиальный mockup ПК;
+- hero не должен превращаться в полный каталог;
 - на desktop работает parallax;
-- на mobile parallax отключён.
+- на mobile parallax отключён;
+- CTA “Смотреть сборки” ведёт в `#catalog`;
+- CTA “Подобрать ПК” ведёт в `#configurator`.
 
 ---
 
@@ -139,7 +189,7 @@ const navLinks = [
 
 ## Назначение
 
-Заменяет настоящие изображения ПК, если их нет.
+Fallback, если нет настоящего фото ПК.
 
 ## Визуал
 
@@ -152,94 +202,151 @@ const navLinks = [
 - glow;
 - reflection.
 
-## Важные классы
-
-```text
-.pcMockup
-.pcCase
-.pcGlass
-.pcFan
-.pcGlow
-.pcReflection
-```
-
-## Анимации
-
-- RGB pulse;
-- subtle floating;
-- parallax wrapper in Hero.
+Использовать реальные фото, когда они есть.
 
 ---
 
-# ReadyBuilds
+# FeaturedBuilds
 
-## Data
+## Назначение
 
-Использовать `src/data/builds.ts`.
+Показать 3-6 рекомендуемых сборок на первом экране или сразу после него.
+
+## Props / Data
+
+Использует нормализованные товары из каталога. Не хранит отдельные фейковые сборки, если есть реальные данные.
+
+## UI
+
+- компактные карточки;
+- цена;
+- CPU / GPU;
+- статус;
+- CTA “Написать по сборке”;
+- клик по карточке может менять активную сборку в hero.
+
+---
+
+# ProductCatalog
+
+## Назначение
+
+Основная витрина всех сборок.
+
+## State
+
+- search query;
+- budget filter;
+- class filter;
+- sort mode;
+- visible count.
+
+## Поведение
+
+- фильтры и сортировка работают на нормализованных данных;
+- при изменении фильтров visible count сбрасывается;
+- сначала показывать ограниченное число карточек;
+- остальные раскрывать через “Показать ещё”;
+- если нет результатов, показывать пустое состояние и CTA в подбор.
+
+---
+
+# ProductFilters
+
+## Controls
+
+- search input;
+- segmented budget filter;
+- segmented class filter;
+- select / segmented sort.
+
+## Filters
 
 ```ts
-export const builds = [
-  {
-    badge: 'В наличии',
-    badgeType: 'available',
-    title: 'START',
-    subtitle: 'Для Full HD игр и учёбы',
-    specs: ['RTX / Radeon на выбор', '16–32 ГБ RAM', 'SSD NVMe', 'Тихое охлаждение'],
-    price: 'от 75 000 ₽',
-    cta: 'Уточнить наличие',
-  },
-  {
-    badge: 'Хит',
-    badgeType: 'default',
-    title: 'PRO',
-    subtitle: 'Для 2K-гейминга, стриминга и монтажа',
-    specs: ['Мощная видеокарта', '32 ГБ RAM', 'Быстрый NVMe SSD', 'RGB / airflow корпус'],
-    price: 'от 125 000 ₽',
-    cta: 'Подобрать PRO',
-  },
-  {
-    badge: 'Под заказ',
-    badgeType: 'default',
-    title: 'ULTRA',
-    subtitle: 'Максимальная производительность и премиальная эстетика',
-    specs: ['Флагманская видеокарта', '32–64 ГБ RAM', 'СЖО / кастомное охлаждение', 'Индивидуальный дизайн'],
-    price: 'от 190 000 ₽',
-    cta: 'Собрать ULTRA',
-  },
-];
+const budgetFilters = ['Все', 'до 60k', '60-90k', '90-150k', '150k+'];
+const classFilters = ['Все', 'Full HD', '2K', 'Топ', 'Работа'];
+const sortOptions = ['Рекомендуем', 'Дешевле', 'Дороже', 'Мощнее'];
 ```
 
 ---
 
-# BuildCard
+# ProductCard
 
 ## Props
 
 ```ts
-interface BuildCardProps {
-  badge: string;
-  badgeType?: 'default' | 'available';
+interface ProductCardProps {
+  id: string;
   title: string;
-  subtitle: string;
-  specs: string[];
-  price: string;
-  cta: string;
+  price: number;
+  priceText: string;
+  status: 'available' | 'order' | 'unknown';
+  image?: string;
+  className?: string;
+  scenario?: string;
+  specs: {
+    cpu?: string;
+    gpu?: string;
+    ram?: string;
+    storage?: string;
+    psu?: string;
+    cooling?: string;
+  };
 }
 ```
 
 ## UI
 
-- badge top;
+- image top;
+- status badge;
 - title;
-- subtitle;
-- mini visual;
-- specs list;
 - price;
-- CTA.
+- chips: class, CPU, GPU, RAM, SSD;
+- CTA “Написать по сборке”;
+- secondary action “Подобрать похожую”.
+
+## Запрет
+
+Не показывать в карточке:
+
+- рекламные хвосты из VK;
+- эмодзи-строки;
+- “Конфигурация:”;
+- обрывки описаний;
+- внешнюю ссылку на VK Market как основной сценарий покупки.
+
+---
+
+# Configurator
+
+## Назначение
+
+Помочь выбрать ПК без знания комплектующих.
+
+## State
+
+- budget;
+- game / task;
+- resolution;
+- parts condition;
+- RAM;
+- SSD;
+- case style.
+
+## Result
+
+- recommended tier;
+- short explanation;
+- warning for unrealistic budget;
+- nearby real products;
+- copy configuration button;
+- contact CTA.
 
 ## Accessibility
 
-CTA должен быть `a` или `button` с понятным `aria-label`.
+- radio groups должны иметь `role="radiogroup"`;
+- опции должны иметь `aria-checked` или быть настоящими `input`;
+- кнопка копирования должна сообщать состояние.
 
 ---
 
@@ -247,21 +354,15 @@ CTA должен быть `a` или `button` с понятным `aria-label`.
 
 ## Назначение
 
-Одна широкая карточка индивидуального подбора.
+Одна сильная секция про индивидуальную сборку.
 
-## Layout
+## Состав
 
-Desktop:
-
-```text
-text 50% / visual 50%
-```
-
-Mobile:
-
-```text
-text сверху / visual снизу
-```
+- заголовок;
+- короткий текст;
+- 4 пункта процесса;
+- CTA;
+- hardware visual или фото рабочего процесса.
 
 ---
 
@@ -276,7 +377,7 @@ export const benefits = [
     text: 'Можно быстро обсудить сборку, забрать ПК и получить помощь после покупки.',
   },
   {
-    title: 'Без лишней переплаты',
+    title: 'Подбор без лишней переплаты',
     text: 'Подбираем железо под реальные задачи, а не ради красивых цифр в описании.',
   },
   {
@@ -292,34 +393,79 @@ export const benefits = [
 
 ---
 
+# TrustConditions
+
+## Назначение
+
+Показать конкретные условия покупки.
+
+## Data
+
+```ts
+export const conditions = [
+  {
+    title: 'Гарантия',
+    text: 'Гарантия на сборку и комплектующие. Условия уточняются по конкретной конфигурации.',
+  },
+  {
+    title: 'Сроки',
+    text: 'Готовые ПК можно забрать быстрее. Индивидуальная сборка зависит от наличия комплектующих.',
+  },
+  {
+    title: 'Оплата',
+    text: 'Финальная стоимость фиксируется после согласования конфигурации.',
+  },
+  {
+    title: 'Выдача и доставка',
+    text: 'Выдача в Великом Новгороде. Доставку можно обсудить отдельно.',
+  },
+];
+```
+
+---
+
 # OrderProcess
 
 ## Data
 
 ```ts
 export const steps = [
-  {
-    number: '01',
-    title: 'Заявка',
-    text: 'Пишешь бюджет, задачи и пожелания.',
-  },
-  {
-    number: '02',
-    title: 'Подбор',
-    text: 'Получаешь 1–2 варианта конфигурации.',
-  },
-  {
-    number: '03',
-    title: 'Сборка',
-    text: 'Собираем, настраиваем и тестируем компьютер.',
-  },
-  {
-    number: '04',
-    title: 'Передача',
-    text: 'Отдаём ПК, объясняем базовые моменты и остаёмся на связи.',
-  },
+  { number: '01', title: 'Заявка', text: 'Пишешь бюджет, задачи и пожелания.' },
+  { number: '02', title: 'Подбор', text: 'Получаешь 1-2 варианта конфигурации.' },
+  { number: '03', title: 'Согласование', text: 'Фиксируем комплектующие, стоимость, сроки и условия.' },
+  { number: '04', title: 'Сборка и тест', text: 'Собираем, настраиваем и проверяем ПК под нагрузкой.' },
+  { number: '05', title: 'Передача', text: 'Отдаём компьютер, объясняем базовые моменты и остаёмся на связи.' },
 ];
 ```
+
+---
+
+# Reviews
+
+## Назначение
+
+Социальное доказательство.
+
+## Требования
+
+- не использовать фейковые отзывы;
+- если отзывов нет, скрыть секцию;
+- источник отзывов должен быть понятен;
+- можно показывать отзывы из VK при наличии разрешения и корректного источника.
+
+---
+
+# Faq
+
+## Назначение
+
+Закрыть типовые вопросы до обращения.
+
+## UI
+
+- accordion;
+- один вопрос раскрывается без скачков layout;
+- на mobile легко нажимать.
 
 ---
 
@@ -331,11 +477,10 @@ export const steps = [
 
 ## Визуал
 
-- большая карточка;
-- central layout;
-- gradient glow;
-- две кнопки;
-- короткий текст.
+- большой контрастный блок;
+- 2-3 рабочих CTA;
+- короткий текст;
+- без декоративной перегрузки.
 
 ---
 
@@ -343,12 +488,11 @@ export const steps = [
 
 ## Назначение
 
-Минимально закрыть контакты и навигацию.
+Закрыть контакты и навигацию.
 
 ## Не добавлять
 
-- много правовой информации;
-- длинные колонки;
-- лишние ссылки;
-- социальные сети без данных.
-
+- лишние соцсети без ссылок;
+- фейковый телефон;
+- длинную юридическую информацию без необходимости;
+- ссылки на внешние товарные источники как основной путь покупки.
