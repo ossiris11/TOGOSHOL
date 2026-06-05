@@ -3,70 +3,8 @@
 }
 
 .catalogHeader {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
-  gap: 28px;
-  margin-bottom: 28px;
-}
-
-.catalogStats {
-  display: grid;
-  min-width: 220px;
-  grid-template-columns: auto 1fr;
-  gap: 6px 12px;
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-md);
-  padding: 18px;
-  background: rgba(255, 255, 255, 0.035);
-}
-
-.catalogStats strong {
-  color: var(--text-main);
-  font-size: 1.35rem;
-}
-
-.catalogStats span {
-  align-self: center;
-  color: var(--text-muted);
-}
-
-.catalogToolbar {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.28fr);
-  gap: 14px;
-  margin-bottom: 16px;
-}
-
-.catalogSearch,
-.catalogSort {
-  display: grid;
-  gap: 8px;
-}
-
-.catalogSearch span,
-.catalogSort span,
-.catalogFilters > span {
-  color: var(--text-soft);
-  font-size: 0.78rem;
-  font-weight: 850;
-  text-transform: uppercase;
-}
-
-.catalogSearch input,
-.catalogSort select {
-  min-height: 48px;
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-sm);
-  padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.045);
-  color: var(--text-main);
-  outline: none;
-}
-
-.catalogSearch input:focus,
-.catalogSort select:focus {
-  border-color: rgba(0, 229, 255, 0.38);
+  max-width: 760px;
+  margin-bottom: 24px;
 }
 
 .catalogFilters {
@@ -99,16 +37,6 @@
   background: rgba(0, 229, 255, 0.12);
   color: var(--text-main);
   transform: translateY(-1px);
-}
-
-.catalogResultLine {
-  margin: 20px 0 18px;
-  color: var(--text-muted);
-  overflow-wrap: anywhere;
-}
-
-.catalogResultLine strong {
-  color: var(--text-main);
 }
 
 .catalogEmpty {
@@ -680,14 +608,6 @@
 }
 
 @media (max-width: 760px) {
-  .catalogToolbar {
-    grid-template-columns: 1fr;
-  }
-
-  .catalogHeader {
-    grid-template-columns: 1fr;
-  }
-
   .catalogGrid {
     grid-template-columns: 1fr;
     gap: 18px;
@@ -873,12 +793,6 @@
 }
 
 @media (max-width: 420px) {
-  .catalogStats {
-    min-width: 0;
-    padding: 14px;
-  }
-
-  .catalogStats span,
   .productIntro h3 {
     overflow-wrap: anywhere;
   }
