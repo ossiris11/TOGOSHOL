@@ -66,32 +66,10 @@ export function Hero() {
         </div>
 
         <div className="heroVisual" ref={visualRef}>
-          <div className="heroLighting" aria-label="Цвет подсветки">
-            <span>Подсветка:</span>
-            <i className="isCyan" />
-            <i className="isViolet" />
-            <i className="isGreen" />
-            <i className="isRed" />
-          </div>
-          <div className="heroVisualInner" aria-label="Игровой ПК TOGOSHOL с RGB-подсветкой">
-            <div className="heroPcCase" aria-hidden="true">
-              <span className="heroCaseLine heroCaseLineTopA" />
-              <span className="heroCaseLine heroCaseLineTopB" />
-              <span className="heroCaseLine heroCaseLineTopC" />
-              <span className="heroScrew heroScrewTl" />
-              <span className="heroScrew heroScrewTr" />
-              <span className="heroScrew heroScrewBl" />
-              <span className="heroScrew heroScrewBr" />
-              <span className="heroFan"><i /></span>
-              <span className="heroRamGlow" />
-              <span className="heroLogoCore">TOGO</span>
-              <span className="heroCableArc" />
-              <span className="heroGpuPlate">
-                <small>GeForce RTX</small>
-                <i />
-              </span>
-              <span className="heroCaseDivider" />
-              <span className="heroBottomRail" />
+          <div className="heroVisualInner">
+            <div className="heroPcPhotoFrame">
+              <img src={heroPc} alt="Мощный игровой ПК TOGOSHOL с RGB-подсветкой" />
+              <span className="heroPcPhotoGlow" aria-hidden="true" />
             </div>
             {selectedProduct && (
               <div className="heroSelectedBuild" aria-live="polite">

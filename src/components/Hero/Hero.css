@@ -162,278 +162,71 @@
   min-width: 0;
 }
 
-.heroLighting {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  width: fit-content;
-  align-items: center;
-  gap: 10px;
-  margin: 0 auto -6px;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: var(--radius-pill);
-  padding: 8px 14px;
-  background: rgba(6, 7, 10, 0.82);
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.36);
-}
-
-.heroLighting span {
-  color: var(--text-soft);
-  font-size: 0.65rem;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.heroLighting i {
-  width: 22px;
-  height: 22px;
-  border: 2px solid rgba(255, 255, 255, 0.82);
-  border-radius: 50%;
-  box-shadow: 0 0 20px currentColor;
-}
-
-.heroLighting .isCyan {
-  background: var(--cyan);
-  color: rgba(0, 229, 255, 0.7);
-}
-
-.heroLighting .isViolet {
-  border-color: rgba(106, 53, 255, 0.95);
-  background: #4a24b9;
-  color: rgba(106, 53, 255, 0.65);
-}
-
-.heroLighting .isGreen {
-  border-color: rgba(77, 255, 136, 0.8);
-  background: #2a9e52;
-  color: rgba(77, 255, 136, 0.5);
-}
-
-.heroLighting .isRed {
-  border-color: rgba(255, 59, 78, 0.8);
-  background: #b8323e;
-  color: rgba(255, 59, 78, 0.5);
-}
-
 .heroVisualInner {
   position: relative;
   display: grid;
   place-items: center;
-  min-height: clamp(430px, 48vw, 620px);
+  min-height: clamp(410px, 45vw, 580px);
   transform: translate3d(var(--parallax-x, 0), var(--parallax-y, 0), 0);
   transition: transform 180ms ease-out;
 }
 
-.heroPcCase {
+.heroPcPhotoFrame {
   position: relative;
-  width: min(100%, 430px);
-  aspect-ratio: 0.76;
-  overflow: hidden;
-  border: 2px solid rgba(255, 255, 255, 0.08);
-  border-radius: 28px;
-  background:
-    radial-gradient(circle at 16% 15%, rgba(255, 255, 255, 0.06), transparent 18%),
-    radial-gradient(circle at 76% 16%, rgba(0, 229, 255, 0.08), transparent 18%),
-    linear-gradient(145deg, #1a1d23, #0b0d11 62%, #13161b);
-  box-shadow:
-    inset 0 0 0 16px rgba(255, 255, 255, 0.025),
-    inset 0 0 0 18px rgba(0, 0, 0, 0.26),
-    0 32px 90px rgba(0, 0, 0, 0.42),
-    0 0 80px rgba(0, 229, 255, 0.06);
-}
-
-.heroPcCase::before {
-  content: "";
-  position: absolute;
-  inset: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
-}
-
-.heroPcCase::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.04), transparent 62%),
-    radial-gradient(circle at 48% 52%, rgba(0, 229, 255, 0.08), transparent 24%);
-  pointer-events: none;
-}
-
-.heroCaseLine {
-  position: absolute;
-  top: 26px;
-  height: 4px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.heroCaseLineTopA {
-  left: 50px;
-  width: 88px;
-}
-
-.heroCaseLineTopB {
-  left: 168px;
-  width: 88px;
-}
-
-.heroCaseLineTopC {
-  right: 50px;
-  width: 88px;
-}
-
-.heroScrew {
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  border: 2px solid rgba(255, 255, 255, 0.22);
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.heroScrewTl { top: 42px; left: 36px; }
-.heroScrewTr { top: 42px; right: 36px; }
-.heroScrewBl { bottom: 34px; left: 36px; }
-.heroScrewBr { bottom: 34px; right: 36px; }
-
-.heroFan {
-  position: absolute;
-  top: 58px;
-  left: 52px;
   display: grid;
-  width: 66px;
-  height: 66px;
+  width: min(100%, 560px);
+  min-height: clamp(360px, 38vw, 520px);
   place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.03);
+  isolation: isolate;
 }
 
-.heroFan i,
-.heroFan i::before,
-.heroFan i::after {
-  display: block;
-  width: 36px;
-  height: 8px;
-  border-radius: 999px 12px 999px 12px;
-  background: rgba(255, 255, 255, 0.3);
+.heroPcPhotoFrame::before {
+  content: "";
+  position: absolute;
+  inset: 8% 0 2%;
+  z-index: -2;
+  border-radius: 46%;
+  background:
+    radial-gradient(circle at 58% 42%, rgba(0, 229, 255, 0.22), transparent 36%),
+    radial-gradient(circle at 38% 72%, rgba(106, 53, 255, 0.2), transparent 42%);
+  filter: blur(36px);
 }
 
-.heroFan i {
+.heroPcPhotoFrame::after {
+  content: "";
+  position: absolute;
+  right: 6%;
+  bottom: 7%;
+  left: 8%;
+  z-index: -1;
+  height: 22px;
+  border-radius: 999px;
+  background:
+    radial-gradient(ellipse at center, rgba(0, 0, 0, 0.72), transparent 70%);
+  filter: blur(14px);
+}
+
+.heroPcPhotoFrame img {
   position: relative;
-  transform: rotate(18deg);
+  z-index: 1;
+  width: min(100%, 520px);
+  height: auto;
+  max-height: 560px;
+  object-fit: contain;
+  filter:
+    drop-shadow(0 36px 76px rgba(0, 0, 0, 0.78))
+    drop-shadow(0 0 36px rgba(0, 229, 255, 0.24));
 }
 
-.heroFan i::before,
-.heroFan i::after {
-  content: "";
+.heroPcPhotoGlow {
   position: absolute;
-  inset: 0;
-}
-
-.heroFan i::before {
-  transform: rotate(62deg);
-}
-
-.heroFan i::after {
-  transform: rotate(124deg);
-}
-
-.heroRamGlow {
-  position: absolute;
-  top: 66px;
-  right: 70px;
-  width: 24px;
-  height: 56px;
-  border-radius: 999px;
+  inset: 14% 6% 8%;
+  z-index: 0;
+  border-radius: 40%;
   background:
-    linear-gradient(90deg, var(--cyan) 0 8px, transparent 8px 14px, var(--cyan) 14px 22px);
-  box-shadow: 0 0 26px rgba(0, 229, 255, 0.72);
-}
-
-.heroLogoCore {
-  position: absolute;
-  top: 34%;
-  left: 50%;
-  display: grid;
-  width: 54px;
-  height: 54px;
-  place-items: center;
-  border: 2px solid rgba(0, 229, 255, 0.8);
-  border-radius: 50%;
-  background: #10151a;
-  color: #ffffff;
-  font-size: 0.6rem;
-  font-weight: 950;
-  letter-spacing: 0.08em;
-  transform: translateX(-50%);
-  box-shadow: 0 0 22px rgba(0, 229, 255, 0.34);
-}
-
-.heroCableArc {
-  position: absolute;
-  top: 46%;
-  left: 46%;
-  width: 112px;
-  height: 78px;
-  border-bottom: 3px solid rgba(255, 255, 255, 0.34);
-  border-left: 3px solid rgba(255, 255, 255, 0.34);
-  border-radius: 0 0 0 100px;
-  transform: rotate(-24deg);
-}
-
-.heroGpuPlate {
-  position: absolute;
-  right: 42px;
-  bottom: 31%;
-  left: 42px;
-  display: flex;
-  min-height: 48px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 8px;
-  padding: 0 16px;
-  background: rgba(0, 0, 0, 0.22);
-}
-
-.heroGpuPlate small {
-  color: rgba(255, 255, 255, 0.35);
-  font-size: 0.62rem;
-  font-weight: 950;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.heroGpuPlate i {
-  width: min(34%, 72px);
-  height: 7px;
-  border-radius: 999px;
-  background: var(--cyan);
-  box-shadow: 0 0 18px rgba(0, 229, 255, 0.8);
-}
-
-.heroCaseDivider {
-  position: absolute;
-  right: 34px;
-  bottom: 130px;
-  left: 34px;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.heroBottomRail {
-  position: absolute;
-  right: 64px;
-  bottom: 6px;
-  left: 64px;
-  height: 5px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.22);
+    radial-gradient(circle at 72% 30%, rgba(0, 229, 255, 0.22), transparent 32%),
+    radial-gradient(circle at 28% 70%, rgba(106, 53, 255, 0.22), transparent 42%);
+  filter: blur(30px);
 }
 
 .heroBuilds {
@@ -700,18 +493,18 @@
     padding-bottom: 2px;
   }
 
-  .heroLighting {
-    margin-top: 10px;
-    transform: scale(0.92);
-  }
-
   .heroVisualInner {
-    min-height: min(112vw, 520px);
+    min-height: min(98vw, 470px);
   }
 
-  .heroPcCase {
-    width: min(100%, 370px);
-    border-radius: 24px;
+  .heroPcPhotoFrame {
+    width: min(100%, 390px);
+    min-height: min(86vw, 390px);
+  }
+
+  .heroPcPhotoFrame img {
+    width: min(100%, 380px);
+    max-height: 430px;
   }
 
   .heroSelectedBuild {
@@ -750,31 +543,12 @@
     white-space: normal;
   }
 
-  .heroLighting {
-    gap: 7px;
-    padding-inline: 11px;
+  .heroPcPhotoFrame {
+    width: min(100%, 330px);
+    min-height: 330px;
   }
 
-  .heroLighting i {
-    width: 18px;
-    height: 18px;
-  }
-
-  .heroPcCase {
+  .heroPcPhotoFrame img {
     width: min(100%, 320px);
-  }
-
-  .heroFan {
-    width: 52px;
-    height: 52px;
-  }
-
-  .heroRamGlow {
-    right: 56px;
-  }
-
-  .heroGpuPlate {
-    right: 32px;
-    left: 32px;
   }
 }
