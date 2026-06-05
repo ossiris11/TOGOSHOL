@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { buildContactMessage, contacts } from '../../data/contacts';
 import { useProducts } from '../../hooks/useProducts';
 import { trackEvent } from '../../lib/api';
@@ -54,7 +54,7 @@ const specIcons: Record<string, string> = {
 function getSpecValue(product: ProductView, patterns: RegExp[]) {
   const specs = [...product.cleanSpecs, ...product.specs];
   const match = specs.find((spec) => patterns.some((pattern) => pattern.test(spec)));
-  if (!match) return 'Уточнить';
+  if (!match) return 'На выбор';
 
   return match.split(':').slice(1).join(':').trim() || match.trim();
 }
@@ -79,6 +79,8 @@ export function ProductCatalog() {
   const [query, setQuery] = useState('');
   const [showAll, setShowAll] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<ProductView | null>(null);
+  const [isSpecClosing, setIsSpecClosing] = useState(false);
+  const closeSpecTimer = useRef<number | null>(null);
   const { products: storefrontProducts } = useProducts();
   const products = useMemo(() => getProductViews(storefrontProducts), [storefrontProducts]);
   const filteredProducts = useMemo(() => {
@@ -100,12 +102,33 @@ export function ProductCatalog() {
 
   const resetLimit = () => setShowAll(false);
 
+  const openSpecDrawer = (product: ProductView) => {
+    if (closeSpecTimer.current) {
+      window.clearTimeout(closeSpecTimer.current);
+      closeSpecTimer.current = null;
+    }
+
+    setIsSpecClosing(false);
+    setSelectedProduct(product);
+  };
+
+  const closeSpecDrawer = useCallback(() => {
+    if (!selectedProduct || isSpecClosing) return;
+
+    setIsSpecClosing(true);
+    closeSpecTimer.current = window.setTimeout(() => {
+      setSelectedProduct(null);
+      setIsSpecClosing(false);
+      closeSpecTimer.current = null;
+    }, 260);
+  }, [isSpecClosing, selectedProduct]);
+
   useEffect(() => {
     if (!selectedProduct) return;
 
     const previousOverflow = document.body.style.overflow;
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setSelectedProduct(null);
+      if (event.key === 'Escape') closeSpecDrawer();
     };
 
     document.body.style.overflow = 'hidden';
@@ -115,7 +138,14 @@ export function ProductCatalog() {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [selectedProduct]);
+  }, [closeSpecDrawer, selectedProduct]);
+
+  useEffect(
+    () => () => {
+      if (closeSpecTimer.current) window.clearTimeout(closeSpecTimer.current);
+    },
+    [],
+  );
 
   return (
     <section id="catalog" className="section productCatalog">
@@ -263,7 +293,7 @@ export function ProductCatalog() {
                       href={`#spec-${getProductKey(product)}`}
                       onClick={(event) => {
                         event.preventDefault();
-                        setSelectedProduct(product);
+                        openSpecDrawer(product);
                         trackEvent('product_details_click', { productId: product.sourceId, placement: 'catalog' });
                       }}
                     >
@@ -324,16 +354,16 @@ export function ProductCatalog() {
 
       {selectedProduct && (
         <div
-          className="productSpecOverlay"
+          className={`productSpecOverlay ${isSpecClosing ? 'isClosing' : ''}`}
           role="presentation"
           onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setSelectedProduct(null);
+            if (event.target === event.currentTarget) closeSpecDrawer();
           }}
         >
           <aside className="productSpecDrawer" role="dialog" aria-modal="true" aria-labelledby="product-spec-title">
             <header className="productSpecHeader">
               <h3 id="product-spec-title">Спецификация {getCardTitle(selectedProduct.gpuTier)}</h3>
-              <button type="button" className="productSpecClose" aria-label="Закрыть спецификацию" onClick={() => setSelectedProduct(null)}>
+              <button type="button" className="productSpecClose" aria-label="Закрыть спецификацию" onClick={closeSpecDrawer}>
                 ×
               </button>
             </header>
