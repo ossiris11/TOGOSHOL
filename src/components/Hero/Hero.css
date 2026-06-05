@@ -35,9 +35,9 @@
 
 .heroInner {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(420px, 1.02fr);
+  grid-template-columns: minmax(0, 0.82fr) minmax(500px, 1.14fr);
   align-items: center;
-  gap: clamp(24px, 4.6vw, 74px);
+  gap: clamp(18px, 3.2vw, 54px);
 }
 
 .heroContent {
@@ -151,21 +151,22 @@
 .heroVisual::before {
   content: "";
   position: absolute;
-  inset: 7% 2% 4%;
+  inset: 5% -10% 2%;
   border: 1px solid rgba(0, 229, 255, 0.14);
   border-radius: 50%;
   background:
-    radial-gradient(circle at 50% 50%, rgba(0, 229, 255, 0.16), transparent 38%),
-    radial-gradient(circle at 48% 60%, rgba(122, 70, 255, 0.18), transparent 52%);
-  filter: blur(2px);
-  transform: rotate(-10deg);
+    radial-gradient(circle at 56% 48%, rgba(0, 229, 255, 0.15), transparent 34%),
+    radial-gradient(circle at 40% 66%, rgba(122, 70, 255, 0.18), transparent 48%);
+  filter: blur(1px);
+  opacity: 0.72;
+  transform: rotate(-8deg) scale(0.92);
 }
 
 .heroVisualInner {
   position: relative;
   display: grid;
   place-items: center;
-  min-height: clamp(440px, 46vw, 660px);
+  min-height: clamp(520px, 47vw, 720px);
   transform: translate3d(var(--parallax-x, 0), var(--parallax-y, 0), 0);
   transition: transform 180ms ease-out;
 }
@@ -173,32 +174,33 @@
 .heroPcPhotoFrame {
   position: relative;
   display: grid;
-  width: min(100%, 660px);
-  min-height: clamp(400px, 42vw, 620px);
+  width: min(112%, 760px);
+  min-height: clamp(520px, 48vw, 720px);
   place-items: center;
   isolation: isolate;
+  transform: translateX(-2%);
 }
 
 .heroPcPhotoFrame::before {
   content: "";
   position: absolute;
-  inset: 10% 2% 4%;
+  inset: 8% 5% 5%;
   z-index: -2;
   border-radius: 46%;
   background:
-    radial-gradient(circle at 62% 34%, rgba(0, 229, 255, 0.28), transparent 34%),
-    radial-gradient(circle at 34% 74%, rgba(106, 53, 255, 0.3), transparent 44%);
-  filter: blur(44px);
+    radial-gradient(circle at 62% 34%, rgba(0, 229, 255, 0.22), transparent 32%),
+    radial-gradient(circle at 34% 74%, rgba(106, 53, 255, 0.24), transparent 42%);
+  filter: blur(38px);
 }
 
 .heroPcPhotoFrame::after {
   content: "";
   position: absolute;
-  right: 15%;
-  bottom: 9%;
-  left: 16%;
+  right: 18%;
+  bottom: 7%;
+  left: 20%;
   z-index: -1;
-  height: 30px;
+  height: 34px;
   border-radius: 999px;
   background:
     radial-gradient(ellipse at center, rgba(0, 0, 0, 0.82), transparent 72%);
@@ -208,9 +210,9 @@
 .heroPcPhotoFrame img {
   position: relative;
   z-index: 1;
-  width: min(100%, 640px);
+  width: min(108%, 760px);
   height: auto;
-  max-height: 660px;
+  max-height: 720px;
   object-fit: contain;
   filter:
     drop-shadow(0 42px 80px rgba(0, 0, 0, 0.78))
@@ -219,7 +221,7 @@
 
 .heroPcPhotoGlow {
   position: absolute;
-  inset: 12% 4% 8%;
+  inset: 9% 0 7%;
   z-index: 0;
   border-radius: 40%;
   background:
@@ -807,7 +809,7 @@
   }
 
   .heroVisual {
-    max-width: 640px;
+    max-width: 720px;
     margin-inline: auto;
   }
 
@@ -876,17 +878,18 @@
   }
 
   .heroVisualInner {
-    min-height: min(96vw, 500px);
+    min-height: min(116vw, 620px);
   }
 
   .heroPcPhotoFrame {
-    width: min(100%, 460px);
-    min-height: min(88vw, 460px);
+    width: min(100%, 620px);
+    min-height: min(112vw, 600px);
+    transform: translateX(0);
   }
 
   .heroPcPhotoFrame img {
-    width: min(112%, 460px);
-    max-height: 500px;
+    width: min(112%, 620px);
+    max-height: 620px;
   }
 
   .customPcBand {
@@ -978,12 +981,12 @@
   }
 
   .heroPcPhotoFrame {
-    width: min(100%, 360px);
-    min-height: 350px;
+    width: min(100%, 430px);
+    min-height: min(116vw, 460px);
   }
 
   .heroPcPhotoFrame img {
-    width: min(112%, 370px);
+    width: min(118%, 440px);
   }
 
   .customPcCard,
