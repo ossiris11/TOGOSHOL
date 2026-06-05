@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { useHeaderScrolled } from '../../hooks/useHeaderScrolled';
 import { contacts } from '../../data/contacts';
 import { trackEvent } from '../../lib/api';
-import logo from '../../assets/tog-pc-logo-novgorod.svg';
+import logo from '../../assets/togoshol-logo.svg';
 import './Header.css';
 
 const navLinks: Array<{ label: string; href: string; external?: boolean; action?: 'customParts' }> = [
@@ -109,7 +109,7 @@ export function Header() {
     <header className={`header ${isScrolled ? 'isScrolled' : ''}`}>
       <div className="headerInner container">
         <a className="brand" href="#top" onClick={() => closeMenu()} aria-label="TOGOSHOL, на главный экран">
-          <img src={logo} alt="TOG PC" />
+          <img src={logo} alt="TOGOSHOL PC" />
         </a>
 
         <nav className="desktopNav" aria-label="Основная навигация">

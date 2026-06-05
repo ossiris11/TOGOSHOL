@@ -1,0 +1,35 @@
+<svg width="720" height="220" viewBox="0 0 720 220" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">TOGOSHOL PC logo</title>
+  <desc id="desc">A neon circuit tower mark with TOGOSHOL PC wordmark.</desc>
+  <defs>
+    <linearGradient id="logoGradient" x1="52" y1="30" x2="661" y2="190" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#00E5FF"/>
+      <stop offset="0.48" stop-color="#6A35FF"/>
+      <stop offset="1" stop-color="#FF3B4E"/>
+    </linearGradient>
+    <linearGradient id="panelGradient" x1="67" y1="45" x2="184" y2="166" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#17232C"/>
+      <stop offset="1" stop-color="#08090D"/>
+    </linearGradient>
+    <filter id="logoGlow" x="-24" y="-38" width="764" height="298" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0 0 0.9 0 0 0.78 0 0 1 0 1 0 0 0 0.62 0"/>
+      <feBlend in="SourceGraphic"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#logoGlow)">
+    <path d="M54 118C54 78.235 86.235 46 126 46h54v64c0 39.765-32.235 72-72 72H54v-64Z" fill="url(#panelGradient)" stroke="url(#logoGradient)" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M82 76h70v26h-22v49h-26v-49H82V76Z" fill="#F8FBFF"/>
+    <path d="M89 150h73M89 126h21M150 126h22M117 84V63M139 84V63M117 63h-14M139 63h14" stroke="url(#logoGradient)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="89" cy="150" r="7" fill="#050608" stroke="#00E5FF" stroke-width="5"/>
+    <circle cx="162" cy="150" r="7" fill="#050608" stroke="#FF3B4E" stroke-width="5"/>
+    <circle cx="103" cy="63" r="6" fill="#050608" stroke="#00E5FF" stroke-width="5"/>
+    <circle cx="153" cy="63" r="6" fill="#050608" stroke="#FF3B4E" stroke-width="5"/>
+
+    <text x="222" y="105" fill="#FFFFFF" font-family="Montserrat, Inter, Arial, sans-serif" font-size="54" font-weight="900">TOGOSHOL</text>
+    <text x="223" y="151" fill="url(#logoGradient)" font-family="Montserrat, Inter, Arial, sans-serif" font-size="36" font-weight="900">PC</text>
+    <path d="M291 140h210" stroke="url(#logoGradient)" stroke-width="7" stroke-linecap="round"/>
+    <path d="M525 140h55M604 140h36" stroke="url(#logoGradient)" stroke-width="7" stroke-linecap="round"/>
+  </g>
+</svg>
