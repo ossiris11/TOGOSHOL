@@ -201,17 +201,14 @@ export function Hero() {
             <a className="customSocialLink customSocialLink-vk" href={contacts.vk} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_vk', { placement: 'hero_custom_block' })}>
               <span className="customSocialGlyph"><CustomSocialIcon channel="vk" /></span>
               <span className="customSocialLabel">VK</span>
-              <span className="customSocialArrow">→</span>
             </a>
             <a className="customSocialLink customSocialLink-avito" href={contacts.avito} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_avito', { placement: 'hero_custom_block' })}>
               <span className="customSocialGlyph"><CustomSocialIcon channel="avito" /></span>
               <span className="customSocialLabel">Avito</span>
-              <span className="customSocialArrow">→</span>
             </a>
             <a className="customSocialLink customSocialLink-instagram" href={contacts.instagram} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_instagram', { placement: 'hero_custom_block' })}>
               <span className="customSocialGlyph"><CustomSocialIcon channel="instagram" /></span>
               <span className="customSocialLabel">Instagram</span>
-              <span className="customSocialArrow">→</span>
             </a>
           </aside>
         </div>
@@ -273,17 +270,14 @@ export function Hero() {
               <a className="customSocialLink customSocialLink-avito" href={contacts.avito} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_avito', { placement: 'custom_order_modal' })}>
                 <span className="customSocialGlyph"><CustomSocialIcon channel="avito" /></span>
                 <span className="customSocialLabel">Avito</span>
-                <span className="customSocialArrow">→</span>
               </a>
               <a className="customSocialLink customSocialLink-vk" href={`${contacts.vk}?message=${encodeURIComponent(requestText)}`} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_vk', { placement: 'custom_order_modal' })}>
                 <span className="customSocialGlyph"><CustomSocialIcon channel="vk" /></span>
                 <span className="customSocialLabel">VK</span>
-                <span className="customSocialArrow">→</span>
               </a>
               <a className="customSocialLink customSocialLink-instagram" href={contacts.instagram} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_instagram', { placement: 'custom_order_modal' })}>
                 <span className="customSocialGlyph"><CustomSocialIcon channel="instagram" /></span>
                 <span className="customSocialLabel">Instagram</span>
-                <span className="customSocialArrow">→</span>
               </a>
             </div>
           </div>
