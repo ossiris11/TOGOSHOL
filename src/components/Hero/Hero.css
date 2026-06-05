@@ -385,11 +385,14 @@
   margin: 0;
   color: #ffffff;
   max-width: 100%;
-  font-size: clamp(1.18rem, 1.75vw, 1.55rem);
+  font-size: 1.42rem;
   font-weight: 950;
   line-height: 1.08;
   text-transform: uppercase;
-  overflow-wrap: anywhere;
+  hyphens: none;
+  overflow-wrap: normal;
+  text-wrap: balance;
+  word-break: normal;
 }
 
 .customPcContacts p {
@@ -788,7 +791,7 @@
   }
 
   .customPcContacts h3 {
-    font-size: clamp(1.32rem, 7vw, 1.72rem);
+    font-size: 1.22rem;
   }
 
   .customOrderOverlay {
@@ -852,7 +855,7 @@
   }
 
   .customPcContacts h3 {
-    font-size: clamp(1.08rem, 6vw, 1.38rem);
+    font-size: 1rem;
     line-height: 1.1;
   }
 
@@ -867,5 +870,11 @@
   .customOrderModal {
     border-radius: 20px 20px 14px 14px;
     padding-inline: 14px;
+  }
+}
+
+@media (max-width: 360px) {
+  .customPcContacts h3 {
+    font-size: 0.92rem;
   }
 }
