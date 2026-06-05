@@ -33,7 +33,6 @@
 .heroTitle,
 .heroSubtitle,
 .heroActions {
-  opacity: 0;
   animation: fadeUp 700ms var(--ease-premium) forwards;
 }
 
@@ -71,7 +70,6 @@
   background: rgba(0, 229, 255, 0.065);
   animation: fadeUp 700ms var(--ease-premium) forwards;
   animation-delay: 250ms;
-  opacity: 0;
 }
 
 .heroSelectedBuild span {

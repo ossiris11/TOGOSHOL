@@ -49,6 +49,7 @@ type AdminReview = {
   id: string;
   status: string;
   authorName: string;
+  authorLink?: string | null;
   rating: number;
   text: string;
   source: string;
@@ -56,6 +57,7 @@ type AdminReview = {
   imageUrl?: string | null;
   isPinned: boolean;
   sortOrder: number;
+  productId?: string | null;
 };
 
 type AdminComponent = {
@@ -74,12 +76,28 @@ type AdminComponent = {
 
 type DashboardPayload = {
   stats: Record<string, number>;
+  server: {
+    hostname: string;
+    platform: string;
+    uptimeSeconds: number;
+    cpuCount: number;
+    loadAverage1m: number;
+    cpuLoadPercent: number;
+    totalMemory: number;
+    freeMemory: number;
+    usedMemory: number;
+    memoryUsedPercent: number;
+    processMemoryRss: number;
+  };
+  chart: Array<{ date: string; pageViews: number; clicks: number; requests: number }>;
   recentRequests: Array<{ id: string; status: string; source: string; contact: string; budget?: number | null; productTitle: string; createdAt: string }>;
   topProducts: Array<{ productId: string | null; title: string; count: number }>;
+  topPages: Array<{ path: string; count: number }>;
   contacts: Array<{ type: string; count: number }>;
 };
 
 type ProductDraft = Omit<AdminProduct, 'id' | 'specs' | 'deletedAt'> & { id?: string; specsText: string };
+type ReviewDraft = Omit<AdminReview, 'id'> & { id?: string };
 
 const tabs: Array<{ id: AdminTab; label: string }> = [
   { id: 'dashboard', label: 'Дашборд' },
@@ -142,14 +160,40 @@ const emptyProduct: ProductDraft = {
   externalId: '',
 };
 
+const emptyReview: ReviewDraft = {
+  status: 'pending',
+  authorName: '',
+  authorLink: '',
+  rating: 5,
+  text: '',
+  source: 'avito',
+  externalUrl: '',
+  imageUrl: '',
+  isPinned: false,
+  sortOrder: 1000,
+  productId: '',
+};
+
 async function adminApi<T>(url: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(url, {
-    credentials: 'include',
-    headers: options?.body instanceof FormData ? undefined : { 'Content-Type': 'application/json', ...(options?.headers || {}) },
-    ...options,
-  });
-  if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-  return response.json() as Promise<T>;
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 8000);
+  const method = options?.method?.toUpperCase() || 'GET';
+  const headers = new Headers(options?.headers);
+  if (!(options?.body instanceof FormData)) headers.set('Content-Type', 'application/json');
+  if (!['GET', 'HEAD', 'OPTIONS'].includes(method)) headers.set('X-TOGOSHOL-Admin', '1');
+
+  try {
+    const response = await fetch(url, {
+      credentials: 'include',
+      ...options,
+      headers,
+      signal: options?.signal || controller.signal,
+    });
+    if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+    return response.json() as Promise<T>;
+  } finally {
+    window.clearTimeout(timeout);
+  }
 }
 
 function productToDraft(product: AdminProduct): ProductDraft {
@@ -182,17 +226,54 @@ function rub(value?: number | null) {
   return new Intl.NumberFormat('ru-RU').format(value) + ' ₽';
 }
 
+function compactNumber(value: number) {
+  return new Intl.NumberFormat('ru-RU', { notation: value >= 10000 ? 'compact' : 'standard' }).format(value);
+}
+
+function formatBytes(value: number) {
+  if (!Number.isFinite(value) || value <= 0) return '0 МБ';
+  const units = ['Б', 'КБ', 'МБ', 'ГБ'];
+  let size = value;
+  let unit = 0;
+  while (size >= 1024 && unit < units.length - 1) {
+    size /= 1024;
+    unit += 1;
+  }
+  return `${size.toFixed(unit < 2 ? 0 : 1)} ${units[unit]}`;
+}
+
+function formatUptime(seconds: number) {
+  const days = Math.floor(seconds / 86400);
+  const hours = Math.floor((seconds % 86400) / 3600);
+  if (days > 0) return `${days} д ${hours} ч`;
+  return `${hours} ч ${Math.floor((seconds % 3600) / 60)} мин`;
+}
+
+function contactLabel(type: string) {
+  const labels: Record<string, string> = {
+    contact_click_vk: 'VK',
+    contact_click_telegram: 'Telegram',
+    contact_click_max: 'Max',
+    product_cta_click: 'CTA товаров',
+  };
+  return labels[type] || type;
+}
+
 export function AdminApp() {
   const [authChecked, setAuthChecked] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
+  const [apiNotice, setApiNotice] = useState('');
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
 
   useEffect(() => {
     adminApi('/api/admin/me')
       .then(() => setAuthenticated(true))
-      .catch(() => setAuthenticated(false))
+      .catch((error) => {
+        setAuthenticated(false);
+        if (error instanceof DOMException && error.name === 'AbortError') setApiNotice('API не ответил за 8 секунд. Проверь, что backend запущен.');
+      })
       .finally(() => setAuthChecked(true));
   }, []);
 
@@ -201,8 +282,9 @@ export function AdminApp() {
     try {
       await adminApi('/api/admin/login', { method: 'POST', body: JSON.stringify({ password }) });
       setAuthenticated(true);
+      setApiNotice('');
     } catch {
-      setLoginError('Пароль не подошел');
+      setLoginError('Пароль не подошел или backend не отвечает');
     }
   };
 
@@ -211,15 +293,27 @@ export function AdminApp() {
     setAuthenticated(false);
   };
 
-  if (!authChecked) return <div className="adminBoot">Проверяем сессию...</div>;
+  if (!authChecked) {
+    return (
+      <main className="adminBoot">
+        <section className="adminBootPanel">
+          <span>TOGOSHOL Admin</span>
+          <h1>Проверяем сессию</h1>
+          <p>Если экран висит дольше нескольких секунд, проверь backend API.</p>
+        </section>
+      </main>
+    );
+  }
 
   if (!authenticated) {
     return (
       <main className="adminLogin">
         <section className="adminLoginPanel">
           <span>TOGOSHOL Admin</span>
+          <b className="adminVersionBadge">pre-test версия</b>
           <h1>Вход в панель</h1>
           <p>На лендинге вход не показывается. Доступ только по прямому адресу.</p>
+          {apiNotice && <p className="adminNotice">{apiNotice}</p>}
           <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} onKeyDown={(event) => event.key === 'Enter' && void login()} placeholder="Пароль администратора" />
           <button type="button" onClick={login}>Войти</button>
           {loginError && <strong>{loginError}</strong>}
@@ -248,6 +342,7 @@ export function AdminApp() {
         <header className="adminTopbar">
           <div>
             <span>Админ-панель</span>
+            <b className="adminVersionBadge">pre-test версия</b>
             <h1>{tabs.find((tab) => tab.id === activeTab)?.label}</h1>
           </div>
           <div>
@@ -363,28 +458,73 @@ function ComponentsPage() {
 
 function DashboardPage() {
   const [data, setData] = useState<DashboardPayload | null>(null);
+  const [updatedAt, setUpdatedAt] = useState('');
 
   useEffect(() => {
-    adminApi<{ ok: boolean } & DashboardPayload>('/api/admin/dashboard').then(setData).catch(() => undefined);
+    let alive = true;
+    const load = () => {
+      adminApi<{ ok: boolean } & DashboardPayload>('/api/admin/dashboard')
+        .then((payload) => {
+          if (!alive) return;
+          setData(payload);
+          setUpdatedAt(new Date().toLocaleTimeString('ru-RU'));
+        })
+        .catch(() => undefined);
+    };
+    load();
+    const timer = window.setInterval(load, 30000);
+    return () => {
+      alive = false;
+      window.clearInterval(timer);
+    };
   }, []);
 
   if (!data) return <AdminPanel title="Данные загружаются" />;
 
   return (
     <div className="adminStack">
-      <div className="adminStats">
-        <Stat label="Событий сегодня" value={data.stats.eventsToday} />
-        <Stat label="Событий за 7 дней" value={data.stats.events7d} />
-        <Stat label="Новые заявки" value={data.stats.requestsNew} />
-        <Stat label="Товары активны" value={data.stats.productsActive} />
-        <Stat label="Отзывы ждут" value={data.stats.reviewsPending} />
+      <div className="dashboardHero">
+        <div>
+          <span>Обновление каждые 30 секунд</span>
+          <h2>Сводка сайта и сервера</h2>
+          <p>Визиты, клики, заявки и техническая нагрузка. Последнее обновление: {updatedAt || 'сейчас'}.</p>
+        </div>
+        <button type="button" onClick={() => window.location.reload()}>Обновить</button>
       </div>
+      <div className="adminStats">
+        <Stat label="Переходы сегодня" value={data.stats.pageViewsToday} />
+        <Stat label="Переходы за 7 дней" value={data.stats.pageViews7d} />
+        <Stat label="Клики за 7 дней" value={data.stats.clicks7d} />
+        <Stat label="Новые заявки" value={data.stats.requestsNew} />
+        <Stat label="Активные товары" value={data.stats.productsActive} />
+        <Stat label="Отзывы на модерации" value={data.stats.reviewsPending} />
+      </div>
+      <div className="adminGrid dashboardGrid">
+        <AdminPanel title="Нагрузка сервера" note={`${data.server.hostname} · ${data.server.platform} · uptime ${formatUptime(data.server.uptimeSeconds)}`}>
+          <div className="serverMeters">
+            <Meter label={`CPU · ${data.server.cpuCount} потоков`} value={data.server.cpuLoadPercent} note={`load 1m: ${data.server.loadAverage1m.toFixed(2)}`} />
+            <Meter label="RAM" value={data.server.memoryUsedPercent} note={`${formatBytes(data.server.usedMemory)} из ${formatBytes(data.server.totalMemory)}`} />
+            <Meter label="Node RSS" value={Math.min(100, Math.round((data.server.processMemoryRss / data.server.totalMemory) * 100))} note={formatBytes(data.server.processMemoryRss)} />
+          </div>
+        </AdminPanel>
+        <AdminPanel title="Каналы и CTA за 30 дней">
+          <DataRows rows={data.contacts.map((item) => [contactLabel(item.type), `${item.count} кликов`])} empty="Кликов пока нет" />
+        </AdminPanel>
+      </div>
+      <AdminPanel title="График активности за 14 дней" note="Синие столбцы - переходы, белые - клики, зеленые - заявки.">
+        <MetricsChart points={data.chart} />
+      </AdminPanel>
       <AdminPanel title="Последние заявки">
-        <DataRows rows={data.recentRequests.map((item) => [item.contact, item.productTitle || item.source, rub(item.budget), new Date(item.createdAt).toLocaleString('ru-RU')])} />
+        <DataRows rows={data.recentRequests.map((item) => [item.contact, item.productTitle || item.source, rub(item.budget), new Date(item.createdAt).toLocaleString('ru-RU')])} empty="Заявок пока нет" />
       </AdminPanel>
-      <AdminPanel title="Топ товаров по активности">
-        <DataRows rows={data.topProducts.map((item) => [item.title, `${item.count} событий`])} />
-      </AdminPanel>
+      <div className="adminGrid dashboardGrid">
+        <AdminPanel title="Топ товаров по активности">
+          <DataRows rows={data.topProducts.map((item) => [item.title, `${item.count} событий`])} empty="Активности по товарам пока нет" />
+        </AdminPanel>
+        <AdminPanel title="Топ страниц по переходам">
+          <DataRows rows={data.topPages.map((item) => [item.path, `${item.count} переходов`])} empty="Переходов пока нет" />
+        </AdminPanel>
+      </div>
     </div>
   );
 }
@@ -526,14 +666,53 @@ function RequestsPage() {
 
 function ReviewsPage() {
   const [reviews, setReviews] = useState<AdminReview[]>([]);
-  const [draft, setDraft] = useState({ authorName: '', rating: 5, text: '', source: 'avito', externalUrl: '', imageUrl: '', status: 'pending', isPinned: false, sortOrder: 1000 });
+  const [draft, setDraft] = useState<ReviewDraft>(emptyReview);
+  const [message, setMessage] = useState('');
   const load = () => adminApi<{ items: AdminReview[] }>('/api/admin/reviews').then((payload) => setReviews(payload.items));
   useEffect(() => void load(), []);
 
   const save = async () => {
-    await adminApi('/api/admin/reviews/import', { method: 'POST', body: JSON.stringify(draft) });
-    setDraft({ authorName: '', rating: 5, text: '', source: 'avito', externalUrl: '', imageUrl: '', status: 'pending', isPinned: false, sortOrder: 1000 });
+    const payload = {
+      ...draft,
+      rating: Number(draft.rating) || 5,
+      sortOrder: Number(draft.sortOrder) || 1000,
+      authorLink: draft.authorLink || null,
+      externalUrl: draft.externalUrl || null,
+      imageUrl: draft.imageUrl || null,
+      productId: draft.productId || null,
+      id: undefined,
+    };
+    const url = draft.id ? `/api/admin/reviews/${draft.id}` : '/api/admin/reviews';
+    await adminApi(url, { method: draft.id ? 'PATCH' : 'POST', body: JSON.stringify(payload) });
+    setDraft(emptyReview);
+    setMessage('Отзыв сохранен');
     await load();
+  };
+
+  const edit = (review: AdminReview) => {
+    setDraft({
+      id: review.id,
+      status: review.status,
+      authorName: review.authorName,
+      authorLink: review.authorLink || '',
+      rating: review.rating,
+      text: review.text,
+      source: review.source,
+      externalUrl: review.externalUrl || '',
+      imageUrl: review.imageUrl || '',
+      isPinned: review.isPinned,
+      sortOrder: review.sortOrder,
+      productId: review.productId || '',
+    });
+    setMessage('');
+  };
+
+  const upload = async (file: File | null) => {
+    if (!file) return;
+    const form = new FormData();
+    form.set('file', file);
+    const result = await adminApi<{ url: string }>('/api/admin/uploads/images', { method: 'POST', body: form });
+    setDraft((current) => ({ ...current, imageUrl: result.url }));
   };
 
   const patch = async (id: string, status: string) => {
@@ -543,20 +722,41 @@ function ReviewsPage() {
 
   return (
     <div className="adminGrid">
-      <AdminPanel title="Импорт / ручной отзыв" note="Avito лучше добавлять ссылкой и скриншотом, если автоматический импорт недоступен или запрещен правилами площадки.">
+      <AdminPanel title={draft.id ? 'Редактировать отзыв' : 'Новый отзыв / скрин'} note={message || 'Для блока лучших отзывов: статус published, источник Avito/VK/Сайт, широкий скрин в поле изображения. Закрепленные идут выше.'}>
         <div className="adminForm">
           <input value={draft.authorName} onChange={(event) => setDraft({ ...draft, authorName: event.target.value })} placeholder="Имя автора" />
           <select value={draft.source} onChange={(event) => setDraft({ ...draft, source: event.target.value })}>
             <option value="avito">Avito</option>
             <option value="vk">VK</option>
+            <option value="site">Сайт</option>
             <option value="telegram">Telegram</option>
             <option value="screenshot">Скриншот</option>
             <option value="manual">Вручную</option>
           </select>
-          <input value={draft.externalUrl} onChange={(event) => setDraft({ ...draft, externalUrl: event.target.value })} placeholder="Ссылка на источник" />
-          <input value={draft.imageUrl} onChange={(event) => setDraft({ ...draft, imageUrl: event.target.value })} placeholder="URL скриншота" />
+          <div className="adminSplit">
+            <select value={draft.status} onChange={(event) => setDraft({ ...draft, status: event.target.value })}>
+              <option value="pending">На модерации</option>
+              <option value="published">Опубликован</option>
+              <option value="hidden">Скрыт</option>
+              <option value="rejected">Отклонен</option>
+            </select>
+            <input type="number" min="1" max="5" value={draft.rating} onChange={(event) => setDraft({ ...draft, rating: Number(event.target.value) })} placeholder="Оценка" />
+          </div>
+          <div className="adminSplit">
+            <input type="number" value={draft.sortOrder} onChange={(event) => setDraft({ ...draft, sortOrder: Number(event.target.value) })} placeholder="Порядок" />
+            <label className="adminCheckbox">
+              <input type="checkbox" checked={draft.isPinned} onChange={(event) => setDraft({ ...draft, isPinned: event.target.checked })} />
+              Лучший / закрепить
+            </label>
+          </div>
+          <input value={draft.externalUrl || ''} onChange={(event) => setDraft({ ...draft, externalUrl: event.target.value })} placeholder="Ссылка на источник" />
+          <input value={draft.imageUrl || ''} onChange={(event) => setDraft({ ...draft, imageUrl: event.target.value })} placeholder="URL скриншота" />
+          <input type="file" accept="image/*" onChange={(event) => void upload(event.target.files?.[0] || null)} />
           <textarea value={draft.text} onChange={(event) => setDraft({ ...draft, text: event.target.value })} placeholder="Текст отзыва" />
-          <button className="adminPrimary" type="button" onClick={save}>Добавить на модерацию</button>
+          <div className="adminActions">
+            <button className="adminPrimary" type="button" onClick={save}>Сохранить отзыв</button>
+            <button type="button" onClick={() => setDraft(emptyReview)}>Очистить</button>
+          </div>
         </div>
       </AdminPanel>
       <AdminPanel title="Модерация">
@@ -565,9 +765,11 @@ function ReviewsPage() {
             <div key={review.id}>
               <span>{review.authorName}</span>
               <b>{review.source} · {review.rating}/5</b>
-              <small>{review.status}</small>
+              <small>{review.status} · порядок {review.sortOrder}{review.isPinned ? ' · лучший' : ''}</small>
+              <button type="button" onClick={() => edit(review)}>Редактировать</button>
               <button type="button" onClick={() => void patch(review.id, 'published')}>Опубликовать</button>
               <button type="button" onClick={() => void patch(review.id, 'hidden')}>Скрыть</button>
+              {review.imageUrl && <img className="adminReviewThumb" src={review.imageUrl} alt="" />}
               <p>{review.text}</p>
             </div>
           ))}
@@ -594,7 +796,7 @@ function SettingsPage() {
 
   return (
     <div className="adminStack">
-      <AdminPanel title="Пароль админки" note={message || 'Пароль хранится в базе как hash. Сейчас выставлен 1234.'}>
+      <AdminPanel title="Пароль админки" note={message || 'Пароль хранится в базе как hash. Стартовый пароль задается через .env или установщик ВДС.'}>
         <div className="adminForm adminNarrowForm">
           <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Новый пароль" />
           <button className="adminPrimary" type="button" onClick={savePassword}>Сменить пароль</button>
@@ -686,16 +888,51 @@ function AdminPanel({ title, note, children }: { title: string; note?: string; c
   );
 }
 
-function Stat({ label, value }: { label: string; value: number }) {
+function Stat({ label, value }: { label: string; value: number | string }) {
   return (
     <div className="adminStat">
       <span>{label}</span>
-      <strong>{value}</strong>
+      <strong>{typeof value === 'number' ? compactNumber(value) : value}</strong>
     </div>
   );
 }
 
-function DataRows({ rows }: { rows: Array<Array<string | number>> }) {
+function Meter({ label, value, note }: { label: string; value: number; note: string }) {
+  return (
+    <div className="serverMeter">
+      <div>
+        <span>{label}</span>
+        <b>{value}%</b>
+      </div>
+      <i>
+        <span style={{ width: `${Math.min(100, Math.max(0, value))}%` }} />
+      </i>
+      <small>{note}</small>
+    </div>
+  );
+}
+
+function MetricsChart({ points }: { points: DashboardPayload['chart'] }) {
+  const max = Math.max(1, ...points.flatMap((point) => [point.pageViews, point.clicks, point.requests]));
+  return (
+    <div className="metricsChart" aria-label="График активности сайта">
+      {points.map((point) => (
+        <div className="metricsDay" key={point.date}>
+          <div className="metricsBars">
+            <span className="views" style={{ height: `${Math.max(5, (point.pageViews / max) * 100)}%` }} title={`Переходы: ${point.pageViews}`} />
+            <span className="clicks" style={{ height: `${Math.max(5, (point.clicks / max) * 100)}%` }} title={`Клики: ${point.clicks}`} />
+            <span className="requests" style={{ height: `${Math.max(5, (point.requests / max) * 100)}%` }} title={`Заявки: ${point.requests}`} />
+          </div>
+          <small>{new Date(point.date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' })}</small>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function DataRows({ rows, empty = 'Данных пока нет' }: { rows: Array<Array<string | number>>; empty?: string }) {
+  if (rows.length === 0) return <p className="adminEmpty">{empty}</p>;
+
   return (
     <div className="adminTable">
       {rows.map((row) => (

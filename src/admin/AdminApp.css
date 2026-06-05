@@ -16,16 +16,59 @@
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
 }
 
+.adminBootPanel {
+  width: min(460px, calc(100vw - 32px));
+  border: 1px solid rgba(32, 214, 255, 0.22);
+  border-radius: 8px;
+  padding: 26px;
+  background:
+    linear-gradient(135deg, rgba(32, 214, 255, 0.1), rgba(255, 255, 255, 0.025)),
+    #10141b;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+}
+
 .adminLoginPanel span,
 .adminTopbar span,
-.adminBrand span {
+.adminBrand span,
+.adminBootPanel span {
   color: #8fa0b8;
   font-size: 12px;
   text-transform: uppercase;
 }
 
-.adminLoginPanel h1 {
+.adminLoginPanel h1,
+.adminBootPanel h1 {
   margin: 8px 0;
+}
+
+.adminBootPanel p,
+.adminNotice {
+  margin: 10px 0 0;
+  color: #9ba8ba;
+  line-height: 1.55;
+}
+
+.adminNotice {
+  border: 1px solid rgba(255, 186, 73, 0.3);
+  border-radius: 6px;
+  padding: 10px;
+  background: rgba(255, 186, 73, 0.08);
+  color: #ffd99a;
+}
+
+.adminVersionBadge {
+  display: inline-flex;
+  width: fit-content;
+  margin-top: 8px;
+  border: 1px solid rgba(32, 214, 255, 0.35);
+  border-radius: 999px;
+  padding: 5px 9px;
+  background: rgba(32, 214, 255, 0.1);
+  color: #20d6ff;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 .adminLoginPanel input,
@@ -166,7 +209,7 @@
 
 .adminStats {
   display: grid;
-  grid-template-columns: repeat(5, minmax(120px, 1fr));
+  grid-template-columns: repeat(6, minmax(120px, 1fr));
   gap: 12px;
 }
 
@@ -181,6 +224,147 @@
 
 .adminStat strong {
   font-size: 28px;
+}
+
+.dashboardHero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid rgba(32, 214, 255, 0.2);
+  border-radius: 8px;
+  padding: 18px;
+  background:
+    linear-gradient(135deg, rgba(32, 214, 255, 0.11), rgba(255, 255, 255, 0.025)),
+    #10141b;
+}
+
+.dashboardHero span {
+  color: #20d6ff;
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.dashboardHero h2 {
+  margin: 6px 0;
+  font-size: 24px;
+}
+
+.dashboardHero p {
+  margin: 0;
+  color: #9ba8ba;
+}
+
+.dashboardHero button {
+  min-height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  background: #f7f9ff;
+  color: #07090d;
+  padding: 8px 12px;
+  font-weight: 850;
+}
+
+.dashboardGrid {
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.75fr);
+}
+
+.serverMeters {
+  display: grid;
+  gap: 14px;
+}
+
+.serverMeter {
+  display: grid;
+  gap: 8px;
+}
+
+.serverMeter div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.serverMeter span,
+.serverMeter small {
+  color: #9ba8ba;
+}
+
+.serverMeter b {
+  color: #f7f9ff;
+}
+
+.serverMeter i {
+  display: block;
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.serverMeter i span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #20d6ff, #4dff88);
+}
+
+.metricsChart {
+  display: grid;
+  grid-template-columns: repeat(14, minmax(28px, 1fr));
+  min-height: 220px;
+  gap: 10px;
+  align-items: end;
+  padding-top: 12px;
+}
+
+.metricsDay {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.metricsBars {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: end;
+  height: 170px;
+  gap: 3px;
+  border-radius: 6px;
+  padding: 8px 5px;
+  background: #0a0d12;
+}
+
+.metricsBars span {
+  min-height: 5px;
+  border-radius: 999px 999px 2px 2px;
+}
+
+.metricsBars .views {
+  background: #20d6ff;
+}
+
+.metricsBars .clicks {
+  background: #f7f9ff;
+}
+
+.metricsBars .requests {
+  background: #4dff88;
+}
+
+.metricsDay small {
+  overflow: hidden;
+  color: #9ba8ba;
+  font-size: 11px;
+  text-align: center;
+  text-overflow: ellipsis;
+}
+
+.adminEmpty {
+  margin: 12px 0 0;
+  color: #9ba8ba;
 }
 
 .adminTable {
@@ -207,6 +391,15 @@
 .adminTableWide p {
   grid-column: 1 / -1;
   margin: 0;
+}
+
+.adminReviewThumb {
+  grid-column: 1 / -1;
+  width: min(100%, 520px);
+  max-height: 180px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  object-fit: cover;
 }
 
 .adminTable .isMuted {
@@ -279,6 +472,17 @@
   .adminGrid,
   .adminStats {
     grid-template-columns: 1fr;
+  }
+
+  .dashboardHero {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .metricsChart {
+    overflow-x: auto;
+    grid-template-columns: repeat(14, 46px);
+    padding-bottom: 4px;
   }
 
   .adminTable > div,

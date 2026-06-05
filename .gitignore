@@ -11,6 +11,7 @@ vite-dev.log
 vite-dev.err.log
 server-dev.log
 server-prod.log
+tmp/
 
 # Local SSH/deploy keys for pulling and pushing updates
 .ssh/
