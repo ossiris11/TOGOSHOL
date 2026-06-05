@@ -101,3 +101,10 @@
     display: grid;
   }
 }
+
+@media (max-width: 420px) {
+  .workCard div,
+  .proofFooter {
+    padding: 16px;
+  }
+}

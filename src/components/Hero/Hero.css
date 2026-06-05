@@ -694,6 +694,7 @@
   background: rgba(255, 255, 255, 0.055);
   color: #ffffff;
   font-weight: 800;
+  min-width: 0;
   outline: none;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
@@ -997,7 +998,9 @@
   }
 
   .customSpecRow strong span {
-    animation-name: specTypeCycleMobile;
+    animation:
+      specTypeCycleMobile 5.8s steps(28, end) calc(var(--delay) + 460ms) infinite,
+      specCursorBlink 760ms step-end infinite;
   }
 
   .customPcContacts {
@@ -1074,6 +1077,10 @@
 
   .customPcContacts {
     padding: 16px;
+  }
+
+  .heroStats div:nth-child(3) {
+    padding-inline: 16px;
   }
 
   .customPcContacts h3 {

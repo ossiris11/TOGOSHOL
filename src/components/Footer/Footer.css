@@ -54,3 +54,13 @@
     gap: 30px;
   }
 }
+
+@media (max-width: 420px) {
+  .footer {
+    padding: 36px 0 22px;
+  }
+
+  .footerBottom {
+    margin-top: 30px;
+  }
+}

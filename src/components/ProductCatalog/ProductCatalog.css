@@ -104,6 +104,7 @@
 .catalogResultLine {
   margin: 20px 0 18px;
   color: var(--text-muted);
+  overflow-wrap: anywhere;
 }
 
 .catalogResultLine strong {
@@ -875,6 +876,11 @@
   .catalogStats {
     min-width: 0;
     padding: 14px;
+  }
+
+  .catalogStats span,
+  .productIntro h3 {
+    overflow-wrap: anywhere;
   }
 
   .productShowcase {

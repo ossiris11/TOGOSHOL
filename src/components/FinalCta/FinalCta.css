@@ -44,3 +44,14 @@
     display: grid;
   }
 }
+
+@media (max-width: 420px) {
+  .finalCtaCard {
+    border-radius: 20px;
+    padding: 28px 16px;
+  }
+
+  .finalCtaCard p {
+    font-size: 1rem;
+  }
+}

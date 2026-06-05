@@ -88,3 +88,26 @@
     margin: 7px 0 0;
   }
 }
+
+@media (max-width: 520px) {
+  .stepCard {
+    grid-template-columns: 54px minmax(0, 1fr);
+    gap: 8px 14px;
+    border-radius: 20px;
+    padding: 18px;
+  }
+
+  .stepCard span {
+    width: 54px;
+    height: 54px;
+    font-size: 1rem;
+  }
+
+  .stepCard h3 {
+    overflow-wrap: anywhere;
+  }
+
+  .stepsGrid::before {
+    left: 27px;
+  }
+}

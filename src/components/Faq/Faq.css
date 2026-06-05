@@ -39,3 +39,14 @@
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 420px) {
+  .faqList summary {
+    min-height: 56px;
+    padding: 16px;
+  }
+
+  .faqList p {
+    padding: 0 16px 16px;
+  }
+}
