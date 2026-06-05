@@ -16,7 +16,6 @@ export function Hero() {
     return getProductViews(source).slice(0, 6);
   }, [allProducts, featuredProducts]);
   const [activeBuild, setActiveBuild] = useState('');
-  const selectedProduct = products.find((product) => getProductKey(product) === activeBuild) || products[0];
 
   useEffect(() => {
     if (!activeBuild && products[0]) setActiveBuild(products[1] ? getProductKey(products[1]) : getProductKey(products[0]));
@@ -71,13 +70,6 @@ export function Hero() {
               <img src={heroPc} alt="Мощный игровой ПК TOGOSHOL с RGB-подсветкой" />
               <span className="heroPcPhotoGlow" aria-hidden="true" />
             </div>
-            {selectedProduct && (
-              <div className="heroSelectedBuild" aria-live="polite">
-                <span>Выбрано из наличия</span>
-                <strong>{selectedProduct.normalizedTitle}</strong>
-                <b>{selectedProduct.price}</b>
-              </div>
-            )}
           </div>
         </div>
       </div>
