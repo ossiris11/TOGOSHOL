@@ -28,18 +28,15 @@ export function Hero() {
       <div className="heroInner container">
         <div className="heroContent">
           <span className="badge heroBadge">Готовые и кастомные игровые ПК</span>
-          <h1 className="heroTitle">Игровые ПК в Великом Новгороде</h1>
+          <h1 className="heroTitle">
+            <span>Игровые ПК</span>
+            <span>в <b>Великом</b></span>
+            <span><b>Новгороде</b></span>
+          </h1>
           <p className="heroSubtitle">
-            Готовые сборки от 47 900 ₽ и кастомные ПК под твой бюджет. Подберём комплектующие, протестируем систему и
-            подготовим к запуску.
+            Собираем мощные компьютеры под игры, стриминг и работу. Подберём комплектующие, протестируем систему и
+            поможем с подключением. Локальная поддержка под ключ.
           </p>
-          {selectedProduct && (
-            <div className="heroSelectedBuild" aria-live="polite">
-              <span>Выбрано из наличия</span>
-              <strong>{selectedProduct.normalizedTitle}</strong>
-              <b>{selectedProduct.price}</b>
-            </div>
-          )}
           <div className="heroActions">
             <a className="button buttonPrimary" href="#custom">
               Подобрать ПК
@@ -52,12 +49,57 @@ export function Hero() {
               Смотреть сборки
             </a>
           </div>
+          <div className="heroStats" aria-label="Преимущества TOGOSHOL">
+            <div>
+              <strong>5-20</strong>
+              <span>ПК в наличии и под заказ</span>
+            </div>
+            <div>
+              <strong>100%</strong>
+              <span>стресс-тест перед выдачей</span>
+            </div>
+            <div>
+              <strong>Локально</strong>
+              <span>новгородская поддержка</span>
+            </div>
+          </div>
         </div>
 
         <div className="heroVisual" ref={visualRef}>
-          <div className="heroVisualInner">
-            <img src={heroPc} alt="Игровой ПК TOGOSHOL с RGB-подсветкой" />
-            <span className="heroPcGlow" aria-hidden="true" />
+          <div className="heroLighting" aria-label="Цвет подсветки">
+            <span>Подсветка:</span>
+            <i className="isCyan" />
+            <i className="isViolet" />
+            <i className="isGreen" />
+            <i className="isRed" />
+          </div>
+          <div className="heroVisualInner" aria-label="Игровой ПК TOGOSHOL с RGB-подсветкой">
+            <div className="heroPcCase" aria-hidden="true">
+              <span className="heroCaseLine heroCaseLineTopA" />
+              <span className="heroCaseLine heroCaseLineTopB" />
+              <span className="heroCaseLine heroCaseLineTopC" />
+              <span className="heroScrew heroScrewTl" />
+              <span className="heroScrew heroScrewTr" />
+              <span className="heroScrew heroScrewBl" />
+              <span className="heroScrew heroScrewBr" />
+              <span className="heroFan"><i /></span>
+              <span className="heroRamGlow" />
+              <span className="heroLogoCore">TOGO</span>
+              <span className="heroCableArc" />
+              <span className="heroGpuPlate">
+                <small>GeForce RTX</small>
+                <i />
+              </span>
+              <span className="heroCaseDivider" />
+              <span className="heroBottomRail" />
+            </div>
+            {selectedProduct && (
+              <div className="heroSelectedBuild" aria-live="polite">
+                <span>Выбрано из наличия</span>
+                <strong>{selectedProduct.normalizedTitle}</strong>
+                <b>{selectedProduct.price}</b>
+              </div>
+            )}
           </div>
         </div>
       </div>
