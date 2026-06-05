@@ -127,6 +127,23 @@ export function CustomBuild() {
     return () => window.removeEventListener('togoshol:open-custom-parts', open);
   }, []);
 
+  useEffect(() => {
+    if (!customOpen) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setCustomOpen(false);
+    };
+
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', closeOnEscape);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [customOpen]);
+
   const recommendation = useMemo(
     () => getRecommendation(budget, game, resolution, ramChoice, storageChoice),
     [budget, game, ramChoice, resolution, storageChoice],
@@ -450,7 +467,15 @@ SSD: ${storageChoice}
       </div>
 
       {customOpen && (
-        <div className="customPartsOverlay" role="dialog" aria-modal="true" aria-labelledby="custom-parts-title">
+        <div
+          className="customPartsOverlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="custom-parts-title"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setCustomOpen(false);
+          }}
+        >
           <div className="customPartsModal">
             <header className="customPartsHeader">
               <div>

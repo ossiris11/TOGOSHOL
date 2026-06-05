@@ -34,6 +34,34 @@ export async function buildApp() {
   await app.register(rateLimit, { max: 300, timeWindow: '1 minute' });
   await app.register(multipart);
 
+  app.addHook('onRequest', async (_request, reply) => {
+    reply.header('X-Content-Type-Options', 'nosniff');
+    reply.header('X-Frame-Options', 'DENY');
+    reply.header('Referrer-Policy', 'strict-origin-when-cross-origin');
+    reply.header('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+    reply.header(
+      'Content-Security-Policy',
+      [
+        "default-src 'self'",
+        "base-uri 'self'",
+        "object-src 'none'",
+        "frame-ancestors 'none'",
+        "img-src 'self' data: blob: https:",
+        "connect-src 'self'",
+        "script-src 'self'",
+        "style-src 'self' 'unsafe-inline'",
+        "form-action 'self'",
+      ].join('; '),
+    );
+  });
+
+  app.addHook('preHandler', async (request, reply) => {
+    if (!request.url.startsWith('/api/admin/')) return;
+    if (['GET', 'HEAD', 'OPTIONS'].includes(request.method)) return;
+    if (request.headers['x-togoshol-admin'] === '1') return;
+    return reply.code(403).send({ ok: false, message: 'Admin request header required' });
+  });
+
   await fs.promises.mkdir(config.uploadDir, { recursive: true });
   await fs.promises.mkdir(config.dataDir, { recursive: true });
 

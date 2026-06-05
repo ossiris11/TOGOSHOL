@@ -1,4 +1,5 @@
 import { contacts } from '../../data/contacts';
+import { trackEvent } from '../../lib/api';
 import './FinalCta.css';
 
 export function FinalCta() {
@@ -10,13 +11,13 @@ export function FinalCta() {
           <h2>Хочешь игровой ПК без долгого поиска комплектующих?</h2>
           <p>Напиши нам — подберём сборку под твой бюджет и задачи.</p>
           <div className="finalCtaActions">
-            <a className="button buttonPrimary" href={contacts.vk} target="_blank" rel="noreferrer">
+            <a className="button buttonPrimary" href={contacts.vk} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_vk', { placement: 'final_cta' })}>
               Написать в VK
             </a>
-            <a className="button buttonSecondary" href={contacts.telegram} target="_blank" rel="noreferrer">
+            <a className="button buttonSecondary" href={contacts.telegram} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_telegram', { placement: 'final_cta' })}>
               Telegram
             </a>
-            <a className="button buttonSecondary" href={contacts.max} target="_blank" rel="noreferrer">
+            <a className="button buttonSecondary" href={contacts.max} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_max', { placement: 'final_cta' })}>
               Max
             </a>
             <a className="button buttonSecondary" href="#custom">

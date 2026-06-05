@@ -1,3 +1,4 @@
+import os from 'node:os';
 import type { FastifyInstance } from 'fastify';
 import { prisma } from '../db.js';
 import { sendBadRequest } from '../http.js';
@@ -6,6 +7,40 @@ import { getRequestIp, hashIp, requireAdmin } from '../security.js';
 
 function daysAgo(days: number) {
   return new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+}
+
+function startOfDay(date: Date) {
+  const copy = new Date(date);
+  copy.setHours(0, 0, 0, 0);
+  return copy;
+}
+
+function dayKey(date: Date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function getServerStats() {
+  const totalMemory = os.totalmem();
+  const freeMemory = os.freemem();
+  const usedMemory = totalMemory - freeMemory;
+  const cpuCount = Math.max(1, os.cpus().length);
+  const loadAverage1m = os.loadavg()[0] || 0;
+  const memoryUsedPercent = Math.round((usedMemory / totalMemory) * 100);
+  const cpuLoadPercent = Math.min(100, Math.round((loadAverage1m / cpuCount) * 100));
+
+  return {
+    hostname: os.hostname(),
+    platform: os.platform(),
+    uptimeSeconds: Math.round(os.uptime()),
+    cpuCount,
+    loadAverage1m,
+    cpuLoadPercent,
+    totalMemory,
+    freeMemory,
+    usedMemory,
+    memoryUsedPercent,
+    processMemoryRss: process.memoryUsage().rss,
+  };
 }
 
 export async function registerMetricRoutes(app: FastifyInstance) {
@@ -31,9 +66,13 @@ export async function registerMetricRoutes(app: FastifyInstance) {
     await requireAdmin(request, reply);
     if (reply.sent) return;
 
-    const [eventsToday, events7d, requestsNew, reviewsPending, productsActive, recentRequests, topProductEvents, contactEvents] = await Promise.all([
+    const chartStart = startOfDay(daysAgo(13));
+    const [eventsToday, events7d, pageViewsToday, pageViews7d, clicks7d, requestsNew, reviewsPending, productsActive, recentRequests, topProductEvents, contactEvents, eventsForChart, topPages] = await Promise.all([
       prisma.metricEvent.count({ where: { createdAt: { gte: daysAgo(1) } } }),
       prisma.metricEvent.count({ where: { createdAt: { gte: daysAgo(7) } } }),
+      prisma.metricEvent.count({ where: { type: 'page_view', createdAt: { gte: daysAgo(1) } } }),
+      prisma.metricEvent.count({ where: { type: 'page_view', createdAt: { gte: daysAgo(7) } } }),
+      prisma.metricEvent.count({ where: { type: { in: ['contact_click_vk', 'contact_click_telegram', 'contact_click_max', 'product_cta_click'] }, createdAt: { gte: daysAgo(7) } } }),
       prisma.customerRequest.count({ where: { status: 'new' } }),
       prisma.review.count({ where: { status: 'pending', deletedAt: null } }),
       prisma.product.count({ where: { deletedAt: null, status: { in: ['available', 'preorder'] } } }),
@@ -50,15 +89,41 @@ export async function registerMetricRoutes(app: FastifyInstance) {
         where: { type: { in: ['contact_click_vk', 'contact_click_telegram', 'contact_click_max', 'product_cta_click'] }, createdAt: { gte: daysAgo(30) } },
         _count: { _all: true },
       }),
+      prisma.metricEvent.findMany({
+        where: { createdAt: { gte: chartStart } },
+        select: { type: true, createdAt: true },
+        orderBy: { createdAt: 'asc' },
+      }),
+      prisma.metricEvent.groupBy({
+        by: ['pagePath'],
+        where: { type: 'page_view', pagePath: { not: null }, createdAt: { gte: daysAgo(30) } },
+        _count: { _all: true },
+        orderBy: { _count: { pagePath: 'desc' } },
+        take: 8,
+      }),
     ]);
 
     const productIds = topProductEvents.map((event) => event.productId).filter((id): id is string => Boolean(id));
     const products = await prisma.product.findMany({ where: { id: { in: productIds } } });
     const byId = new Map(products.map((product) => [product.id, product]));
+    const chartDays = Array.from({ length: 14 }, (_, index) => {
+      const date = startOfDay(daysAgo(13 - index));
+      return { date: dayKey(date), pageViews: 0, clicks: 0, requests: 0 };
+    });
+    const byDate = new Map(chartDays.map((item) => [item.date, item]));
+    for (const event of eventsForChart) {
+      const item = byDate.get(dayKey(event.createdAt));
+      if (!item) continue;
+      if (event.type === 'page_view') item.pageViews += 1;
+      if (['contact_click_vk', 'contact_click_telegram', 'contact_click_max', 'product_cta_click'].includes(event.type)) item.clicks += 1;
+      if (['request_created', 'configurator_submit'].includes(event.type)) item.requests += 1;
+    }
 
     return {
       ok: true,
-      stats: { eventsToday, events7d, requestsNew, reviewsPending, productsActive },
+      stats: { eventsToday, events7d, pageViewsToday, pageViews7d, clicks7d, requestsNew, reviewsPending, productsActive },
+      server: getServerStats(),
+      chart: chartDays,
       recentRequests: recentRequests.map((item) => ({
         id: item.id,
         status: item.status,
@@ -73,6 +138,7 @@ export async function registerMetricRoutes(app: FastifyInstance) {
         title: event.productId ? byId.get(event.productId)?.title || 'Удаленный товар' : 'Без товара',
         count: event._count._all,
       })),
+      topPages: topPages.map((event) => ({ path: event.pagePath || '/', count: event._count._all })),
       contacts: contactEvents.map((event) => ({ type: event.type, count: event._count._all })),
     };
   });

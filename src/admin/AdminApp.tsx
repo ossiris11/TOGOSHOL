@@ -74,8 +74,23 @@ type AdminComponent = {
 
 type DashboardPayload = {
   stats: Record<string, number>;
+  server: {
+    hostname: string;
+    platform: string;
+    uptimeSeconds: number;
+    cpuCount: number;
+    loadAverage1m: number;
+    cpuLoadPercent: number;
+    totalMemory: number;
+    freeMemory: number;
+    usedMemory: number;
+    memoryUsedPercent: number;
+    processMemoryRss: number;
+  };
+  chart: Array<{ date: string; pageViews: number; clicks: number; requests: number }>;
   recentRequests: Array<{ id: string; status: string; source: string; contact: string; budget?: number | null; productTitle: string; createdAt: string }>;
   topProducts: Array<{ productId: string | null; title: string; count: number }>;
+  topPages: Array<{ path: string; count: number }>;
   contacts: Array<{ type: string; count: number }>;
 };
 
@@ -143,10 +158,15 @@ const emptyProduct: ProductDraft = {
 };
 
 async function adminApi<T>(url: string, options?: RequestInit): Promise<T> {
+  const method = options?.method?.toUpperCase() || 'GET';
+  const headers = new Headers(options?.headers);
+  if (!(options?.body instanceof FormData)) headers.set('Content-Type', 'application/json');
+  if (!['GET', 'HEAD', 'OPTIONS'].includes(method)) headers.set('X-TOGOSHOL-Admin', '1');
+
   const response = await fetch(url, {
     credentials: 'include',
-    headers: options?.body instanceof FormData ? undefined : { 'Content-Type': 'application/json', ...(options?.headers || {}) },
     ...options,
+    headers,
   });
   if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
   return response.json() as Promise<T>;
@@ -180,6 +200,39 @@ function draftToPayload(draft: ProductDraft) {
 function rub(value?: number | null) {
   if (!value) return 'без бюджета';
   return new Intl.NumberFormat('ru-RU').format(value) + ' ₽';
+}
+
+function compactNumber(value: number) {
+  return new Intl.NumberFormat('ru-RU', { notation: value >= 10000 ? 'compact' : 'standard' }).format(value);
+}
+
+function formatBytes(value: number) {
+  if (!Number.isFinite(value) || value <= 0) return '0 МБ';
+  const units = ['Б', 'КБ', 'МБ', 'ГБ'];
+  let size = value;
+  let unit = 0;
+  while (size >= 1024 && unit < units.length - 1) {
+    size /= 1024;
+    unit += 1;
+  }
+  return `${size.toFixed(unit < 2 ? 0 : 1)} ${units[unit]}`;
+}
+
+function formatUptime(seconds: number) {
+  const days = Math.floor(seconds / 86400);
+  const hours = Math.floor((seconds % 86400) / 3600);
+  if (days > 0) return `${days} д ${hours} ч`;
+  return `${hours} ч ${Math.floor((seconds % 3600) / 60)} мин`;
+}
+
+function contactLabel(type: string) {
+  const labels: Record<string, string> = {
+    contact_click_vk: 'VK',
+    contact_click_telegram: 'Telegram',
+    contact_click_max: 'Max',
+    product_cta_click: 'CTA товаров',
+  };
+  return labels[type] || type;
 }
 
 export function AdminApp() {
@@ -363,28 +416,73 @@ function ComponentsPage() {
 
 function DashboardPage() {
   const [data, setData] = useState<DashboardPayload | null>(null);
+  const [updatedAt, setUpdatedAt] = useState('');
 
   useEffect(() => {
-    adminApi<{ ok: boolean } & DashboardPayload>('/api/admin/dashboard').then(setData).catch(() => undefined);
+    let alive = true;
+    const load = () => {
+      adminApi<{ ok: boolean } & DashboardPayload>('/api/admin/dashboard')
+        .then((payload) => {
+          if (!alive) return;
+          setData(payload);
+          setUpdatedAt(new Date().toLocaleTimeString('ru-RU'));
+        })
+        .catch(() => undefined);
+    };
+    load();
+    const timer = window.setInterval(load, 30000);
+    return () => {
+      alive = false;
+      window.clearInterval(timer);
+    };
   }, []);
 
   if (!data) return <AdminPanel title="Данные загружаются" />;
 
   return (
     <div className="adminStack">
-      <div className="adminStats">
-        <Stat label="Событий сегодня" value={data.stats.eventsToday} />
-        <Stat label="Событий за 7 дней" value={data.stats.events7d} />
-        <Stat label="Новые заявки" value={data.stats.requestsNew} />
-        <Stat label="Товары активны" value={data.stats.productsActive} />
-        <Stat label="Отзывы ждут" value={data.stats.reviewsPending} />
+      <div className="dashboardHero">
+        <div>
+          <span>Обновление каждые 30 секунд</span>
+          <h2>Сводка сайта и сервера</h2>
+          <p>Визиты, клики, заявки и техническая нагрузка. Последнее обновление: {updatedAt || 'сейчас'}.</p>
+        </div>
+        <button type="button" onClick={() => window.location.reload()}>Обновить</button>
       </div>
+      <div className="adminStats">
+        <Stat label="Переходы сегодня" value={data.stats.pageViewsToday} />
+        <Stat label="Переходы за 7 дней" value={data.stats.pageViews7d} />
+        <Stat label="Клики за 7 дней" value={data.stats.clicks7d} />
+        <Stat label="Новые заявки" value={data.stats.requestsNew} />
+        <Stat label="Активные товары" value={data.stats.productsActive} />
+        <Stat label="Отзывы на модерации" value={data.stats.reviewsPending} />
+      </div>
+      <div className="adminGrid dashboardGrid">
+        <AdminPanel title="Нагрузка сервера" note={`${data.server.hostname} · ${data.server.platform} · uptime ${formatUptime(data.server.uptimeSeconds)}`}>
+          <div className="serverMeters">
+            <Meter label={`CPU · ${data.server.cpuCount} потоков`} value={data.server.cpuLoadPercent} note={`load 1m: ${data.server.loadAverage1m.toFixed(2)}`} />
+            <Meter label="RAM" value={data.server.memoryUsedPercent} note={`${formatBytes(data.server.usedMemory)} из ${formatBytes(data.server.totalMemory)}`} />
+            <Meter label="Node RSS" value={Math.min(100, Math.round((data.server.processMemoryRss / data.server.totalMemory) * 100))} note={formatBytes(data.server.processMemoryRss)} />
+          </div>
+        </AdminPanel>
+        <AdminPanel title="Каналы и CTA за 30 дней">
+          <DataRows rows={data.contacts.map((item) => [contactLabel(item.type), `${item.count} кликов`])} empty="Кликов пока нет" />
+        </AdminPanel>
+      </div>
+      <AdminPanel title="График активности за 14 дней" note="Синие столбцы - переходы, белые - клики, зеленые - заявки.">
+        <MetricsChart points={data.chart} />
+      </AdminPanel>
       <AdminPanel title="Последние заявки">
-        <DataRows rows={data.recentRequests.map((item) => [item.contact, item.productTitle || item.source, rub(item.budget), new Date(item.createdAt).toLocaleString('ru-RU')])} />
+        <DataRows rows={data.recentRequests.map((item) => [item.contact, item.productTitle || item.source, rub(item.budget), new Date(item.createdAt).toLocaleString('ru-RU')])} empty="Заявок пока нет" />
       </AdminPanel>
-      <AdminPanel title="Топ товаров по активности">
-        <DataRows rows={data.topProducts.map((item) => [item.title, `${item.count} событий`])} />
-      </AdminPanel>
+      <div className="adminGrid dashboardGrid">
+        <AdminPanel title="Топ товаров по активности">
+          <DataRows rows={data.topProducts.map((item) => [item.title, `${item.count} событий`])} empty="Активности по товарам пока нет" />
+        </AdminPanel>
+        <AdminPanel title="Топ страниц по переходам">
+          <DataRows rows={data.topPages.map((item) => [item.path, `${item.count} переходов`])} empty="Переходов пока нет" />
+        </AdminPanel>
+      </div>
     </div>
   );
 }
@@ -594,7 +692,7 @@ function SettingsPage() {
 
   return (
     <div className="adminStack">
-      <AdminPanel title="Пароль админки" note={message || 'Пароль хранится в базе как hash. Сейчас выставлен 1234.'}>
+      <AdminPanel title="Пароль админки" note={message || 'Пароль хранится в базе как hash. Стартовый пароль задается через .env или установщик ВДС.'}>
         <div className="adminForm adminNarrowForm">
           <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Новый пароль" />
           <button className="adminPrimary" type="button" onClick={savePassword}>Сменить пароль</button>
@@ -686,16 +784,51 @@ function AdminPanel({ title, note, children }: { title: string; note?: string; c
   );
 }
 
-function Stat({ label, value }: { label: string; value: number }) {
+function Stat({ label, value }: { label: string; value: number | string }) {
   return (
     <div className="adminStat">
       <span>{label}</span>
-      <strong>{value}</strong>
+      <strong>{typeof value === 'number' ? compactNumber(value) : value}</strong>
     </div>
   );
 }
 
-function DataRows({ rows }: { rows: Array<Array<string | number>> }) {
+function Meter({ label, value, note }: { label: string; value: number; note: string }) {
+  return (
+    <div className="serverMeter">
+      <div>
+        <span>{label}</span>
+        <b>{value}%</b>
+      </div>
+      <i>
+        <span style={{ width: `${Math.min(100, Math.max(0, value))}%` }} />
+      </i>
+      <small>{note}</small>
+    </div>
+  );
+}
+
+function MetricsChart({ points }: { points: DashboardPayload['chart'] }) {
+  const max = Math.max(1, ...points.flatMap((point) => [point.pageViews, point.clicks, point.requests]));
+  return (
+    <div className="metricsChart" aria-label="График активности сайта">
+      {points.map((point) => (
+        <div className="metricsDay" key={point.date}>
+          <div className="metricsBars">
+            <span className="views" style={{ height: `${Math.max(5, (point.pageViews / max) * 100)}%` }} title={`Переходы: ${point.pageViews}`} />
+            <span className="clicks" style={{ height: `${Math.max(5, (point.clicks / max) * 100)}%` }} title={`Клики: ${point.clicks}`} />
+            <span className="requests" style={{ height: `${Math.max(5, (point.requests / max) * 100)}%` }} title={`Заявки: ${point.requests}`} />
+          </div>
+          <small>{new Date(point.date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' })}</small>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function DataRows({ rows, empty = 'Данных пока нет' }: { rows: Array<Array<string | number>>; empty?: string }) {
+  if (rows.length === 0) return <p className="adminEmpty">{empty}</p>;
+
   return (
     <div className="adminTable">
       {rows.map((row) => (

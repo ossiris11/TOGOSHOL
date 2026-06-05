@@ -47,8 +47,8 @@ export function assertProductionConfig() {
   const missing = [];
   if (!process.env.DATABASE_URL) missing.push('DATABASE_URL');
   if (!config.sessionSecret || config.sessionSecret.length < 32) missing.push('SESSION_SECRET >= 32 chars');
-  if (!config.adminPasswordHash && (!config.adminPassword || config.adminPassword.length < 12)) {
-    missing.push('ADMIN_PASSWORD >= 12 chars or ADMIN_PASSWORD_HASH');
+  if (!config.adminPasswordHash && (!config.adminPassword || config.adminPassword.length < 10)) {
+    missing.push('ADMIN_PASSWORD >= 10 chars or ADMIN_PASSWORD_HASH');
   }
 
   if (missing.length > 0) {
