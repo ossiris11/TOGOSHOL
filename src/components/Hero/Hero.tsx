@@ -87,12 +87,17 @@ function CustomSocialIcon({ channel }: { channel: CustomSocialChannel }) {
   );
 }
 
-function buildCustomRequestText(budget: string, look: string, hardware: string, delivery: string, wifi: string) {
+function buildCustomRequestText(budget: string, look: string, hardware: string, delivery: string, deliveryAddress: string, wifi: string) {
+  const deliveryDetails =
+    delivery === 'СДЭК'
+      ? `СДЭК: ${deliveryAddress || 'адрес не указал'}`
+      : 'Самовывоз из магазина: Великий Новгород, Парковая 14к6';
+
   return `Здравствуйте! Хочу собрать ПК под заказ.
 Бюджет: ${budget || 'не указал'}
 Внешний вид: ${look || 'не указал'}
 Пожелания по железу: ${hardware || 'не указал'}
-Доставка: ${delivery}
+Доставка: ${deliveryDetails}
 Wi-Fi/Bluetooth: ${wifi}
 
 Подберите, пожалуйста, оптимальную конфигурацию.`;
@@ -105,10 +110,14 @@ export function Hero() {
   const [look, setLook] = useState('');
   const [hardware, setHardware] = useState('');
   const [delivery, setDelivery] = useState<'Самовывоз' | 'СДЭК'>('Самовывоз');
+  const [deliveryAddress, setDeliveryAddress] = useState('');
   const [wifi, setWifi] = useState<'Нужен' | 'Нет'>('Нет');
   const [copyState, setCopyState] = useState<'idle' | 'copied'>('idle');
   const modalRef = useRef<HTMLDivElement | null>(null);
-  const requestText = useMemo(() => buildCustomRequestText(budget, look, hardware, delivery, wifi), [budget, delivery, hardware, look, wifi]);
+  const requestText = useMemo(
+    () => buildCustomRequestText(budget, look, hardware, delivery, deliveryAddress, wifi),
+    [budget, delivery, deliveryAddress, hardware, look, wifi],
+  );
 
   const closeCustomModal = () => setIsCustomModalOpen(false);
   const openCustomModal = () => {
@@ -297,10 +306,22 @@ export function Hero() {
               </fieldset>
             </div>
 
-            <div className="customOrderAddress">
-              <span>⌖</span>
-              <p>Самовывоз из магазина <b>Великий Новгород, Парковая 14к6</b></p>
-            </div>
+            {delivery === 'СДЭК' ? (
+              <label className="customOrderDeliveryField">
+                <span>Адрес доставки</span>
+                <textarea
+                  value={deliveryAddress}
+                  onChange={(event) => setDeliveryAddress(event.target.value)}
+                  placeholder="Напишите адрес пункта выдачи СДЭК или ваш адрес для доставки курьером"
+                  rows={2}
+                />
+              </label>
+            ) : (
+              <div className="customOrderAddress">
+                <span>⌖</span>
+                <p>Самовывоз из магазина <b>Великий Новгород, Парковая 14к6</b></p>
+              </div>
+            )}
 
             <div className="customOrderHint">Сначала скопируйте заявку, затем отправьте её нам в любой мессенджер.</div>
 
