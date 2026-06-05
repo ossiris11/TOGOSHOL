@@ -4,7 +4,9 @@ import { useProducts } from '../../hooks/useProducts';
 import { trackEvent } from '../../lib/api';
 import { getBudgetLabel, getProductKey, getProductViews } from '../../lib/products';
 import type { ProductView } from '../../lib/products';
+import amdLogo from '../../assets/amd-logo.svg';
 import heroPc from '../../assets/hero-pc.png';
+import intelLogo from '../../assets/intel-logo.svg';
 import './ProductCatalog.css';
 
 const filters = ['Все', 'до 60k', '60–90k', '90–150k', '150k+'] as const;
@@ -35,10 +37,7 @@ function ProcessorBrandLogo({ brand, label }: { brand: 'amd' | 'intel' | 'cpu'; 
   if (brand === 'intel') {
     return (
       <span className="productBrandBadge isIntel" aria-label="Intel">
-        <svg className="productBrandLogo productBrandLogo-intel" viewBox="0 0 86 32" aria-hidden="true" focusable="false">
-          <path d="M10.9 10.2h5.2v15.6h-5.2V10.2Zm.2-6h5v4h-5v-4Zm9 10.7c0-3.1 1.9-4.9 5.2-4.9 3.7 0 5.9 2.2 5.9 6.3v9.5h-5.1v-8.7c0-1.7-.7-2.6-2-2.6-1.4 0-2.1 1-2.1 2.8v8.5h-5V10.2h4.6l.5 4.7Zm16.1-9.4h5.1v4.7h4.1v4.1h-4.1v6.2c0 1.1.5 1.6 1.5 1.6h2v4.1c-.9.2-1.8.3-2.8.3-4.1 0-6-1.9-6-5.7v-6.5h-2.7v-4.1h2.9V5.5Zm22.7 20.7c-5.7 0-9.1-3.1-9.1-8.2 0-5 3.1-8.1 8.2-8.1 4.9 0 7.7 3 7.7 8.4 0 .5 0 1-.1 1.4H55c.5 1.6 1.9 2.4 4.1 2.4 1.8 0 3.4-.4 4.9-1.1v4.1c-1.5.8-3.2 1.2-5.1 1.2Zm-4-9.5h5.9c-.1-1.8-1.1-2.8-2.8-2.8-1.6 0-2.7 1-3.1 2.8Zm13.7-11.9h5.1v21h-5.1v-21Z" />
-          <circle cx="81" cy="23.3" r="2.7" />
-        </svg>
+        <img className="productBrandLogo productBrandLogo-intel" src={intelLogo} alt="" aria-hidden="true" />
       </span>
     );
   }
@@ -46,10 +45,7 @@ function ProcessorBrandLogo({ brand, label }: { brand: 'amd' | 'intel' | 'cpu'; 
   if (brand === 'amd') {
     return (
       <span className="productBrandBadge isAmd" aria-label="AMD">
-        <svg className="productBrandLogo productBrandLogo-amd" viewBox="0 0 92 32" aria-hidden="true" focusable="false">
-          <path d="M4 25.8 11.3 6h6.1l7.3 19.8h-5.6l-1.2-3.7h-8l-1.2 3.7H4Zm7.4-8.1h6.2l-3.1-9.1-3.1 9.1Zm27.4 8.1-6.5-12.9v12.9h-5.1V6h6.8l6.1 12.4L46.2 6h6.8v19.8h-5.1V12.9l-6.4 12.9h-2.7Zm19.2 0V6h8.1c6.6 0 10.3 3.6 10.3 9.9 0 6.3-3.8 9.9-10.3 9.9H58Zm5.3-4.7h2.5c3.5 0 5.2-1.7 5.2-5.2s-1.7-5.2-5.2-5.2h-2.5v10.4Z" />
-          <path d="M74.9 6H88v13.1h-4.7v-5.2l-7.1 7.1-3.3-3.3 7.1-7.1h-5.1V6Z" />
-        </svg>
+        <img className="productBrandLogo productBrandLogo-amd" src={amdLogo} alt="" aria-hidden="true" />
       </span>
     );
   }

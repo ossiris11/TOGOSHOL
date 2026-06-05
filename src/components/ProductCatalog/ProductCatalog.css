@@ -167,13 +167,12 @@
 
 .productBrandLogo {
   display: block;
-  width: 100%;
   height: auto;
-  fill: currentColor;
+  object-fit: contain;
 }
 
 .productBrandLogo-intel {
-  width: 56px;
+  width: 57px;
 }
 
 .productBrandLogo-amd {
