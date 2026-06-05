@@ -63,7 +63,7 @@ export const reviewInputSchema = z.object({
   rating: z.number().int().min(1).max(5).default(5),
   text: z.string().trim().min(4).max(3000),
   imageUrl: z.string().trim().max(1200).nullable().optional(),
-  source: z.enum(['manual', 'vk', 'telegram', 'avito', 'screenshot']).default('manual'),
+  source: z.enum(['manual', 'vk', 'telegram', 'avito', 'site', 'screenshot']).default('manual'),
   externalUrl: z.string().trim().max(1200).nullable().optional(),
   externalId: z.string().trim().max(120).nullable().optional(),
   productId: z.string().trim().max(120).nullable().optional(),

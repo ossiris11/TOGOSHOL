@@ -49,6 +49,7 @@ type AdminReview = {
   id: string;
   status: string;
   authorName: string;
+  authorLink?: string | null;
   rating: number;
   text: string;
   source: string;
@@ -56,6 +57,7 @@ type AdminReview = {
   imageUrl?: string | null;
   isPinned: boolean;
   sortOrder: number;
+  productId?: string | null;
 };
 
 type AdminComponent = {
@@ -95,6 +97,7 @@ type DashboardPayload = {
 };
 
 type ProductDraft = Omit<AdminProduct, 'id' | 'specs' | 'deletedAt'> & { id?: string; specsText: string };
+type ReviewDraft = Omit<AdminReview, 'id'> & { id?: string };
 
 const tabs: Array<{ id: AdminTab; label: string }> = [
   { id: 'dashboard', label: 'Дашборд' },
@@ -157,19 +160,40 @@ const emptyProduct: ProductDraft = {
   externalId: '',
 };
 
+const emptyReview: ReviewDraft = {
+  status: 'pending',
+  authorName: '',
+  authorLink: '',
+  rating: 5,
+  text: '',
+  source: 'avito',
+  externalUrl: '',
+  imageUrl: '',
+  isPinned: false,
+  sortOrder: 1000,
+  productId: '',
+};
+
 async function adminApi<T>(url: string, options?: RequestInit): Promise<T> {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 8000);
   const method = options?.method?.toUpperCase() || 'GET';
   const headers = new Headers(options?.headers);
   if (!(options?.body instanceof FormData)) headers.set('Content-Type', 'application/json');
   if (!['GET', 'HEAD', 'OPTIONS'].includes(method)) headers.set('X-TOGOSHOL-Admin', '1');
 
-  const response = await fetch(url, {
-    credentials: 'include',
-    ...options,
-    headers,
-  });
-  if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-  return response.json() as Promise<T>;
+  try {
+    const response = await fetch(url, {
+      credentials: 'include',
+      ...options,
+      headers,
+      signal: options?.signal || controller.signal,
+    });
+    if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+    return response.json() as Promise<T>;
+  } finally {
+    window.clearTimeout(timeout);
+  }
 }
 
 function productToDraft(product: AdminProduct): ProductDraft {
@@ -240,12 +264,16 @@ export function AdminApp() {
   const [authenticated, setAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
+  const [apiNotice, setApiNotice] = useState('');
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
 
   useEffect(() => {
     adminApi('/api/admin/me')
       .then(() => setAuthenticated(true))
-      .catch(() => setAuthenticated(false))
+      .catch((error) => {
+        setAuthenticated(false);
+        if (error instanceof DOMException && error.name === 'AbortError') setApiNotice('API не ответил за 8 секунд. Проверь, что backend запущен.');
+      })
       .finally(() => setAuthChecked(true));
   }, []);
 
@@ -254,8 +282,9 @@ export function AdminApp() {
     try {
       await adminApi('/api/admin/login', { method: 'POST', body: JSON.stringify({ password }) });
       setAuthenticated(true);
+      setApiNotice('');
     } catch {
-      setLoginError('Пароль не подошел');
+      setLoginError('Пароль не подошел или backend не отвечает');
     }
   };
 
@@ -264,15 +293,27 @@ export function AdminApp() {
     setAuthenticated(false);
   };
 
-  if (!authChecked) return <div className="adminBoot">Проверяем сессию...</div>;
+  if (!authChecked) {
+    return (
+      <main className="adminBoot">
+        <section className="adminBootPanel">
+          <span>TOGOSHOL Admin</span>
+          <h1>Проверяем сессию</h1>
+          <p>Если экран висит дольше нескольких секунд, проверь backend API.</p>
+        </section>
+      </main>
+    );
+  }
 
   if (!authenticated) {
     return (
       <main className="adminLogin">
         <section className="adminLoginPanel">
           <span>TOGOSHOL Admin</span>
+          <b className="adminVersionBadge">pre-test версия</b>
           <h1>Вход в панель</h1>
           <p>На лендинге вход не показывается. Доступ только по прямому адресу.</p>
+          {apiNotice && <p className="adminNotice">{apiNotice}</p>}
           <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} onKeyDown={(event) => event.key === 'Enter' && void login()} placeholder="Пароль администратора" />
           <button type="button" onClick={login}>Войти</button>
           {loginError && <strong>{loginError}</strong>}
@@ -301,6 +342,7 @@ export function AdminApp() {
         <header className="adminTopbar">
           <div>
             <span>Админ-панель</span>
+            <b className="adminVersionBadge">pre-test версия</b>
             <h1>{tabs.find((tab) => tab.id === activeTab)?.label}</h1>
           </div>
           <div>
@@ -624,14 +666,53 @@ function RequestsPage() {
 
 function ReviewsPage() {
   const [reviews, setReviews] = useState<AdminReview[]>([]);
-  const [draft, setDraft] = useState({ authorName: '', rating: 5, text: '', source: 'avito', externalUrl: '', imageUrl: '', status: 'pending', isPinned: false, sortOrder: 1000 });
+  const [draft, setDraft] = useState<ReviewDraft>(emptyReview);
+  const [message, setMessage] = useState('');
   const load = () => adminApi<{ items: AdminReview[] }>('/api/admin/reviews').then((payload) => setReviews(payload.items));
   useEffect(() => void load(), []);
 
   const save = async () => {
-    await adminApi('/api/admin/reviews/import', { method: 'POST', body: JSON.stringify(draft) });
-    setDraft({ authorName: '', rating: 5, text: '', source: 'avito', externalUrl: '', imageUrl: '', status: 'pending', isPinned: false, sortOrder: 1000 });
+    const payload = {
+      ...draft,
+      rating: Number(draft.rating) || 5,
+      sortOrder: Number(draft.sortOrder) || 1000,
+      authorLink: draft.authorLink || null,
+      externalUrl: draft.externalUrl || null,
+      imageUrl: draft.imageUrl || null,
+      productId: draft.productId || null,
+      id: undefined,
+    };
+    const url = draft.id ? `/api/admin/reviews/${draft.id}` : '/api/admin/reviews';
+    await adminApi(url, { method: draft.id ? 'PATCH' : 'POST', body: JSON.stringify(payload) });
+    setDraft(emptyReview);
+    setMessage('Отзыв сохранен');
     await load();
+  };
+
+  const edit = (review: AdminReview) => {
+    setDraft({
+      id: review.id,
+      status: review.status,
+      authorName: review.authorName,
+      authorLink: review.authorLink || '',
+      rating: review.rating,
+      text: review.text,
+      source: review.source,
+      externalUrl: review.externalUrl || '',
+      imageUrl: review.imageUrl || '',
+      isPinned: review.isPinned,
+      sortOrder: review.sortOrder,
+      productId: review.productId || '',
+    });
+    setMessage('');
+  };
+
+  const upload = async (file: File | null) => {
+    if (!file) return;
+    const form = new FormData();
+    form.set('file', file);
+    const result = await adminApi<{ url: string }>('/api/admin/uploads/images', { method: 'POST', body: form });
+    setDraft((current) => ({ ...current, imageUrl: result.url }));
   };
 
   const patch = async (id: string, status: string) => {
@@ -641,20 +722,41 @@ function ReviewsPage() {
 
   return (
     <div className="adminGrid">
-      <AdminPanel title="Импорт / ручной отзыв" note="Avito лучше добавлять ссылкой и скриншотом, если автоматический импорт недоступен или запрещен правилами площадки.">
+      <AdminPanel title={draft.id ? 'Редактировать отзыв' : 'Новый отзыв / скрин'} note={message || 'Для блока лучших отзывов: статус published, источник Avito/VK/Сайт, широкий скрин в поле изображения. Закрепленные идут выше.'}>
         <div className="adminForm">
           <input value={draft.authorName} onChange={(event) => setDraft({ ...draft, authorName: event.target.value })} placeholder="Имя автора" />
           <select value={draft.source} onChange={(event) => setDraft({ ...draft, source: event.target.value })}>
             <option value="avito">Avito</option>
             <option value="vk">VK</option>
+            <option value="site">Сайт</option>
             <option value="telegram">Telegram</option>
             <option value="screenshot">Скриншот</option>
             <option value="manual">Вручную</option>
           </select>
-          <input value={draft.externalUrl} onChange={(event) => setDraft({ ...draft, externalUrl: event.target.value })} placeholder="Ссылка на источник" />
-          <input value={draft.imageUrl} onChange={(event) => setDraft({ ...draft, imageUrl: event.target.value })} placeholder="URL скриншота" />
+          <div className="adminSplit">
+            <select value={draft.status} onChange={(event) => setDraft({ ...draft, status: event.target.value })}>
+              <option value="pending">На модерации</option>
+              <option value="published">Опубликован</option>
+              <option value="hidden">Скрыт</option>
+              <option value="rejected">Отклонен</option>
+            </select>
+            <input type="number" min="1" max="5" value={draft.rating} onChange={(event) => setDraft({ ...draft, rating: Number(event.target.value) })} placeholder="Оценка" />
+          </div>
+          <div className="adminSplit">
+            <input type="number" value={draft.sortOrder} onChange={(event) => setDraft({ ...draft, sortOrder: Number(event.target.value) })} placeholder="Порядок" />
+            <label className="adminCheckbox">
+              <input type="checkbox" checked={draft.isPinned} onChange={(event) => setDraft({ ...draft, isPinned: event.target.checked })} />
+              Лучший / закрепить
+            </label>
+          </div>
+          <input value={draft.externalUrl || ''} onChange={(event) => setDraft({ ...draft, externalUrl: event.target.value })} placeholder="Ссылка на источник" />
+          <input value={draft.imageUrl || ''} onChange={(event) => setDraft({ ...draft, imageUrl: event.target.value })} placeholder="URL скриншота" />
+          <input type="file" accept="image/*" onChange={(event) => void upload(event.target.files?.[0] || null)} />
           <textarea value={draft.text} onChange={(event) => setDraft({ ...draft, text: event.target.value })} placeholder="Текст отзыва" />
-          <button className="adminPrimary" type="button" onClick={save}>Добавить на модерацию</button>
+          <div className="adminActions">
+            <button className="adminPrimary" type="button" onClick={save}>Сохранить отзыв</button>
+            <button type="button" onClick={() => setDraft(emptyReview)}>Очистить</button>
+          </div>
         </div>
       </AdminPanel>
       <AdminPanel title="Модерация">
@@ -663,9 +765,11 @@ function ReviewsPage() {
             <div key={review.id}>
               <span>{review.authorName}</span>
               <b>{review.source} · {review.rating}/5</b>
-              <small>{review.status}</small>
+              <small>{review.status} · порядок {review.sortOrder}{review.isPinned ? ' · лучший' : ''}</small>
+              <button type="button" onClick={() => edit(review)}>Редактировать</button>
               <button type="button" onClick={() => void patch(review.id, 'published')}>Опубликовать</button>
               <button type="button" onClick={() => void patch(review.id, 'hidden')}>Скрыть</button>
+              {review.imageUrl && <img className="adminReviewThumb" src={review.imageUrl} alt="" />}
               <p>{review.text}</p>
             </div>
           ))}
