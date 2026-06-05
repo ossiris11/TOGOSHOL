@@ -16,14 +16,11 @@ const sortOptions = [
   { label: 'Сначала мощнее', value: 'power-desc' },
 ] as const;
 const specDrawerCloseMs = 420;
+const checkoutCloseMs = 260;
 
 type Filter = (typeof filters)[number];
 type GpuFilter = (typeof gpuFilters)[number];
 type SortOption = (typeof sortOptions)[number]['value'];
-
-function buildMessage(title: string, price: string) {
-  return buildContactMessage(`Здравствуйте! Интересует сборка ${title} за ${price}. Хочу уточнить наличие и детали.`);
-}
 
 function getCardTitle(tier: string) {
   if (tier === 'Топ') return 'Ultra';
@@ -79,6 +76,21 @@ function getSpecificationRows(product: ProductView) {
   ];
 }
 
+function buildOrderText(product: ProductView) {
+  const rows = getSpecificationRows(product)
+    .map(([label, value]) => `${label}: ${value}`)
+    .join('\n');
+
+  return `— Заявка с сайта TOG PC —
+Бюджет: ${product.price}
+Сборка: TOG PC ${getCardTitle(product.gpuTier)}
+
+— Конфигурация —
+${rows}
+
+Хочу оформить этот ПК.`;
+}
+
 export function ProductCatalog() {
   const [activeFilter, setActiveFilter] = useState<Filter>('Все');
   const [activeGpuFilter, setActiveGpuFilter] = useState<GpuFilter>('Все');
@@ -87,7 +99,11 @@ export function ProductCatalog() {
   const [showAll, setShowAll] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<ProductView | null>(null);
   const [isSpecClosing, setIsSpecClosing] = useState(false);
+  const [checkoutProduct, setCheckoutProduct] = useState<ProductView | null>(null);
+  const [isCheckoutClosing, setIsCheckoutClosing] = useState(false);
+  const [copyState, setCopyState] = useState<'idle' | 'copied'>('idle');
   const closeSpecTimer = useRef<number | null>(null);
+  const closeCheckoutTimer = useRef<number | null>(null);
   const { products: storefrontProducts } = useProducts();
   const products = useMemo(() => getProductViews(storefrontProducts), [storefrontProducts]);
   const filteredProducts = useMemo(() => {
@@ -130,12 +146,49 @@ export function ProductCatalog() {
     }, specDrawerCloseMs);
   }, [isSpecClosing, selectedProduct]);
 
+  const openCheckout = (product: ProductView) => {
+    if (closeCheckoutTimer.current) {
+      window.clearTimeout(closeCheckoutTimer.current);
+      closeCheckoutTimer.current = null;
+    }
+
+    setCopyState('idle');
+    setIsCheckoutClosing(false);
+    setCheckoutProduct(product);
+    trackEvent('product_cta_click', { productId: product.sourceId, title: product.normalizedTitle, channel: 'checkout_modal', placement: 'catalog' });
+  };
+
+  const closeCheckout = useCallback(() => {
+    if (!checkoutProduct || isCheckoutClosing) return;
+
+    setIsCheckoutClosing(true);
+    closeCheckoutTimer.current = window.setTimeout(() => {
+      setCheckoutProduct(null);
+      setIsCheckoutClosing(false);
+      setCopyState('idle');
+      closeCheckoutTimer.current = null;
+    }, checkoutCloseMs);
+  }, [checkoutProduct, isCheckoutClosing]);
+
+  const copyCheckoutText = async () => {
+    if (!checkoutProduct) return;
+
+    try {
+      await navigator.clipboard.writeText(buildOrderText(checkoutProduct));
+      setCopyState('copied');
+      window.setTimeout(() => setCopyState('idle'), 1600);
+    } catch {
+      setCopyState('idle');
+    }
+  };
+
   useEffect(() => {
-    if (!selectedProduct) return;
+    if (!selectedProduct && !checkoutProduct) return;
 
     const previousOverflow = document.body.style.overflow;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') closeSpecDrawer();
+      if (event.key === 'Escape') closeCheckout();
     };
 
     document.body.style.overflow = 'hidden';
@@ -145,11 +198,12 @@ export function ProductCatalog() {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [closeSpecDrawer, selectedProduct]);
+  }, [checkoutProduct, closeCheckout, closeSpecDrawer, selectedProduct]);
 
   useEffect(
     () => () => {
       if (closeSpecTimer.current) window.clearTimeout(closeSpecTimer.current);
+      if (closeCheckoutTimer.current) window.clearTimeout(closeCheckoutTimer.current);
     },
     [],
   );
@@ -288,10 +342,11 @@ export function ProductCatalog() {
                   <div className="productActions">
                     <a
                       className="productBuyButton"
-                      href={`${contacts.vk}?message=${buildMessage(product.normalizedTitle, product.price)}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      onClick={() => trackEvent('product_cta_click', { productId: product.sourceId, title: product.normalizedTitle, channel: 'vk', placement: 'catalog' })}
+                      href={`#order-${getProductKey(product)}`}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        openCheckout(product);
+                      }}
                     >
                       Купить ПК <span>→</span>
                     </a>
@@ -389,10 +444,11 @@ export function ProductCatalog() {
               <div className="productSpecActions">
                 <a
                   className="productBuyButton"
-                  href={`${contacts.vk}?message=${buildMessage(selectedProduct.normalizedTitle, selectedProduct.price)}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  onClick={() => trackEvent('product_cta_click', { productId: selectedProduct.sourceId, title: selectedProduct.normalizedTitle, channel: 'vk', placement: 'spec_drawer' })}
+                  href={`#order-${getProductKey(selectedProduct)}`}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    openCheckout(selectedProduct);
+                  }}
                 >
                   Купить ПК <span>→</span>
                 </a>
@@ -400,6 +456,51 @@ export function ProductCatalog() {
                   Telegram <span>›</span>
                 </a>
               </div>
+            </div>
+          </aside>
+        </div>
+      )}
+
+      {checkoutProduct && (
+        <div
+          className={`checkoutOverlay ${isCheckoutClosing ? 'isClosing' : ''}`}
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) closeCheckout();
+          }}
+        >
+          <aside className="checkoutModal" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
+            <button type="button" className="checkoutClose" aria-label="Закрыть оформление" onClick={closeCheckout}>
+              ×
+            </button>
+            <h3 id="checkout-title">Оформление</h3>
+            <p>Скопируйте заявку и отправьте нам в удобный мессенджер. Мы быстро уточним детали и наличие.</p>
+
+            <div className="checkoutHint">
+              <span>!</span>
+              <b>1. Скопируйте текст ниже<br />2. Выберите канал для отправки</b>
+            </div>
+
+            <pre className="checkoutText">{buildOrderText(checkoutProduct)}</pre>
+
+            <div className="checkoutActions">
+              <button className="checkoutCopyButton" type="button" onClick={copyCheckoutText}>
+                {copyState === 'copied' ? 'Скопировано' : 'Скопировать'} <span>⧉</span>
+              </button>
+              <a href={contacts.avito} target="_blank" rel="noreferrer" onClick={() => trackEvent('product_cta_click', { productId: checkoutProduct.sourceId, channel: 'avito', placement: 'checkout_modal' })}>
+                Avito <span>→</span>
+              </a>
+              <a
+                href={`${contacts.vk}?message=${buildContactMessage(buildOrderText(checkoutProduct))}`}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => trackEvent('product_cta_click', { productId: checkoutProduct.sourceId, channel: 'vk', placement: 'checkout_modal' })}
+              >
+                VK <span>→</span>
+              </a>
+              <a href={contacts.telegram} target="_blank" rel="noreferrer" onClick={() => trackEvent('product_cta_click', { productId: checkoutProduct.sourceId, channel: 'telegram', placement: 'checkout_modal' })}>
+                Telegram <span>→</span>
+              </a>
             </div>
           </aside>
         </div>
