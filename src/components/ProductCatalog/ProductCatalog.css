@@ -149,9 +149,13 @@
   top: 14px;
   right: 14px;
   z-index: 2;
+  display: inline-grid;
+  width: 68px;
+  min-height: 38px;
+  place-items: center;
   border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 10px;
-  padding: 9px 12px;
+  padding: 7px 9px;
   background: rgba(8, 10, 18, 0.82);
   color: #ffffff;
   font-size: 0.78rem;
@@ -161,13 +165,24 @@
   backdrop-filter: blur(10px);
 }
 
+.productBrandLogo {
+  display: block;
+  width: 100%;
+  height: auto;
+  fill: currentColor;
+}
+
+.productBrandLogo-intel {
+  width: 56px;
+}
+
+.productBrandLogo-amd {
+  width: 58px;
+}
+
 .productBrandBadge.isIntel {
   border-color: rgba(0, 229, 255, 0.52);
   color: #8af4ff;
-  font-size: 1rem;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  text-transform: lowercase;
   box-shadow: 0 0 24px rgba(0, 229, 255, 0.14);
 }
 
@@ -690,12 +705,18 @@
     right: 10px;
     border-width: 2px;
     border-radius: 8px;
-    padding: 8px 10px;
+    width: 60px;
+    min-height: 34px;
+    padding: 6px 8px;
     font-size: 0.68rem;
   }
 
-  .productBrandBadge.isIntel {
-    font-size: 0.88rem;
+  .productBrandLogo-intel {
+    width: 50px;
+  }
+
+  .productBrandLogo-amd {
+    width: 51px;
   }
 
   .productShowcase img {
