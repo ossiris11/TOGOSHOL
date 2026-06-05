@@ -214,6 +214,33 @@
   width: min(100%, 420px);
 }
 
+.configLeadForm {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto;
+  gap: 12px;
+  margin-top: 14px;
+  max-width: 620px;
+}
+
+.configLeadForm input {
+  min-height: 52px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-pill);
+  padding: 0 18px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-main);
+  outline: none;
+}
+
+.configLeadForm input:focus {
+  border-color: rgba(0, 229, 255, 0.42);
+}
+
+.configLeadForm button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
 .recommendationCard {
   align-self: center;
   border: 1px solid var(--border-active);
@@ -357,6 +384,253 @@
   font-weight: 850;
 }
 
+.customPartsOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(2, 4, 8, 0.78);
+  backdrop-filter: blur(16px);
+}
+
+.customPartsModal {
+  width: min(1060px, 100%);
+  max-height: min(760px, calc(100vh - 36px));
+  overflow: hidden;
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(circle at 84% 12%, rgba(0, 229, 255, 0.14), transparent 28%),
+    radial-gradient(circle at 16% 94%, rgba(106, 53, 255, 0.16), transparent 30%),
+    #080b10;
+  box-shadow: 0 34px 110px rgba(0, 0, 0, 0.6);
+}
+
+.customPartsHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 1px solid var(--border-soft);
+  padding: clamp(20px, 3vw, 30px);
+}
+
+.customPartsHeader h3 {
+  margin: 14px 0 8px;
+  font-size: clamp(1.65rem, 3.4vw, 2.65rem);
+  line-height: 1;
+}
+
+.customPartsHeader p {
+  max-width: 700px;
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+.customPartsHeader > button {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  border: 1px solid var(--border-soft);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-main);
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.customPartsLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 0.34fr);
+  gap: 0;
+  min-height: 480px;
+}
+
+.partsSelectorList {
+  display: grid;
+  gap: 10px;
+  max-height: calc(100vh - 190px);
+  overflow: auto;
+  padding: clamp(16px, 2.4vw, 24px);
+}
+
+.partSelectRow {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(160px, 0.34fr) minmax(260px, 1fr);
+  gap: 8px 14px;
+  align-items: center;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.partSelectRow:hover,
+.partSelectRow.isSelected {
+  border-color: rgba(0, 229, 255, 0.32);
+  background: rgba(0, 229, 255, 0.055);
+}
+
+.partSelectLabel {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.partSelectLabel strong {
+  color: var(--text-main);
+  font-size: 0.96rem;
+}
+
+.partSelectLabel span {
+  overflow: hidden;
+  color: var(--text-soft);
+  font-size: 0.84rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.partSelectControl {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.partSelectControl select,
+.partSelectControl button {
+  min-height: 42px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-pill);
+  background: rgba(5, 7, 10, 0.72);
+  color: var(--text-main);
+  padding: 0 14px;
+  outline: none;
+}
+
+.partSelectControl select:focus {
+  border-color: rgba(0, 229, 255, 0.45);
+}
+
+.partSelectControl button {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 850;
+}
+
+.partSelectControl button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
+.partSelectRow p {
+  grid-column: 2;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.partSelectMeta {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.partSelectMeta span {
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  border-radius: var(--radius-pill);
+  padding: 5px 9px;
+  background: rgba(0, 229, 255, 0.07);
+  color: var(--cyan);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.customPartsSummary {
+  display: grid;
+  align-content: start;
+  gap: 13px;
+  border-left: 1px solid var(--border-soft);
+  padding: clamp(16px, 2.4vw, 24px);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.customPartsSummary > span {
+  color: var(--cyan);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.customPartsSummary ul {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.customPartsSummary li {
+  display: grid;
+  gap: 3px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.customPartsSummary small,
+.emptySelection,
+.partsHint {
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.summaryNumbers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.summaryNumbers div {
+  display: grid;
+  gap: 4px;
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.summaryNumbers strong {
+  color: var(--cyan);
+  font-size: 1.1rem;
+}
+
+.customPartsSummary input {
+  min-height: 48px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-pill);
+  padding: 0 16px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-main);
+}
+
+.partsHint.isError {
+  border: 1px solid rgba(255, 59, 78, 0.26);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  background: rgba(255, 59, 78, 0.07);
+  color: #ffc2ca;
+}
+
 @media (max-width: 1024px) {
   .configurator {
     grid-template-columns: 1fr;
@@ -364,6 +638,15 @@
 
   .recommendationCard {
     align-self: stretch;
+  }
+
+  .customPartsLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .customPartsSummary {
+    border-top: 1px solid var(--border-soft);
+    border-left: 0;
   }
 }
 
@@ -393,7 +676,29 @@
     display: grid;
   }
 
+  .configLeadForm {
+    grid-template-columns: 1fr;
+  }
+
   .closestProducts a {
     grid-template-columns: 1fr;
+  }
+
+  .partSelectRow,
+  .summaryNumbers {
+    grid-template-columns: 1fr;
+  }
+
+  .partSelectRow p,
+  .partSelectMeta {
+    grid-column: auto;
+  }
+
+  .partSelectControl {
+    grid-template-columns: 1fr;
+  }
+
+  .customPartsHeader {
+    align-items: stretch;
   }
 }

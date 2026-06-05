@@ -1,0 +1,161 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id               String            @id @default(cuid())
+  title            String
+  slug             String            @unique
+  status           String            @default("available")
+  badge            String            @default("В наличии")
+  badgeType        String            @default("available")
+  price            Int               @default(0)
+  priceText        String
+  oldPrice         Int?
+  imageUrl         String?
+  galleryJson      String            @default("[]")
+  cpu              String            @default("")
+  gpu              String            @default("")
+  ram              String            @default("")
+  storage          String            @default("")
+  psu              String            @default("")
+  cooling          String            @default("")
+  caseName         String            @default("")
+  description      String            @default("")
+  shortDescription String            @default("")
+  specsJson        String            @default("[]")
+  productClass     String            @default("custom")
+  scenario         String            @default("")
+  sortOrder        Int               @default(1000)
+  isFeatured       Boolean           @default(false)
+  heroSlot         Int?
+  featuredSlot     Int?
+  sourceType       String            @default("manual")
+  externalId       String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  deletedAt        DateTime?
+  requests         CustomerRequest[]
+  reviews          Review[]
+  events           MetricEvent[]
+
+  @@index([status, deletedAt, sortOrder])
+  @@index([isFeatured, featuredSlot])
+}
+
+model CustomerRequest {
+  id             String   @id @default(cuid())
+  status         String   @default("new")
+  source         String   @default("contact")
+  name           String   @default("")
+  contact        String
+  contactType    String   @default("unknown")
+  message        String   @default("")
+  budget         Int?
+  game           String?
+  resolution     String?
+  partsCondition String?
+  ram            String?
+  storage        String?
+  productId      String?
+  product        Product? @relation(fields: [productId], references: [id])
+  utmSource      String?
+  utmMedium      String?
+  utmCampaign    String?
+  pagePath       String?
+  ipHash         String?
+  userAgent      String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([status, createdAt])
+  @@index([productId])
+}
+
+model Review {
+  id          String    @id @default(cuid())
+  status      String    @default("pending")
+  authorName  String
+  authorLink  String?
+  rating      Int       @default(5)
+  text        String
+  imageUrl    String?
+  source      String    @default("manual")
+  externalUrl String?
+  externalId  String?
+  productId   String?
+  product     Product?  @relation(fields: [productId], references: [id])
+  sortOrder   Int       @default(1000)
+  isPinned    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  publishedAt DateTime?
+  deletedAt   DateTime?
+
+  @@index([status, sortOrder])
+  @@index([productId])
+}
+
+model MetricEvent {
+  id        String   @id @default(cuid())
+  type      String
+  pagePath  String?
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id])
+  requestId String?
+  metaJson  String   @default("{}")
+  ipHash    String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([type, createdAt])
+  @@index([productId])
+}
+
+model PageBlock {
+  key       String   @id
+  title     String
+  itemsJson String   @default("[]")
+  updatedAt DateTime @updatedAt
+}
+
+model AdminSession {
+  id         String   @id @default(cuid())
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  lastSeenAt DateTime @default(now())
+  ipHash     String?
+  userAgent  String?
+
+  @@index([expiresAt])
+}
+
+model AdminSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model ComponentOption {
+  id          String   @id @default(cuid())
+  category    String
+  title       String
+  subtitle    String   @default("")
+  price       Int      @default(0)
+  wattage     Int      @default(0)
+  tagsJson    String   @default("[]")
+  status      String   @default("available")
+  sortOrder   Int      @default(1000)
+  description String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  @@index([category, status, sortOrder])
+}

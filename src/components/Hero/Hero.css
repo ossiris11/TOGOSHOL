@@ -32,8 +32,7 @@
 .heroBadge,
 .heroTitle,
 .heroSubtitle,
-.heroActions,
-.heroMetrics {
+.heroActions {
   opacity: 0;
   animation: fadeUp 700ms var(--ease-premium) forwards;
 }
@@ -100,25 +99,6 @@
   animation-delay: 300ms;
 }
 
-.heroMetrics {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 42px;
-  animation-delay: 400ms;
-}
-
-.heroMetrics div {
-  min-height: 76px;
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-md);
-  padding: 17px;
-  background: rgba(255, 255, 255, 0.035);
-  color: var(--text-muted);
-  font-size: 0.95rem;
-  line-height: 1.35;
-}
-
 .heroVisual {
   min-width: 0;
 }
@@ -167,6 +147,23 @@
   font-weight: 850;
 }
 
+.heroBuildsControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.heroBuildsControls button {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--border-soft);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-main);
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
 .heroBuildsHeader a {
   color: var(--cyan);
   font-weight: 750;
@@ -187,9 +184,9 @@
 .heroBuildCard {
   position: relative;
   display: grid;
-  min-width: 220px;
+  min-width: 260px;
   min-height: 226px;
-  flex: 1 0 240px;
+  flex: 0 0 300px;
   align-content: start;
   gap: 9px;
   overflow: clip;
@@ -231,8 +228,8 @@
 }
 
 .heroBuildCard.isActive {
-  min-width: 560px;
-  flex-basis: 640px;
+  min-width: 360px;
+  flex-basis: 390px;
 }
 
 .heroBuildCard.isActive::before {
@@ -355,11 +352,6 @@
 
   .heroTitle {
     font-size: clamp(2.6rem, 12vw, 3rem);
-  }
-
-  .heroActions,
-  .heroMetrics {
-    grid-template-columns: 1fr;
   }
 
   .heroActions {

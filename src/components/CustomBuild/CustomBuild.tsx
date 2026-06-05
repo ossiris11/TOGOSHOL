@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react';
-import { vkProducts } from '../../data/vkProducts';
+import { useEffect, useMemo, useState } from 'react';
 import { contacts } from '../../data/contacts';
+import { useProducts } from '../../hooks/useProducts';
+import { createCustomerRequest, fetchCustomComponents, trackEvent, type ComponentOption } from '../../lib/api';
 import { getClosestProducts, getProductKey } from '../../lib/products';
 import './CustomBuild.css';
 
@@ -24,6 +25,21 @@ const included = [
   'Windows 11 Pro и настройка драйверов',
   'Температурные стресс-тесты',
 ];
+
+const componentLabels: Record<ComponentOption['category'], string> = {
+  cpu: 'Процессор',
+  gpu: 'Видеокарта',
+  motherboard: 'Материнская плата',
+  ram: 'Оперативная память',
+  storage: 'Накопитель',
+  psu: 'Блок питания',
+  cooling: 'Охлаждение',
+  case: 'Корпус',
+  os: 'Система',
+  service: 'Сервис',
+};
+
+const componentOrder: ComponentOption['category'][] = ['gpu', 'cpu', 'motherboard', 'ram', 'storage', 'psu', 'cooling', 'case', 'os', 'service'];
 
 function formatPrice(value: number) {
   return new Intl.NumberFormat('ru-RU').format(value) + ' ₽';
@@ -84,13 +100,56 @@ export function CustomBuild() {
   const [storageChoice, setStorageChoice] = useState<StorageOption>('1TB');
   const [caseStyle, setCaseStyle] = useState<CaseStyle>('RGB');
   const [copied, setCopied] = useState(false);
+  const [contact, setContact] = useState('');
+  const [requestState, setRequestState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  const [customOpen, setCustomOpen] = useState(false);
+  const [componentOptions, setComponentOptions] = useState<ComponentOption[]>([]);
+  const [selectedComponents, setSelectedComponents] = useState<Partial<Record<ComponentOption['category'], string>>>({});
+  const [customContact, setCustomContact] = useState('');
+  const [customRequestState, setCustomRequestState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  const { products } = useProducts();
+
+  useEffect(() => {
+    let alive = true;
+    fetchCustomComponents()
+      .then((items) => {
+        if (alive) setComponentOptions(items);
+      })
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    const open = () => setCustomOpen(true);
+    window.addEventListener('togoshol:open-custom-parts', open);
+    return () => window.removeEventListener('togoshol:open-custom-parts', open);
+  }, []);
 
   const recommendation = useMemo(
     () => getRecommendation(budget, game, resolution, ramChoice, storageChoice),
     [budget, game, ramChoice, resolution, storageChoice],
   );
-  const closestProducts = useMemo(() => getClosestProducts(vkProducts, budget, 3), [budget]);
+  const closestProducts = useMemo(() => getClosestProducts(products, budget, 3), [budget, products]);
   const hasBudgetWarning = resolution === '4K' && budget < 160000;
+  const componentsByCategory = useMemo(() => {
+    return componentOrder.reduce(
+      (acc, category) => {
+        acc[category] = componentOptions.filter((item) => item.category === category);
+        return acc;
+      },
+      {} as Record<ComponentOption['category'], ComponentOption[]>,
+    );
+  }, [componentOptions]);
+  const selectedList = useMemo(() => {
+    return componentOrder
+      .map((category) => componentOptions.find((item) => item.id === selectedComponents[category]))
+      .filter((item): item is ComponentOption => Boolean(item));
+  }, [componentOptions, selectedComponents]);
+  const customTotal = selectedList.reduce((sum, item) => sum + item.price, 0);
+  const customWattage = selectedList.reduce((sum, item) => sum + item.wattage, 0);
+  const missingCore = componentOrder.filter((category) => !['os', 'service'].includes(category) && !selectedComponents[category]);
 
   const messageText = `Здравствуйте! Хочу обсудить сборку TOGOSHOL.
 Бюджет: ${formatPrice(budget)}
@@ -106,6 +165,58 @@ SSD: ${storageChoice}
     await navigator.clipboard.writeText(messageText);
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1800);
+  };
+
+  const submitRequest = async () => {
+    if (!contact.trim()) {
+      setRequestState('error');
+      return;
+    }
+
+    setRequestState('sending');
+    try {
+      const result = await createCustomerRequest({
+        source: 'configurator',
+        contact,
+        contactType: contact.includes('@') ? 'messenger' : 'phone',
+        message: messageText,
+        budget,
+        game,
+        resolution,
+        partsCondition: partCondition,
+        ram: ramChoice,
+        storage: storageChoice,
+        pagePath: window.location.pathname + window.location.hash,
+      });
+      trackEvent('configurator_submit', { requestId: result.requestId, budget, game, resolution });
+      setRequestState('sent');
+    } catch {
+      setRequestState('error');
+    }
+  };
+
+  const submitCustomRequest = async () => {
+    if (!customContact.trim() || selectedList.length === 0) {
+      setCustomRequestState('error');
+      return;
+    }
+
+    const summary = selectedList.map((item) => `${componentLabels[item.category]}: ${item.title}`).join('\n');
+    setCustomRequestState('sending');
+    try {
+      const result = await createCustomerRequest({
+        source: 'configurator',
+        contact: customContact,
+        contactType: customContact.includes('@') ? 'messenger' : 'phone',
+        budget: customTotal,
+        message: `Хочу сборку из доступных комплектующих:\n${summary}\n\nОценка: ${formatPrice(customTotal)}. Потребление выбранных активных компонентов: ~${customWattage}W.`,
+        pagePath: window.location.pathname + window.location.hash,
+      });
+      trackEvent('configurator_submit', { requestId: result.requestId, customTotal, selectedCount: selectedList.length });
+      setCustomRequestState('sent');
+    } catch {
+      setCustomRequestState('error');
+    }
   };
 
   return (
@@ -259,13 +370,28 @@ SSD: ${storageChoice}
             </ul>
 
             <div className="configActions">
-              <a className="button buttonPrimary configButton" href={contacts.vk} target="_blank" rel="noreferrer">
+              <a className="button buttonPrimary configButton" href={contacts.vk} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_vk', { placement: 'configurator' })}>
                 Обсудить эту сборку с инженером
               </a>
+              <button className="button buttonSecondary configCopyButton" type="button" onClick={() => setCustomOpen(true)}>
+                Собрать из комплектующих
+              </button>
               <button className="button buttonSecondary configCopyButton" type="button" onClick={copyMessage}>
                 {copied ? 'Скопировано' : 'Скопировать конфигурацию'}
               </button>
             </div>
+            <div className="configLeadForm" aria-label="Оставить заявку">
+              <input
+                type="text"
+                value={contact}
+                onChange={(event) => setContact(event.target.value)}
+                placeholder="Телефон, Telegram или VK"
+              />
+              <button className="button buttonPrimary" type="button" onClick={submitRequest} disabled={requestState === 'sending'}>
+                {requestState === 'sending' ? 'Отправляем' : requestState === 'sent' ? 'Заявка отправлена' : 'Оставить заявку'}
+              </button>
+            </div>
+            {requestState === 'error' && <p className="configWarning">Укажи контакт, чтобы мы могли ответить по сборке.</p>}
             <p className="configNote">
               Расчёт ориентировочный. Итоговую конфигурацию уточним по наличию, ценам комплектующих и состоянию деталей.
             </p>
@@ -313,7 +439,7 @@ SSD: ${storageChoice}
             <div className="closestProducts">
               <span>Ближайшие готовые сборки</span>
               {closestProducts.map((product) => (
-                <a key={getProductKey(product)} href={contacts.vk} target="_blank" rel="noreferrer">
+                <a key={getProductKey(product)} href={contacts.vk} target="_blank" rel="noreferrer" onClick={() => trackEvent('product_cta_click', { productId: product.sourceId, placement: 'closest_products' })}>
                   <b>{product.normalizedTitle}</b>
                   <small>{product.price}</small>
                 </a>
@@ -322,6 +448,115 @@ SSD: ${storageChoice}
           </aside>
         </div>
       </div>
+
+      {customOpen && (
+        <div className="customPartsOverlay" role="dialog" aria-modal="true" aria-labelledby="custom-parts-title">
+          <div className="customPartsModal">
+            <header className="customPartsHeader">
+              <div>
+                <span className="badge">Под заказ</span>
+                <h3 id="custom-parts-title">Собери ПК из доступных комплектующих</h3>
+                <p>Выбирай только то, что нужно. Ничего не предвыбрано: итог появится после твоего выбора.</p>
+              </div>
+              <button type="button" onClick={() => setCustomOpen(false)} aria-label="Закрыть">×</button>
+            </header>
+
+            <div className="customPartsLayout">
+              <div className="partsSelectorList">
+                {componentOrder.map((category) => {
+                  const options = componentsByCategory[category] || [];
+                  if (options.length === 0) return null;
+                  const selectedOption = options.find((option) => option.id === selectedComponents[category]);
+
+                  return (
+                    <label className={selectedOption ? 'partSelectRow isSelected' : 'partSelectRow'} key={category}>
+                      <div className="partSelectLabel">
+                        <strong>{componentLabels[category]}</strong>
+                        <span>{selectedOption ? selectedOption.title : 'Не выбрано'}</span>
+                      </div>
+                      <div className="partSelectControl">
+                        <select
+                          value={selectedComponents[category] || ''}
+                          onChange={(event) =>
+                            setSelectedComponents((current) => ({
+                              ...current,
+                              [category]: event.target.value || undefined,
+                            }))
+                          }
+                        >
+                          <option value="">Выбрать</option>
+                          {options.map((option) => (
+                            <option key={option.id} value={option.id}>
+                              {option.title} · {option.price > 0 ? formatPrice(option.price) : 'включено'}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          type="button"
+                          disabled={!selectedOption}
+                          onClick={() =>
+                            setSelectedComponents((current) => ({
+                              ...current,
+                              [category]: undefined,
+                            }))
+                          }
+                        >
+                          Сброс
+                        </button>
+                      </div>
+                      <p>
+                        {selectedOption
+                          ? `${selectedOption.subtitle || selectedOption.description || 'Доступно для сборки'}${selectedOption.tags.length > 0 ? ` · ${selectedOption.tags.slice(0, 3).join(' · ')}` : ''}`
+                          : `Выбери ${componentLabels[category].toLowerCase()} из доступных вариантов`}
+                      </p>
+                      {selectedOption && (
+                        <div className="partSelectMeta">
+                          <span>{selectedOption.price > 0 ? formatPrice(selectedOption.price) : 'включено'}</span>
+                          {selectedOption.wattage > 0 && <span>~{selectedOption.wattage}W</span>}
+                        </div>
+                      )}
+                    </label>
+                  );
+                })}
+              </div>
+
+              <aside className="customPartsSummary">
+                <span>Итог сборки</span>
+                {selectedList.length === 0 ? (
+                  <p className="emptySelection">Ты еще ничего не выбрал. Начни с видеокарты или процессора.</p>
+                ) : (
+                  <ul>
+                    {selectedList.map((item) => (
+                      <li key={item.id}>
+                        <small>{componentLabels[item.category]}</small>
+                        <b>{item.title}</b>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <div className="summaryNumbers">
+                  <div>
+                    <small>Оценка</small>
+                    <strong>{customTotal > 0 ? formatPrice(customTotal) : 'по выбору'}</strong>
+                  </div>
+                  <div>
+                    <small>Питание</small>
+                    <strong>{customWattage > 0 ? `~${customWattage}W` : 'нет данных'}</strong>
+                  </div>
+                </div>
+                {missingCore.length > 0 && selectedList.length > 0 && (
+                  <p className="partsHint">Не хватает: {missingCore.map((category) => componentLabels[category]).join(', ')}.</p>
+                )}
+                <input value={customContact} onChange={(event) => setCustomContact(event.target.value)} placeholder="Телефон, Telegram или VK" />
+                <button className="button buttonPrimary" type="button" onClick={submitCustomRequest} disabled={customRequestState === 'sending'}>
+                  {customRequestState === 'sending' ? 'Отправляем' : customRequestState === 'sent' ? 'Заявка отправлена' : 'Отправить сборку'}
+                </button>
+                {customRequestState === 'error' && <p className="partsHint isError">Выбери хотя бы одну деталь и оставь контакт.</p>}
+              </aside>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

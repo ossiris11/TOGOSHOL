@@ -16,11 +16,32 @@ npm install
 npm run dev
 ```
 
+Backend/API dev server:
+
+```bash
+npm run db:generate
+npm run db:push
+npm run db:seed
+npm run dev:server
+```
+
 ## Build
 
 ```bash
 npm run build
 ```
+
+Production small-load run:
+
+```bash
+npm run db:generate
+npm run db:push
+npm run db:seed
+npm run build
+npm run start:prod
+```
+
+See `docs/PRODUCTION_RUNBOOK.md`.
 
 ## Product Data Import
 

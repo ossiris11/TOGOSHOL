@@ -1,8 +1,21 @@
 node_modules/
 dist/
+server/dist/
+server/data/
+server/uploads/
 *.log
 .env
 .env.local
 .env.*.local
 vite-dev.log
 vite-dev.err.log
+server-dev.log
+server-prod.log
+
+# Local SSH/deploy keys for pulling and pushing updates
+.ssh/
+*.pem
+*.key
+id_ed25519*
+id_rsa*
+togoshol_github_ed25519*

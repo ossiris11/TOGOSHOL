@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
-import { vkProducts } from '../../data/vkProducts';
 import { buildContactMessage, contacts } from '../../data/contacts';
+import { useProducts } from '../../hooks/useProducts';
+import { trackEvent } from '../../lib/api';
 import { getBudgetLabel, getProductKey, getProductSearchText, getProductViews } from '../../lib/products';
 import heroPc from '../../assets/hero-pc.png';
 import './ProductCatalog.css';
@@ -28,7 +29,8 @@ export function ProductCatalog() {
   const [sortBy, setSortBy] = useState<SortOption>('recommended');
   const [query, setQuery] = useState('');
   const [showAll, setShowAll] = useState(false);
-  const products = useMemo(() => getProductViews(vkProducts), []);
+  const { products: storefrontProducts } = useProducts();
+  const products = useMemo(() => getProductViews(storefrontProducts), [storefrontProducts]);
   const filteredProducts = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
 
@@ -178,13 +180,19 @@ export function ProductCatalog() {
                 </div>
 
                 <div className="productActions">
-                  <a className="button buttonPrimary" href={`${contacts.vk}?message=${buildMessage(product.normalizedTitle, product.price)}`} target="_blank" rel="noreferrer">
+                  <a
+                    className="button buttonPrimary"
+                    href={`${contacts.vk}?message=${buildMessage(product.normalizedTitle, product.price)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={() => trackEvent('product_cta_click', { productId: product.sourceId, title: product.normalizedTitle, channel: 'vk', placement: 'catalog' })}
+                  >
                     Написать в VK
                   </a>
-                  <a className="button buttonSecondary" href={contacts.telegram} target="_blank" rel="noreferrer">
+                  <a className="button buttonSecondary" href={contacts.telegram} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_telegram', { productId: product.sourceId, placement: 'catalog' })}>
                     Telegram
                   </a>
-                  <a className="button buttonSecondary" href={contacts.max} target="_blank" rel="noreferrer">
+                  <a className="button buttonSecondary" href={contacts.max} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_max', { productId: product.sourceId, placement: 'catalog' })}>
                     Max
                   </a>
                 </div>

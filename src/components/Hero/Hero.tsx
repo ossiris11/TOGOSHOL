@@ -1,18 +1,26 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useHeroParallax } from '../../hooks/useHeroParallax';
-import { vkProducts } from '../../data/vkProducts';
 import { buildContactMessage, contacts } from '../../data/contacts';
+import { useProducts } from '../../hooks/useProducts';
+import { trackEvent } from '../../lib/api';
 import { getProductKey, getProductViews } from '../../lib/products';
 import heroPc from '../../assets/hero-pc.png';
 import './Hero.css';
 
-const metrics = ['26 актуальных сборок', 'Стресс-тест перед выдачей', 'VK / TG / Max'];
-
 export function Hero() {
   const visualRef = useHeroParallax<HTMLDivElement>();
-  const products = getProductViews(vkProducts).filter((product) => product.priceValue >= 60000).slice(0, 6);
-  const [activeBuild, setActiveBuild] = useState(products[1] ? getProductKey(products[1]) : products[0] ? getProductKey(products[0]) : '');
+  const trackRef = useRef<HTMLDivElement>(null);
+  const { products: allProducts, featuredProducts } = useProducts();
+  const products = useMemo(() => {
+    const source = featuredProducts.length > 0 ? featuredProducts : allProducts;
+    return getProductViews(source).slice(0, 6);
+  }, [allProducts, featuredProducts]);
+  const [activeBuild, setActiveBuild] = useState('');
   const selectedProduct = products.find((product) => getProductKey(product) === activeBuild) || products[0];
+
+  useEffect(() => {
+    if (!activeBuild && products[0]) setActiveBuild(products[1] ? getProductKey(products[1]) : getProductKey(products[0]));
+  }, [activeBuild, products]);
 
   return (
     <section id="top" className="hero">
@@ -36,17 +44,13 @@ export function Hero() {
             <a className="button buttonPrimary" href="#custom">
               Подобрать ПК
             </a>
-            <a
-              className="button buttonSecondary"
-              href="#catalog"
-            >
+              <a
+                className="button buttonSecondary"
+                href="#catalog"
+                onClick={() => trackEvent('page_view', { section: 'catalog_from_hero' })}
+              >
               Смотреть сборки
             </a>
-          </div>
-          <div className="heroMetrics">
-            {metrics.map((metric) => (
-              <div key={metric}>{metric}</div>
-            ))}
           </div>
         </div>
 
@@ -61,9 +65,13 @@ export function Hero() {
       <div id="builds" className="heroBuilds container" aria-label="Готовые сборки">
         <div className="heroBuildsHeader">
           <span>Рекомендуемые сборки</span>
-          <a href="#catalog">Все 26 товаров</a>
+          <div className="heroBuildsControls">
+            <button type="button" onClick={() => trackRef.current?.scrollBy({ left: -360, behavior: 'smooth' })} aria-label="Назад">‹</button>
+            <button type="button" onClick={() => trackRef.current?.scrollBy({ left: 360, behavior: 'smooth' })} aria-label="Вперед">›</button>
+            <a href="#catalog">Все {allProducts.length} товаров</a>
+          </div>
         </div>
-        <div className="heroBuildsTrack">
+        <div className="heroBuildsTrack" ref={trackRef}>
           {products.map((build) => {
             const buildKey = getProductKey(build);
             const isActive = activeBuild === buildKey;
@@ -106,6 +114,7 @@ export function Hero() {
                   href={`${contacts.vk}?message=${buildContactMessage(`Здравствуйте! Интересует сборка ${build.normalizedTitle} за ${build.price}.`)}`}
                   target="_blank"
                   rel="noreferrer"
+                  onClick={() => trackEvent('product_cta_click', { productId: build.sourceId, title: build.normalizedTitle, channel: 'vk', placement: 'hero' })}
                 >
                   Написать
                 </a>

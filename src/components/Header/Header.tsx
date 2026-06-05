@@ -1,12 +1,12 @@
-import { useState } from 'react';
+import { useState, type MouseEvent } from 'react';
 import { useHeaderScrolled } from '../../hooks/useHeaderScrolled';
 import { contacts } from '../../data/contacts';
 import './Header.css';
 
-const navLinks: Array<{ label: string; href: string; external?: boolean }> = [
+const navLinks: Array<{ label: string; href: string; external?: boolean; action?: 'customParts' }> = [
   { label: 'Сборки', href: '#catalog' },
   { label: 'Конфигуратор', href: '#custom' },
-  { label: 'Под заказ', href: '#custom' },
+  { label: 'Под заказ', href: '#custom-parts', action: 'customParts' },
   { label: 'Почему мы', href: '#why' },
   { label: 'Как заказать', href: '#process' },
 ];
@@ -17,6 +17,13 @@ export function Header() {
   const [city, setCity] = useState('Великий Новгород');
 
   const closeMenu = () => setIsMobileMenuOpen(false);
+  const handleNavClick = (event: MouseEvent<HTMLAnchorElement>, action?: 'customParts') => {
+    if (action === 'customParts') {
+      event.preventDefault();
+      window.dispatchEvent(new CustomEvent('togoshol:open-custom-parts'));
+    }
+    closeMenu();
+  };
 
   return (
     <header className={`header ${isScrolled ? 'isScrolled' : ''}`}>
@@ -35,7 +42,7 @@ export function Header() {
 
         <nav className="desktopNav" aria-label="Основная навигация">
           {navLinks.map((link) => (
-            <a key={link.href} href={link.href} target={link.external ? '_blank' : undefined} rel={link.external ? 'noreferrer' : undefined}>
+            <a key={link.href} href={link.href} target={link.external ? '_blank' : undefined} rel={link.external ? 'noreferrer' : undefined} onClick={(event) => handleNavClick(event, link.action)}>
               {link.label}
             </a>
           ))}
@@ -71,7 +78,7 @@ export function Header() {
               href={link.href}
               target={link.external ? '_blank' : undefined}
               rel={link.external ? 'noreferrer' : undefined}
-              onClick={closeMenu}
+              onClick={(event) => handleNavClick(event, link.action)}
             >
               {link.label}
             </a>
