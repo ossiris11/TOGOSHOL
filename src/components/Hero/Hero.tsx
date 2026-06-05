@@ -12,6 +12,40 @@ const customSpecs = [
   { label: 'Охлаждение', value: 'Airflow / СЖО 240-360mm' },
 ];
 
+type CustomSocialChannel = 'vk' | 'avito' | 'instagram';
+
+function CustomSocialIcon({ channel }: { channel: CustomSocialChannel }) {
+  if (channel === 'vk') {
+    return (
+      <svg viewBox="0 0 28 28" aria-hidden="true">
+        <path
+          d="M5.2 9.1c.2 7.2 3.8 11.4 10 11.4h.4v-4.1c2.3.2 4 1.9 4.7 4.1h3.6c-.9-3.3-3.2-5.1-4.6-5.8 1.4-.9 3.7-3.2 4.2-5.6h-3.3c-.7 2.3-2.6 4.4-4.6 4.6V9.1h-3.4v8c-2.1-.5-4.8-2.8-4.9-8H5.2Z"
+          fill="currentColor"
+        />
+      </svg>
+    );
+  }
+
+  if (channel === 'instagram') {
+    return (
+      <svg viewBox="0 0 28 28" aria-hidden="true">
+        <rect x="6.3" y="6.3" width="15.4" height="15.4" rx="4.5" fill="none" stroke="currentColor" strokeWidth="2.1" />
+        <circle cx="14" cy="14" r="4" fill="none" stroke="currentColor" strokeWidth="2.1" />
+        <circle cx="19" cy="9" r="1.35" fill="currentColor" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 28 28" aria-hidden="true" className="customAvitoGlyph">
+      <circle cx="10" cy="9" r="4.1" fill="#00AEEF" />
+      <circle cx="18.2" cy="11.3" r="3.6" fill="#97CF26" />
+      <circle cx="11.5" cy="18.5" r="3.2" fill="#FF4053" />
+      <circle cx="19.5" cy="19.2" r="2.8" fill="#8C45FF" />
+    </svg>
+  );
+}
+
 function buildCustomRequestText(budget: string, look: string, hardware: string, delivery: string, wifi: string) {
   return `Здравствуйте! Хочу собрать ПК под заказ.
 Бюджет: ${budget || 'не указал'}
@@ -164,14 +198,20 @@ export function Hero() {
           <aside className="customPcContacts">
             <h3>Не разбираешься в комплектующих?</h3>
             <p>Напиши нам, подберём лучшее решение под цели и бюджет.</p>
-            <a href={contacts.vk} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_vk', { placement: 'hero_custom_block' })}>
-              VK <span>→</span>
+            <a className="customSocialLink customSocialLink-vk" href={contacts.vk} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_vk', { placement: 'hero_custom_block' })}>
+              <span className="customSocialGlyph"><CustomSocialIcon channel="vk" /></span>
+              <span className="customSocialLabel">VK</span>
+              <span className="customSocialArrow">→</span>
             </a>
-            <a href={contacts.avito} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_avito', { placement: 'hero_custom_block' })}>
-              Avito <span>→</span>
+            <a className="customSocialLink customSocialLink-avito" href={contacts.avito} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_avito', { placement: 'hero_custom_block' })}>
+              <span className="customSocialGlyph"><CustomSocialIcon channel="avito" /></span>
+              <span className="customSocialLabel">Avito</span>
+              <span className="customSocialArrow">→</span>
             </a>
-            <a href={contacts.instagram} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_instagram', { placement: 'hero_custom_block' })}>
-              Instagram <span>→</span>
+            <a className="customSocialLink customSocialLink-instagram" href={contacts.instagram} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_instagram', { placement: 'hero_custom_block' })}>
+              <span className="customSocialGlyph"><CustomSocialIcon channel="instagram" /></span>
+              <span className="customSocialLabel">Instagram</span>
+              <span className="customSocialArrow">→</span>
             </a>
           </aside>
         </div>
@@ -226,10 +266,25 @@ export function Hero() {
             <div className="customOrderHint">Сначала скопируйте заявку, затем отправьте её нам в любой мессенджер.</div>
 
             <div className="customOrderActions">
-              <button type="button" className="customOrderCopy" onClick={copyRequest}>{copyState === 'copied' ? 'Скопировано' : 'Скопировать'} <span>⧉</span></button>
-              <a href={contacts.avito} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_avito', { placement: 'custom_order_modal' })}>Avito <span>→</span></a>
-              <a href={`${contacts.vk}?message=${encodeURIComponent(requestText)}`} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_vk', { placement: 'custom_order_modal' })}>VK <span>→</span></a>
-              <a href={contacts.instagram} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_instagram', { placement: 'custom_order_modal' })}>Instagram <span>→</span></a>
+              <button type="button" className="customOrderCopy" onClick={copyRequest}>
+                <span className="customSocialLabel">{copyState === 'copied' ? 'Скопировано' : 'Скопировать'}</span>
+                <span className="customSocialArrow">⧉</span>
+              </button>
+              <a className="customSocialLink customSocialLink-avito" href={contacts.avito} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_avito', { placement: 'custom_order_modal' })}>
+                <span className="customSocialGlyph"><CustomSocialIcon channel="avito" /></span>
+                <span className="customSocialLabel">Avito</span>
+                <span className="customSocialArrow">→</span>
+              </a>
+              <a className="customSocialLink customSocialLink-vk" href={`${contacts.vk}?message=${encodeURIComponent(requestText)}`} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_vk', { placement: 'custom_order_modal' })}>
+                <span className="customSocialGlyph"><CustomSocialIcon channel="vk" /></span>
+                <span className="customSocialLabel">VK</span>
+                <span className="customSocialArrow">→</span>
+              </a>
+              <a className="customSocialLink customSocialLink-instagram" href={contacts.instagram} target="_blank" rel="noreferrer" onClick={() => trackEvent('contact_click_instagram', { placement: 'custom_order_modal' })}>
+                <span className="customSocialGlyph"><CustomSocialIcon channel="instagram" /></span>
+                <span className="customSocialLabel">Instagram</span>
+                <span className="customSocialArrow">→</span>
+              </a>
             </div>
           </div>
         </div>
