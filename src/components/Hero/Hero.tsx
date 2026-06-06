@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { useHeroParallax } from '../../hooks/useHeroParallax';
 import { contacts } from '../../data/contacts';
 import { trackEvent } from '../../lib/api';
+import customPc from '../../assets/custom-pc-white-cutout.webp';
 import heroPc from '../../assets/hero-pc-2026-cutout.webp';
 import './Hero.css';
 
@@ -224,7 +225,7 @@ export function Hero() {
         <div className="container customPcLayout">
           <article className="customPcCard">
             <div className="customPcImage">
-              <img src={heroPc} alt="Кастомный игровой компьютер 2026" />
+              <img src={customPc} alt="Белый кастомный игровой компьютер 2026 с RGB-подсветкой" />
             </div>
             <div className="customPcCopy">
               <span className="customPcEyebrow">Custom PC</span>
