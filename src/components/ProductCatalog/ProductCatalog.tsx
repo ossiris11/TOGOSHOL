@@ -5,18 +5,28 @@ import { trackEvent } from '../../lib/api';
 import { getBudgetLabel, getProductKey, getProductViews } from '../../lib/products';
 import type { ProductView } from '../../lib/products';
 import amdLogo from '../../assets/amd-logo.svg';
-import budgetPcBlue from '../../assets/catalog-pc-budget-blue-cutout.webp';
-import budgetPcRed from '../../assets/catalog-pc-budget-red-cutout.webp';
-import premiumPcBlack from '../../assets/catalog-pc-premium-black-cutout.webp';
-import premiumPcPink from '../../assets/catalog-pc-premium-pink-cutout.webp';
+import budgetPc01 from '../../assets/catalog-pc-budget-01-cutout.webp';
+import budgetPc02 from '../../assets/catalog-pc-budget-02-cutout.webp';
+import budgetPc03 from '../../assets/catalog-pc-budget-03-cutout.webp';
+import budgetPc04 from '../../assets/catalog-pc-budget-04-cutout.webp';
+import budgetPc05 from '../../assets/catalog-pc-budget-05-cutout.webp';
+import budgetPc06 from '../../assets/catalog-pc-budget-06-cutout.webp';
+import budgetPc07 from '../../assets/catalog-pc-budget-07-cutout.webp';
+import premiumPc01 from '../../assets/catalog-pc-premium-01-cutout.webp';
+import premiumPc02 from '../../assets/catalog-pc-premium-02-cutout.webp';
+import premiumPc03 from '../../assets/catalog-pc-premium-03-cutout.webp';
+import premiumPc04 from '../../assets/catalog-pc-premium-04-cutout.webp';
+import premiumPc05 from '../../assets/catalog-pc-premium-05-cutout.webp';
+import premiumPc06 from '../../assets/catalog-pc-premium-06-cutout.webp';
+import premiumPc07 from '../../assets/catalog-pc-premium-07-cutout.webp';
 import heroPc from '../../assets/hero-pc.png';
 import intelLogo from '../../assets/intel-logo.svg';
 import './ProductCatalog.css';
 
 const filters = ['Все', 'до 60k', '60–90k', '90–150k', '150k+'] as const;
 const specDrawerCloseMs = 420;
-const budgetCatalogImages = [budgetPcRed, budgetPcBlue] as const;
-const premiumCatalogImages = [premiumPcBlack, premiumPcPink] as const;
+const budgetCatalogImages = [budgetPc01, budgetPc02, budgetPc03, budgetPc04, budgetPc05, budgetPc06, budgetPc07] as const;
+const premiumCatalogImages = [premiumPc01, premiumPc02, premiumPc03, premiumPc04, premiumPc05, premiumPc06, premiumPc07] as const;
 
 type Filter = (typeof filters)[number];
 
