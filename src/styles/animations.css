@@ -1,0 +1,331 @@
+@keyframes heroGlowBreath {
+  from {
+    opacity: 0.58;
+    transform: scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+}
+
+@keyframes heroPcFloat {
+  from {
+    transform: translateY(0) rotate(-0.4deg);
+  }
+
+  to {
+    transform: translateY(-16px) rotate(0.5deg);
+  }
+}
+
+@keyframes catalogGridIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes productMetricReveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes recommendationSwapIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes mobileLinkIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ctaGridDrift {
+  to {
+    background-position: 48px 0, 0 48px, 0 0, 0 0;
+  }
+}
+
+@keyframes buttonShine {
+  to {
+    left: 120%;
+  }
+}
+
+.heroPcPhotoGlow {
+  transform-origin: center;
+  animation: heroGlowBreath 2.9s ease-in-out infinite alternate;
+}
+
+.heroPcPhotoFrame img {
+  animation: heroPcFloat 3.6s ease-in-out infinite alternate;
+}
+
+.heroPcPhotoFrame::before {
+  animation: heroGlowBreath 3.8s ease-in-out infinite alternate;
+}
+
+.catalogFilters button {
+  position: relative;
+  overflow: hidden;
+}
+
+.catalogFilters button.isActive {
+  box-shadow: 0 0 0 1px rgba(0, 229, 255, 0.16), 0 14px 34px rgba(0, 229, 255, 0.16);
+}
+
+.catalogFilters button.isActive::after {
+  content: "";
+  position: absolute;
+  inset: auto 14px 6px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+}
+
+.catalogGrid {
+  animation: catalogGridIn 340ms var(--ease-premium) both;
+}
+
+.catalogGrid .productCard {
+  animation: catalogGridIn 420ms var(--ease-premium) both;
+}
+
+.productCard:nth-child(2) { animation-delay: 36ms; }
+.productCard:nth-child(3) { animation-delay: 72ms; }
+.productCard:nth-child(4) { animation-delay: 108ms; }
+.productCard:nth-child(5) { animation-delay: 144ms; }
+.productCard:nth-child(6) { animation-delay: 180ms; }
+.productCard:nth-child(7) { animation-delay: 216ms; }
+.productCard:nth-child(8) { animation-delay: 252ms; }
+.productCard:nth-child(9) { animation-delay: 288ms; }
+
+.productShowcase {
+  background-position: 50% 50%;
+  transition:
+    background-position 320ms ease,
+    filter 320ms ease;
+}
+
+.productCard:hover .productShowcase {
+  background-position: 50% 42%;
+  filter: brightness(1.12) saturate(1.08);
+}
+
+.productCard:hover .productImage {
+  transform: translateY(-16px) scale(1.085);
+}
+
+.productIntro p,
+.fpsRing,
+.fpsBox strong,
+.recommendationCard h3 {
+  animation: productMetricReveal 460ms var(--ease-premium) both;
+}
+
+.recommendationCard {
+  animation: recommendationSwapIn 520ms var(--ease-premium) both;
+}
+
+.recommendationCard .specTable div,
+.closestProducts a {
+  animation: productMetricReveal 420ms var(--ease-premium) both;
+}
+
+.recommendationCard .specTable div:nth-child(1) { animation-delay: 40ms; }
+.recommendationCard .specTable div:nth-child(2) { animation-delay: 80ms; }
+.recommendationCard .specTable div:nth-child(3) { animation-delay: 120ms; }
+.recommendationCard .specTable div:nth-child(4) { animation-delay: 160ms; }
+.recommendationCard .specTable div:nth-child(5) { animation-delay: 200ms; }
+
+.menuButton span {
+  transform-origin: center;
+}
+
+.mobileMenu.isOpen .mobileMenuInner a {
+  animation: mobileLinkIn 260ms var(--ease-premium) both;
+}
+
+.mobileMenu.isOpen .mobileMenuInner a:nth-child(1) { animation-delay: 30ms; }
+.mobileMenu.isOpen .mobileMenuInner a:nth-child(2) { animation-delay: 55ms; }
+.mobileMenu.isOpen .mobileMenuInner a:nth-child(3) { animation-delay: 80ms; }
+.mobileMenu.isOpen .mobileMenuInner a:nth-child(4) { animation-delay: 105ms; }
+.mobileMenu.isOpen .mobileMenuInner a:nth-child(5) { animation-delay: 130ms; }
+.mobileMenu.isOpen .mobileMenuInner a:nth-child(6) { animation-delay: 155ms; }
+.mobileMenu.isOpen .mobileMenuInner a:nth-child(7) { animation-delay: 180ms; }
+.mobileMenu.isOpen .mobileMenuInner a:nth-child(8) { animation-delay: 205ms; }
+.mobileMenu.isOpen .mobileMenuInner a:nth-child(9) { animation-delay: 230ms; }
+
+.faqList details {
+  overflow: hidden;
+  transition:
+    border-color 220ms ease,
+    background 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.faqList details[open] {
+  border-color: rgba(0, 229, 255, 0.18);
+  background: rgba(0, 229, 255, 0.045);
+  box-shadow: 0 16px 44px rgba(0, 229, 255, 0.06);
+}
+
+.faqList summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  list-style: none;
+}
+
+.faqList summary::-webkit-details-marker {
+  display: none;
+}
+
+.faqList summary::after {
+  content: "+";
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid rgba(0, 229, 255, 0.18);
+  border-radius: 50%;
+  color: var(--cyan);
+  transition:
+    transform 220ms ease,
+    background 220ms ease,
+    color 220ms ease;
+}
+
+.faqList details[open] summary::after {
+  background: var(--cyan);
+  color: var(--text-inverse);
+  transform: rotate(45deg);
+}
+
+.faqList details[open] p {
+  animation: productMetricReveal 260ms ease both;
+}
+
+.finalCtaCard {
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.032) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.024) 1px, transparent 1px),
+    radial-gradient(circle at 50% 0%, rgba(0, 229, 255, 0.18), transparent 38%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.025));
+  background-size: 48px 48px, 48px 48px, auto, auto;
+  animation: ctaGridDrift 6s linear infinite;
+}
+
+.buttonPrimary,
+.productBuyButton,
+.customPcButton,
+.customOrderCopy {
+  position: relative;
+  overflow: hidden;
+}
+
+.buttonPrimary::before,
+.productBuyButton::before,
+.customPcButton::before,
+.customOrderCopy::before {
+  content: "";
+  position: absolute;
+  top: -45%;
+  bottom: -45%;
+  left: -55%;
+  width: 44%;
+  transform: skewX(-18deg);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.68), transparent);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.buttonPrimary:hover::before,
+.productBuyButton:hover::before,
+.customPcButton:hover::before,
+.customOrderCopy:hover::before {
+  opacity: 1;
+  animation: buttonShine 720ms ease;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .productCard:hover .productShowcase {
+    filter: none;
+  }
+
+  .productCard:hover .productImage {
+    transform: none;
+  }
+
+  .buttonPrimary:hover::before,
+  .productBuyButton:hover::before,
+  .customPcButton:hover::before,
+  .customOrderCopy:hover::before {
+    animation: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .heroPcPhotoFrame img,
+  .heroPcPhotoFrame::before,
+  .heroPcPhotoGlow,
+  .finalCtaCard {
+    animation-duration: 7s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroPcPhotoGlow,
+  .heroPcPhotoFrame img,
+  .heroPcPhotoFrame::before,
+  .catalogGrid,
+  .catalogGrid .productCard,
+  .productIntro p,
+  .fpsRing,
+  .fpsBox strong,
+  .recommendationCard,
+  .recommendationCard .specTable div,
+  .closestProducts a,
+  .mobileMenu.isOpen .mobileMenuInner a,
+  .faqList details[open] p,
+  .finalCtaCard {
+    animation: none !important;
+  }
+
+  .buttonPrimary::before,
+  .productBuyButton::before,
+  .customPcButton::before,
+  .customOrderCopy::before {
+    display: none;
+  }
+}

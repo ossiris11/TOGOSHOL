@@ -20,13 +20,20 @@
   --glow-cyan: rgba(0, 229, 255, 0.35);
   --glow-blue: rgba(31, 107, 255, 0.32);
   --glow-violet: rgba(106, 53, 255, 0.35);
-  --radius-sm: 14px;
-  --radius-md: 20px;
-  --radius-lg: 28px;
-  --radius-xl: 32px;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 26px;
   --radius-pill: 999px;
-  --container: 1440px;
-  --section-y: 128px;
-  --section-y-mobile: 76px;
+  --container: 1240px;
+  --section-y: 94px;
+  --section-y-mobile: 64px;
   --ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (max-width: 1366px) {
+  :root {
+    --container: 1160px;
+    --section-y: 78px;
+  }
 }

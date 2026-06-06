@@ -1,5 +1,5 @@
 .container {
-  width: min(100% - 96px, var(--container));
+  width: min(100% - 64px, var(--container));
   margin-inline: auto;
 }
 
@@ -9,12 +9,12 @@
 
 .sectionHeader {
   max-width: 780px;
-  margin-bottom: 44px;
+  margin-bottom: 34px;
 }
 
 .sectionTitle {
   margin: 0;
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-size: clamp(1.85rem, 3.8vw, 2.85rem);
   line-height: 1;
   letter-spacing: 0;
 }
@@ -22,7 +22,7 @@
 .sectionText {
   margin: 18px 0 0;
   color: var(--text-muted);
-  font-size: clamp(1rem, 1.8vw, 1.15rem);
+  font-size: clamp(0.95rem, 1.2vw, 1.05rem);
   line-height: 1.65;
 }
 
@@ -54,12 +54,12 @@
 
 .button {
   display: inline-flex;
-  min-height: 52px;
+  min-height: 46px;
   align-items: center;
   justify-content: center;
   gap: 10px;
   border-radius: var(--radius-pill);
-  padding: 15px 27px;
+  padding: 12px 22px;
   font-weight: 700;
   text-decoration: none;
   transition:
@@ -68,6 +68,16 @@
     color 220ms ease,
     border-color 220ms ease,
     box-shadow 220ms ease;
+}
+
+@media (max-width: 1366px) {
+  .container {
+    width: min(100% - 48px, var(--container));
+  }
+
+  .sectionHeader {
+    margin-bottom: 28px;
+  }
 }
 
 .button:hover {

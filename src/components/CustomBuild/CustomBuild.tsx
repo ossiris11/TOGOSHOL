@@ -462,7 +462,7 @@ SSD: ${storageChoice}
             </p>
           </div>
 
-          <aside className="recommendationCard" aria-live="polite">
+          <aside className="recommendationCard" aria-live="polite" key={`${budget}-${game}-${resolution}-${ramChoice}-${storageChoice}`}>
             <div className="recommendationHeader">
               <span>Рекомендуемый класс</span>
               <b>{recommendation.status}</b>

@@ -248,7 +248,7 @@ export function ProductCatalog() {
           ))}
         </div>
 
-        <div className="catalogGrid">
+        <div className="catalogGrid" key={`${activeFilter}-${showAll ? 'all' : 'limited'}`}>
           {visibleProducts.map((product, index) => {
             const cardTitle = getCardTitle(product.priceValue);
             const processorBrand = getProcessorBrand(product.details.cpu || product.normalizedTitle);
