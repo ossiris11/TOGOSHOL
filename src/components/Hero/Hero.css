@@ -980,7 +980,7 @@
   }
 
   .heroBadge {
-    display: none;
+    display: none !important;
   }
 
   .heroTitle {
