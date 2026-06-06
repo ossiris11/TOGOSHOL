@@ -5,19 +5,18 @@ import { trackEvent } from '../../lib/api';
 import { getBudgetLabel, getProductKey, getProductViews } from '../../lib/products';
 import type { ProductView } from '../../lib/products';
 import amdLogo from '../../assets/amd-logo.svg';
-import budgetPcBlue from '../../assets/catalog-pc-budget-blue.png';
-import budgetPcRed from '../../assets/catalog-pc-budget-red.png';
-import budgetPcWhite from '../../assets/catalog-pc-budget-white.png';
-import premiumPcBlack from '../../assets/catalog-pc-premium-black.png';
-import premiumPcWhite from '../../assets/catalog-pc-premium-white.png';
+import budgetPcBlue from '../../assets/catalog-pc-budget-blue-cutout.webp';
+import budgetPcRed from '../../assets/catalog-pc-budget-red-cutout.webp';
+import premiumPcBlack from '../../assets/catalog-pc-premium-black-cutout.webp';
+import premiumPcPink from '../../assets/catalog-pc-premium-pink-cutout.webp';
 import heroPc from '../../assets/hero-pc.png';
 import intelLogo from '../../assets/intel-logo.svg';
 import './ProductCatalog.css';
 
 const filters = ['Все', 'до 60k', '60–90k', '90–150k', '150k+'] as const;
 const specDrawerCloseMs = 420;
-const budgetCatalogImages = [budgetPcRed, budgetPcBlue, budgetPcWhite] as const;
-const premiumCatalogImages = [premiumPcBlack, premiumPcWhite] as const;
+const budgetCatalogImages = [budgetPcRed, budgetPcBlue] as const;
+const premiumCatalogImages = [premiumPcBlack, premiumPcPink] as const;
 
 type Filter = (typeof filters)[number];
 
