@@ -236,6 +236,7 @@ export function ProductCatalog() {
                 <div className="productShowcase" aria-label={product.normalizedTitle}>
                   <ProcessorBrandLogo brand={processorBrand.brand} label={processorBrand.badge} />
                   <img
+                    className="productImage"
                     src={product.image || heroPc}
                     alt={product.normalizedTitle}
                     loading="lazy"
