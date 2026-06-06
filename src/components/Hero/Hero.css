@@ -428,10 +428,21 @@
   display: inline-block;
   max-width: 0;
   overflow: hidden;
-  border-right: 2px solid rgba(0, 229, 255, 0.92);
+  vertical-align: bottom;
   animation:
-    specTypeCycle 5.8s steps(28, end) calc(var(--delay) + 460ms) infinite,
-    specCursorBlink 760ms step-end infinite;
+    specTypeCycle 5.8s steps(28, end) calc(var(--delay) + 460ms) infinite;
+}
+
+.customSpecRow strong span::after {
+  content: "";
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 4px;
+  border-radius: 2px;
+  background: rgba(0, 229, 255, 0.92);
+  vertical-align: -0.12em;
+  animation: specCursorBlink 760ms step-end infinite;
 }
 
 .customSpecRow i {
@@ -893,7 +904,7 @@
 
 @keyframes specCursorBlink {
   50% {
-    border-right-color: transparent;
+    opacity: 0;
   }
 }
 
@@ -1040,8 +1051,11 @@
 
   .customSpecRow strong span {
     max-width: 100%;
-    border-right: 0;
     animation: none;
+  }
+
+  .customSpecRow strong span::after {
+    display: none;
   }
 
   .customSpecRow i::before {
@@ -1201,8 +1215,11 @@
 @media (prefers-reduced-motion: reduce) {
   .customSpecRow strong span {
     max-width: 100%;
-    border-right: 0;
     animation: none;
+  }
+
+  .customSpecRow strong span::after {
+    display: none;
   }
 }
 
