@@ -5,12 +5,19 @@ import { trackEvent } from '../../lib/api';
 import { getBudgetLabel, getProductKey, getProductViews } from '../../lib/products';
 import type { ProductView } from '../../lib/products';
 import amdLogo from '../../assets/amd-logo.svg';
+import budgetPcBlue from '../../assets/catalog-pc-budget-blue.png';
+import budgetPcRed from '../../assets/catalog-pc-budget-red.png';
+import budgetPcWhite from '../../assets/catalog-pc-budget-white.png';
+import premiumPcBlack from '../../assets/catalog-pc-premium-black.png';
+import premiumPcWhite from '../../assets/catalog-pc-premium-white.png';
 import heroPc from '../../assets/hero-pc.png';
 import intelLogo from '../../assets/intel-logo.svg';
 import './ProductCatalog.css';
 
 const filters = ['Все', 'до 60k', '60–90k', '90–150k', '150k+'] as const;
 const specDrawerCloseMs = 420;
+const budgetCatalogImages = [budgetPcRed, budgetPcBlue, budgetPcWhite] as const;
+const premiumCatalogImages = [premiumPcBlack, premiumPcWhite] as const;
 
 type Filter = (typeof filters)[number];
 
@@ -19,6 +26,11 @@ function getCardTitle(priceValue: number) {
   if (priceValue < 85000) return 'Medium';
   if (priceValue < 140000) return 'PRO';
   return 'Ultra';
+}
+
+function getCatalogImage(product: ProductView, index: number) {
+  const images = product.priceValue <= 90000 ? budgetCatalogImages : premiumCatalogImages;
+  return images[index % images.length];
 }
 
 function getProcessorBrand(cpu: string) {
@@ -218,11 +230,12 @@ export function ProductCatalog() {
         </div>
 
         <div className="catalogGrid">
-          {visibleProducts.map((product) => {
+          {visibleProducts.map((product, index) => {
             const cardTitle = getCardTitle(product.priceValue);
             const processorBrand = getProcessorBrand(product.details.cpu || product.normalizedTitle);
             const fps = getFpsEstimate(product.priceValue, product.gpuTier);
             const orderMessage = buildOrderText(product);
+            const catalogImage = getCatalogImage(product, index);
             const specs = [
               ['GPU', 'Видеокарта', product.details.gpu],
               ['CPU', 'Процессор', product.details.cpu],
@@ -237,7 +250,7 @@ export function ProductCatalog() {
                   <ProcessorBrandLogo brand={processorBrand.brand} label={processorBrand.badge} />
                   <img
                     className="productImage"
-                    src={product.image || heroPc}
+                    src={catalogImage}
                     alt={product.normalizedTitle}
                     loading="lazy"
                     decoding="async"
