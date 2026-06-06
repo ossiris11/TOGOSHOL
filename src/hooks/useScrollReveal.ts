@@ -3,6 +3,13 @@ import { useEffect } from 'react';
 export function useScrollReveal() {
   useEffect(() => {
     const items = document.querySelectorAll<HTMLElement>('[data-reveal]');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isTouchDevice = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+
+    if (reduceMotion || isTouchDevice) {
+      items.forEach((item) => item.classList.add('isVisible'));
+      return undefined;
+    }
 
     const observer = new IntersectionObserver(
       (entries) => {

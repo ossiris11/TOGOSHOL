@@ -69,3 +69,11 @@ svg {
     transition-duration: 0.01ms !important;
   }
 }
+
+@media (max-width: 768px), (hover: none) and (pointer: coarse) {
+  body::before {
+    position: absolute;
+    min-height: 100%;
+    background-attachment: scroll;
+  }
+}
