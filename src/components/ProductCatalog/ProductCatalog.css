@@ -146,23 +146,23 @@
 
 .productBrandBadge {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 10px;
+  right: 10px;
   z-index: 2;
   display: inline-grid;
-  width: 52px;
-  min-height: 32px;
+  width: 42px;
+  min-height: 27px;
   place-items: center;
   border: 2px solid rgba(255, 255, 255, 0.9);
-  border-radius: 9px;
-  padding: 5px 7px;
+  border-radius: 8px;
+  padding: 4px 5px;
   background: #ffffff;
   color: #ffffff;
   font-size: 0.78rem;
   font-weight: 950;
   line-height: 1;
   box-shadow:
-    0 8px 16px rgba(0, 0, 0, 0.22),
+    0 6px 12px rgba(0, 0, 0, 0.2),
     0 0 0 1px rgba(255, 255, 255, 0.72),
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
@@ -174,26 +174,26 @@
 }
 
 .productBrandLogo-intel {
-  width: 39px;
+  width: 31px;
 }
 
 .productBrandLogo-amd {
-  width: 39px;
+  width: 31px;
 }
 
 .productBrandBadge.isIntel {
   border-color: #00aeff;
   box-shadow:
-    0 8px 16px rgba(0, 0, 0, 0.22),
-    0 0 14px rgba(0, 174, 255, 0.2),
+    0 6px 12px rgba(0, 0, 0, 0.2),
+    0 0 10px rgba(0, 174, 255, 0.18),
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .productBrandBadge.isAmd {
   border-color: #ff3048;
   box-shadow:
-    0 8px 16px rgba(0, 0, 0, 0.22),
-    0 0 14px rgba(255, 48, 72, 0.18),
+    0 6px 12px rgba(0, 0, 0, 0.2),
+    0 0 10px rgba(255, 48, 72, 0.16),
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
@@ -706,22 +706,22 @@
   }
 
   .productBrandBadge {
-    top: 9px;
-    right: 9px;
+    top: 8px;
+    right: 8px;
     border-width: 2px;
-    border-radius: 8px;
-    width: 48px;
-    min-height: 30px;
-    padding: 4px 6px;
+    border-radius: 7px;
+    width: 38px;
+    min-height: 24px;
+    padding: 3px 5px;
     font-size: 0.68rem;
   }
 
   .productBrandLogo-intel {
-    width: 36px;
+    width: 28px;
   }
 
   .productBrandLogo-amd {
-    width: 36px;
+    width: 28px;
   }
 
   .productShowcase img {
