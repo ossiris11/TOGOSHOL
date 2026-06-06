@@ -951,7 +951,7 @@
 @media (max-width: 768px) {
   .hero {
     min-height: 0;
-    padding: 104px 0 34px;
+    padding: 86px 0 26px;
     background:
       radial-gradient(circle at 62% 44%, rgba(122, 70, 255, 0.16), transparent 32%),
       radial-gradient(circle at 72% 58%, rgba(0, 229, 255, 0.12), transparent 34%),
@@ -986,8 +986,8 @@
   .heroTitle {
     order: 1;
     max-width: 100%;
-    margin: 6px 0 0;
-    font-size: clamp(2.45rem, 11.4vw, 3.75rem);
+    margin: 2px 0 0;
+    font-size: clamp(2.28rem, 10.4vw, 3.45rem);
     font-style: italic;
     line-height: 0.88;
     text-transform: uppercase;
@@ -998,30 +998,37 @@
     max-width: none;
     margin-top: 0;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 24px 24px 18px 18px;
-    padding: 22px 18px 18px;
+    border-radius: 20px 20px 16px 16px;
+    padding: 16px 16px 14px;
     background: rgba(10, 10, 13, 0.86);
     color: rgba(255, 255, 255, 0.76);
-    font-size: 1.02rem;
-    line-height: 1.62;
+    font-size: 0.95rem;
+    line-height: 1.5;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.08),
       0 -18px 50px rgba(0, 0, 0, 0.36);
     backdrop-filter: blur(10px);
   }
 
+  .heroSubtitle strong {
+    display: block;
+    margin-top: 8px;
+    color: rgba(255, 255, 255, 0.92);
+    font-weight: 900;
+  }
+
   .heroActions {
     order: 4;
     display: grid;
-    gap: 12px;
-    margin-top: 12px;
+    gap: 10px;
+    margin-top: 10px;
   }
 
   .heroActions .button {
     width: 100%;
-    min-height: 62px;
-    border-radius: 18px;
-    font-size: 0.96rem;
+    min-height: 54px;
+    border-radius: 16px;
+    font-size: 0.9rem;
     font-style: italic;
     letter-spacing: 0.03em;
     text-transform: uppercase;
@@ -1030,7 +1037,7 @@
   .heroActions .buttonPrimary {
     position: relative;
     justify-content: flex-start;
-    padding: 16px 76px 16px 22px;
+    padding: 14px 68px 14px 20px;
     background: #ffffff;
     color: #050506;
     box-shadow: 0 18px 36px rgba(255, 255, 255, 0.08);
@@ -1039,13 +1046,13 @@
   .heroActions .buttonPrimary::after {
     content: "→";
     position: absolute;
-    top: 8px;
-    right: 8px;
+    top: 7px;
+    right: 7px;
     display: grid;
-    width: 46px;
-    height: 46px;
+    width: 40px;
+    height: 40px;
     place-items: center;
-    border-radius: 14px;
+    border-radius: 13px;
     background: #050506;
     color: #ffffff;
     font-size: 1.55rem;
@@ -1065,7 +1072,7 @@
 
   .heroVisual {
     order: 2;
-    margin: 8px -20px -10px;
+    margin: 4px -18px -6px;
   }
 
   .heroVisual::before {
@@ -1092,14 +1099,14 @@
   }
 
   .heroVisualInner {
-    min-height: min(98vw, 540px);
+    min-height: min(66vw, 330px);
     transform: none;
     transition: none;
   }
 
   .heroPcPhotoFrame {
-    width: min(122%, 570px);
-    min-height: min(96vw, 530px);
+    width: min(104%, 410px);
+    min-height: min(64vw, 320px);
     transform: translateX(0);
   }
 
@@ -1116,8 +1123,8 @@
   }
 
   .heroPcPhotoFrame img {
-    width: min(126%, 600px);
-    max-height: 540px;
+    width: min(108%, 420px);
+    max-height: 330px;
   }
 
   .customPcBand {
@@ -1224,7 +1231,7 @@
 
 @media (max-width: 420px) {
   .heroTitle {
-    font-size: clamp(2.42rem, 11.4vw, 3.28rem);
+    font-size: clamp(2.12rem, 9.8vw, 2.88rem);
   }
 
   .heroBadge {
@@ -1233,12 +1240,13 @@
   }
 
   .heroPcPhotoFrame {
-    width: min(100%, 430px);
-    min-height: min(116vw, 460px);
+    width: min(104%, 370px);
+    min-height: min(64vw, 290px);
   }
 
   .heroPcPhotoFrame img {
-    width: min(118%, 440px);
+    width: min(108%, 380px);
+    max-height: 300px;
   }
 
   .customPcCard,
