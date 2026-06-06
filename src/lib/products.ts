@@ -124,7 +124,7 @@ export function getBudgetLabel(priceValue: number) {
 export function getGpuTier(value: string) {
   if (/5080|5070|4070|4070\s?ti|7800x3d/i.test(value)) return 'Топ';
   if (/3080|3070|6700|5060|4060/i.test(value)) return '2K';
-  if (/3060|3050|2060|5700|5600/i.test(value)) return 'Full HD';
+  if (/3060|3050|5050|2060|5700|5600/i.test(value)) return 'Full HD';
   return 'Подбор';
 }
 

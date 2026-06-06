@@ -4,6 +4,22 @@ export const vkProducts: Build[] = [
   {
     "badge": "В наличии",
     "badgeType": "available",
+    "title": "Intel Core i3-12100F + RTX 5050",
+    "subtitle": "Готовая сборка для Full HD",
+    "specs": [
+      "Видеокарта: NVIDIA RTX 5050",
+      "Процессор: Intel Core i3-12100F",
+      "Оперативная память: 16GB (2x8GB) DDR4 3200MHz",
+      "Охлаждение: ID-Cooling 903 XT FRGB",
+      "Материнская плата: H610M"
+    ],
+    "price": "68 000 ₽",
+    "cta": "Написать",
+    "sourceId": "manual-i3-12100f-rtx-5050-68000"
+  },
+  {
+    "badge": "В наличии",
+    "badgeType": "available",
     "title": "Под заказ",
     "subtitle": "Конфигурация:",
     "specs": [

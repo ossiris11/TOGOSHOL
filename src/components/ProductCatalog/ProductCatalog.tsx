@@ -93,7 +93,17 @@ const specIcons: Record<string, string> = {
   RAM: '▤',
   SSD: '◎',
   PSU: '▥',
+  COOL: '◉',
+  MB: '▤',
 };
+
+function getOptionalSpecValue(product: ProductView, patterns: RegExp[]) {
+  const specs = [...product.cleanSpecs, ...product.specs];
+  const match = specs.find((spec) => patterns.some((pattern) => pattern.test(spec)));
+  if (!match) return '';
+
+  return match.split(':').slice(1).join(':').trim() || match.trim();
+}
 
 function getSpecValue(product: ProductView, patterns: RegExp[]) {
   const specs = [...product.cleanSpecs, ...product.specs];
@@ -249,6 +259,8 @@ export function ProductCatalog() {
               ['GPU', 'Видеокарта', product.details.gpu],
               ['CPU', 'Процессор', product.details.cpu],
               ['RAM', 'ОЗУ', product.details.ram],
+              ['COOL', 'Охлаждение', getOptionalSpecValue(product, [/охлаж/i, /cool/i, /\bсжо\b/i])],
+              ['MB', 'Мат. плата', getOptionalSpecValue(product, [/материн/i, /motherboard/i, /\b[abzhx]\d{3,4}\b/i, /\bh\d{3}\b/i])],
               ['SSD', 'Накопитель', product.details.storage],
               ['PSU', 'Питание', product.details.psu],
             ].filter(([, , value]) => value);
