@@ -10,12 +10,124 @@ export const vkProducts: Build[] = [
       "Видеокарта: NVIDIA RTX 5050",
       "Процессор: Intel Core i3-12100F",
       "Оперативная память: 16GB (2x8GB) DDR4 3200MHz",
-      "Охлаждение: ID-Cooling 903 XT FRGB",
+      "Охлаждение: Airflow",
       "Материнская плата: H610M"
     ],
     "price": "68 000 ₽",
     "cta": "Написать",
     "sourceId": "manual-i3-12100f-rtx-5050-68000"
+  },
+  {
+    "badge": "В наличии",
+    "badgeType": "available",
+    "title": "AMD Ryzen 5 5500 + RTX 5050",
+    "subtitle": "Готовая сборка для Full HD",
+    "specs": [
+      "Видеокарта: NVIDIA RTX 5050",
+      "Процессор: AMD Ryzen 5 5500",
+      "Оперативная память: 16GB (2x8GB) DDR4 3200MHz",
+      "Охлаждение: Airflow",
+      "Материнская плата: A520M"
+    ],
+    "price": "68 000 ₽",
+    "cta": "Написать",
+    "sourceId": "manual-r5-5500-rtx-5050-68000"
+  },
+  {
+    "badge": "В наличии",
+    "badgeType": "available",
+    "title": "Intel Core i5-13400F + RTX 5060",
+    "subtitle": "Готовая сборка для 2K-гейминга",
+    "specs": [
+      "Видеокарта: NVIDIA RTX 5060",
+      "Процессор: Intel Core i5-13400F",
+      "Оперативная память: 32GB (2x16GB) DDR4",
+      "Охлаждение: Airflow",
+      "Материнская плата: B760M"
+    ],
+    "price": "105 000 ₽",
+    "cta": "Написать",
+    "sourceId": "manual-i5-13400f-rtx-5060-105000"
+  },
+  {
+    "badge": "В наличии",
+    "badgeType": "available",
+    "title": "AMD Ryzen 5 7500F + RTX 5060",
+    "subtitle": "Готовая сборка для 2K-гейминга",
+    "specs": [
+      "Видеокарта: NVIDIA RTX 5060",
+      "Процессор: AMD Ryzen 5 7500F",
+      "Оперативная память: 16GB DDR5",
+      "Охлаждение: Airflow",
+      "Материнская плата: B650"
+    ],
+    "price": "105 000 ₽",
+    "cta": "Написать",
+    "sourceId": "manual-r5-7500f-rtx-5060-105000"
+  },
+  {
+    "badge": "В наличии",
+    "badgeType": "available",
+    "title": "AMD Ryzen 5 7500F + RTX 5070",
+    "subtitle": "Мощная сборка для 2K и 4K",
+    "specs": [
+      "Видеокарта: NVIDIA RTX 5070",
+      "Процессор: AMD Ryzen 5 7500F",
+      "Оперативная память: 32GB (2x16GB) DDR5",
+      "Охлаждение: Система водяного охлаждения",
+      "Материнская плата: B650"
+    ],
+    "price": "155 000 ₽",
+    "cta": "Написать",
+    "sourceId": "manual-r5-7500f-rtx-5070-155000"
+  },
+  {
+    "badge": "В наличии",
+    "badgeType": "available",
+    "title": "Intel Core i5-13600KF + RTX 5070",
+    "subtitle": "Мощная сборка для 2K и 4K",
+    "specs": [
+      "Видеокарта: NVIDIA RTX 5070",
+      "Процессор: Intel Core i5-13600KF",
+      "Оперативная память: 32GB (2x16GB) DDR5",
+      "Охлаждение: Airflow",
+      "Материнская плата: B760"
+    ],
+    "price": "160 000 ₽",
+    "cta": "Написать",
+    "sourceId": "manual-i5-13600kf-rtx-5070-160000"
+  },
+  {
+    "badge": "В наличии",
+    "badgeType": "available",
+    "title": "Intel Core Ultra 7 265K + RTX 5080",
+    "subtitle": "Флагманская сборка для 4K",
+    "specs": [
+      "Видеокарта: NVIDIA RTX 5080",
+      "Процессор: Intel Core Ultra 7 265K",
+      "Оперативная память: 32GB (2x16GB) DDR5",
+      "Охлаждение: Система водяного охлаждения",
+      "Материнская плата: Z890"
+    ],
+    "price": "275 000 ₽",
+    "cta": "Написать",
+    "sourceId": "manual-ultra-7-265k-rtx-5080-275000"
+  },
+  {
+    "badge": "В наличии",
+    "badgeType": "available",
+    "title": "AMD Ryzen 7 9800X3D + RTX 5080",
+    "subtitle": "Флагманская сборка для 4K",
+    "specs": [
+      "Видеокарта: NVIDIA RTX 5080",
+      "Процессор: AMD Ryzen 7 9800X3D",
+      "Оперативная память: 32GB (2x16GB) DDR5",
+      "Охлаждение: Система водяного охлаждения",
+      "Материнская плата: X870"
+    ],
+    "price": "275 000 ₽",
+    "cta": "Написать",
+    "sourceId": "manual-r7-9800x3d-rtx-5080-275000"
   },
   {
     "badge": "В наличии",
