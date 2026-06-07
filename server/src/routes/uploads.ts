@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import type { FastifyInstance } from 'fastify';
+import sharp from 'sharp';
 import { config } from '../config.js';
 import { requireAdmin } from '../security.js';
 
@@ -30,7 +31,68 @@ async function hasImageSignature(filePath: string, ext: string) {
   }
 }
 
+function isSafeUploadName(name: string) {
+  return /^[a-zA-Z0-9._-]+$/.test(name) && !name.includes('..');
+}
+
+async function removeIfExists(filePath: string) {
+  await fs.promises.unlink(filePath).catch(() => undefined);
+}
+
+async function createWebpVariants(sourcePath: string, id: string) {
+  const image = sharp(sourcePath, { animated: false }).rotate();
+  const name = `${id}.webp`;
+  const thumbName = `${id}-thumb.webp`;
+  const fullPath = path.join(config.uploadDir, name);
+  const thumbPath = path.join(config.uploadDir, thumbName);
+
+  await image.clone().resize({ width: 1600, height: 1600, fit: 'inside', withoutEnlargement: true }).webp({ quality: 84 }).toFile(fullPath);
+  await image.clone().resize({ width: 420, height: 420, fit: 'inside', withoutEnlargement: true }).webp({ quality: 78 }).toFile(thumbPath);
+
+  return {
+    name,
+    thumbName,
+    url: `/uploads/${name}`,
+    thumbUrl: `/uploads/${thumbName}`,
+  };
+}
+
+async function listUploadedImages() {
+  await fs.promises.mkdir(config.uploadDir, { recursive: true });
+  const entries = await fs.promises.readdir(config.uploadDir, { withFileTypes: true });
+  const files = await Promise.all(
+    entries
+      .filter((entry) => entry.isFile())
+      .filter((entry) => /\.(jpe?g|png|webp|gif)$/i.test(entry.name))
+      .filter((entry) => !entry.name.includes('-thumb.'))
+      .map(async (entry) => {
+        const filePath = path.join(config.uploadDir, entry.name);
+        const stat = await fs.promises.stat(filePath);
+        const thumbName = entry.name.replace(/(\.[^.]+)$/, '-thumb.webp');
+        const hasThumb = await fs.promises
+          .access(path.join(config.uploadDir, thumbName))
+          .then(() => true)
+          .catch(() => false);
+
+        return {
+          name: entry.name,
+          url: `/uploads/${entry.name}`,
+          thumbUrl: hasThumb ? `/uploads/${thumbName}` : `/uploads/${entry.name}`,
+          size: stat.size,
+          updatedAt: stat.mtime.toISOString(),
+        };
+      }),
+  );
+  return files.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+}
+
 export async function registerUploadRoutes(app: FastifyInstance) {
+  app.get('/api/admin/uploads/images', async (request, reply) => {
+    await requireAdmin(request, reply);
+    if (reply.sent) return;
+    return { ok: true, items: await listUploadedImages() };
+  });
+
   app.post('/api/admin/uploads/images', async (request, reply) => {
     await requireAdmin(request, reply);
     if (reply.sent) return;
@@ -42,15 +104,45 @@ export async function registerUploadRoutes(app: FastifyInstance) {
     if (!ext) return reply.code(415).send({ ok: false, message: 'Only jpg, png, webp and gif images are allowed' });
 
     await fs.promises.mkdir(config.uploadDir, { recursive: true });
-    const name = `${Date.now()}-${crypto.randomUUID()}${ext}`;
-    const targetPath = path.join(config.uploadDir, name);
-    await pipeline(file.file, fs.createWriteStream(targetPath));
+    const id = `${Date.now()}-${crypto.randomUUID()}`;
+    const tempName = `${id}${ext}`;
+    const tempPath = path.join(config.uploadDir, tempName);
+    await pipeline(file.file, fs.createWriteStream(tempPath));
 
-    if (!(await hasImageSignature(targetPath, ext))) {
-      await fs.promises.unlink(targetPath).catch(() => undefined);
+    if (!(await hasImageSignature(tempPath, ext))) {
+      await removeIfExists(tempPath);
       return reply.code(415).send({ ok: false, message: 'Uploaded file does not match declared image type' });
     }
 
-    return reply.code(201).send({ ok: true, url: `/uploads/${name}` });
+    if (ext === '.gif') {
+      return reply.code(201).send({ ok: true, name: tempName, url: `/uploads/${tempName}`, thumbUrl: `/uploads/${tempName}` });
+    }
+
+    try {
+      const result = await createWebpVariants(tempPath, id);
+      await removeIfExists(tempPath);
+      return reply.code(201).send({ ok: true, ...result });
+    } catch (error) {
+      await removeIfExists(tempPath);
+      await removeIfExists(path.join(config.uploadDir, `${id}.webp`));
+      await removeIfExists(path.join(config.uploadDir, `${id}-thumb.webp`));
+      request.log.warn({ error }, 'failed to process uploaded image');
+      return reply.code(415).send({ ok: false, message: 'Uploaded image cannot be processed' });
+    }
+  });
+
+  app.delete<{ Params: { name: string } }>('/api/admin/uploads/images/:name', async (request, reply) => {
+    await requireAdmin(request, reply);
+    if (reply.sent) return;
+
+    const { name } = request.params;
+    if (!isSafeUploadName(name)) return reply.code(400).send({ ok: false, message: 'Invalid upload name' });
+
+    const resolvedPath = path.resolve(path.join(config.uploadDir, name));
+    if (!resolvedPath.startsWith(config.uploadDir + path.sep)) return reply.code(400).send({ ok: false, message: 'Invalid upload path' });
+
+    await removeIfExists(resolvedPath);
+    await removeIfExists(path.join(config.uploadDir, name.replace(/(\.[^.]+)$/, '-thumb.webp')));
+    return { ok: true };
   });
 }

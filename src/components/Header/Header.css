@@ -23,7 +23,7 @@
   min-height: 78px;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: clamp(22px, 4vw, 64px);
+  gap: clamp(18px, 2.4vw, 36px);
 }
 
 .brand {
@@ -44,7 +44,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(22px, 3vw, 46px);
+  gap: clamp(16px, 2vw, 30px);
 }
 
 .desktopNav a {
@@ -52,7 +52,9 @@
   font-family: Montserrat, Inter, system-ui, sans-serif;
   font-size: clamp(0.78rem, 0.88vw, 0.94rem);
   font-weight: 900;
+  line-height: 1.08;
   letter-spacing: 0.015em;
+  text-align: center;
   text-decoration: none;
   text-transform: uppercase;
   transition:

@@ -51,7 +51,7 @@ function getContactError(value: string) {
   if (contact.length < 3) return 'Контакт выглядит слишком коротким.';
   if (/^@[\w.]{3,}$/i.test(contact)) return '';
   if (/t\.me\/|vk\.com\/|vk\.me\/|telegram/i.test(contact)) return '';
-  if (/^\+?[\d\s()\-]{7,}$/.test(contact)) return '';
+  if (/^\+?[\d\s()-]{7,}$/.test(contact)) return '';
   if (/^[\w.+-]+@[\w.-]+\.[a-z]{2,}$/i.test(contact)) return '';
   return 'Напиши телефон, @telegram, ссылку VK или email.';
 }

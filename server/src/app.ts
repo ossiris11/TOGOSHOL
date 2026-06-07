@@ -6,8 +6,10 @@ import cors from '@fastify/cors';
 import multipart from '@fastify/multipart';
 import rateLimit from '@fastify/rate-limit';
 import staticPlugin from '@fastify/static';
+import { recordAdminAudit } from './audit.js';
 import { config } from './config.js';
 import { ensureDatabase } from './database.js';
+import { registerAuditLogRoutes } from './routes/auditLogs.js';
 import { registerAuthRoutes } from './routes/auth.js';
 import { registerComponentRoutes } from './routes/components.js';
 import { registerMetricRoutes } from './routes/metrics.js';
@@ -62,6 +64,23 @@ export async function buildApp() {
     return reply.code(403).send({ ok: false, message: 'Admin request header required' });
   });
 
+  app.addHook('preHandler', async (request, reply) => {
+    if (!request.url.startsWith('/api/admin/')) return;
+    if (request.url.startsWith('/api/admin/login')) return;
+    if (['GET', 'HEAD', 'OPTIONS'].includes(request.method)) return;
+
+    const csrfHeader = request.headers['x-csrf-token'];
+    const csrfToken = Array.isArray(csrfHeader) ? csrfHeader[0] : csrfHeader;
+    const csrfCookie = request.cookies[config.csrfCookieName];
+    if (csrfToken && csrfCookie && csrfToken === csrfCookie) return;
+
+    return reply.code(403).send({ ok: false, message: 'CSRF token required' });
+  });
+
+  app.addHook('onResponse', async (request, reply) => {
+    await recordAdminAudit(request, reply).catch((error) => request.log.warn({ error }, 'failed to record admin audit log'));
+  });
+
   await fs.promises.mkdir(config.uploadDir, { recursive: true });
   await fs.promises.mkdir(config.dataDir, { recursive: true });
 
@@ -73,7 +92,13 @@ export async function buildApp() {
 
   app.get('/api/health', async () => ({ ok: true, service: 'togoshol-api', time: new Date().toISOString() }));
 
+  app.setErrorHandler((error, request, reply) => {
+    request.log.error({ error }, 'unhandled request error');
+    return reply.code(500).send({ ok: false, message: 'Internal server error' });
+  });
+
   await registerAuthRoutes(app);
+  await registerAuditLogRoutes(app);
   await registerProductRoutes(app);
   await registerComponentRoutes(app);
   await registerPageBlockRoutes(app);

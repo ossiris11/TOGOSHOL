@@ -36,6 +36,14 @@ export async function registerAuthRoutes(app: FastifyInstance) {
       path: '/',
       expires: expiresAt,
     });
+    const csrfToken = createSessionToken();
+    reply.setCookie(config.csrfCookieName, csrfToken, {
+      httpOnly: false,
+      sameSite: 'lax',
+      secure: config.isProduction,
+      path: '/',
+      expires: expiresAt,
+    });
 
     return reply.send({ ok: true, expiresAt: expiresAt.toISOString() });
   });
@@ -44,6 +52,7 @@ export async function registerAuthRoutes(app: FastifyInstance) {
     const token = request.cookies[config.sessionCookieName];
     if (token) await prisma.adminSession.deleteMany({ where: { tokenHash: hashToken(token) } });
     reply.clearCookie(config.sessionCookieName, { path: '/' });
+    reply.clearCookie(config.csrfCookieName, { path: '/' });
     return reply.send({ ok: true });
   });
 

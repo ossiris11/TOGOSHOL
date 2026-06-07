@@ -159,3 +159,20 @@ model ComponentOption {
 
   @@index([category, status, sortOrder])
 }
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  action     String
+  target     String
+  targetId   String?
+  method     String
+  path       String
+  statusCode Int
+  sessionId  String?
+  ipHash     String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([target, createdAt])
+}

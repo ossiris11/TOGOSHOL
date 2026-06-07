@@ -10,6 +10,8 @@ type ProductState = {
   heroProducts: Build[];
   featuredProducts: Build[];
   loading: boolean;
+  error: string | null;
+  source: 'api' | 'fallback';
 };
 
 export function useProducts(): ProductState {
@@ -19,6 +21,8 @@ export function useProducts(): ProductState {
     heroProducts: [],
     featuredProducts: [],
     loading: true,
+    error: null,
+    source: 'fallback',
   });
 
   useEffect(() => {
@@ -29,6 +33,7 @@ export function useProducts(): ProductState {
 
       const products = productsResult.status === 'fulfilled' && productsResult.value.length > 0 ? productsResult.value : vkProducts;
       const blocksPayload = blocksResult.status === 'fulfilled' ? blocksResult.value : null;
+      const usingApi = productsResult.status === 'fulfilled' && productsResult.value.length > 0;
 
       setState({
         products,
@@ -36,6 +41,8 @@ export function useProducts(): ProductState {
         heroProducts: blocksPayload?.products.hero.map(apiProductToBuild) || [],
         featuredProducts: blocksPayload?.products.featured.map(apiProductToBuild) || [],
         loading: false,
+        error: usingApi ? null : 'Каталог временно показывает резервные данные.',
+        source: usingApi ? 'api' : 'fallback',
       });
     });
 

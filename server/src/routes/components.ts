@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import type { Prisma } from '@prisma/client';
 import { prisma } from '../db.js';
-import { parseJsonArray, sendBadRequest } from '../http.js';
+import { isPrismaErrorCode, parseJsonArray, sendBadRequest, sendNotFound } from '../http.js';
 import { componentOptionPatchSchema, componentOptionSchema } from '../schemas.js';
 import { requireAdmin } from '../security.js';
 
@@ -74,14 +74,24 @@ export async function registerComponentRoutes(app: FastifyInstance) {
     if (reply.sent) return;
     const parsed = componentOptionPatchSchema.safeParse(request.body);
     if (!parsed.success) return sendBadRequest(reply, 'Invalid component patch', parsed.error.flatten());
-    const item = await prisma.componentOption.update({ where: { id: request.params.id }, data: toDb(parsed.data) as Prisma.ComponentOptionUpdateInput });
-    return { ok: true, item: mapComponent(item) };
+    try {
+      const item = await prisma.componentOption.update({ where: { id: request.params.id }, data: toDb(parsed.data) as Prisma.ComponentOptionUpdateInput });
+      return { ok: true, item: mapComponent(item) };
+    } catch (error) {
+      if (isPrismaErrorCode(error, 'P2025')) return sendNotFound(reply, 'Component option not found');
+      throw error;
+    }
   });
 
   app.delete<{ Params: { id: string } }>('/api/admin/components/:id', async (request, reply) => {
     await requireAdmin(request, reply);
     if (reply.sent) return;
-    await prisma.componentOption.update({ where: { id: request.params.id }, data: { status: 'archived', deletedAt: new Date() } });
-    return { ok: true };
+    try {
+      await prisma.componentOption.update({ where: { id: request.params.id }, data: { status: 'archived', deletedAt: new Date() } });
+      return { ok: true };
+    } catch (error) {
+      if (isPrismaErrorCode(error, 'P2025')) return sendNotFound(reply, 'Component option not found');
+      throw error;
+    }
   });
 }

@@ -4,6 +4,8 @@ server/dist/
 server/data/
 server/uploads/
 *.log
+*.zip
+togoshol-frontend-standalone.html
 .env
 .env.local
 .env.*.local
@@ -12,6 +14,8 @@ vite-dev.err.log
 server-dev.log
 server-prod.log
 tmp/
+test-results/
+playwright-report/
 
 # Local SSH/deploy keys for pulling and pushing updates
 .ssh/

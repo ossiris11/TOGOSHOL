@@ -99,7 +99,7 @@ build_app() {
   cd "$app_dir"
   npm ci
   npm run db:generate
-  npm run db:push
+  npm run db:migrate
   npm run db:seed
   npm run build
 }
@@ -138,9 +138,22 @@ EOF
 
 write_nginx() {
   local domain="$1"
-  local port="$2"
+  local redirect_domains="$2"
+  local port="$3"
+  local redirect_block=""
+
+  if [[ -n "$redirect_domains" ]]; then
+    redirect_block="
+server {
+    listen 80;
+    server_name $redirect_domains;
+    return 301 http://$domain\$request_uri;
+}
+"
+  fi
 
   cat > "/etc/nginx/sites-available/${APP_NAME}" <<EOF
+${redirect_block}
 server {
     listen 80;
     server_name $domain;
@@ -168,10 +181,18 @@ EOF
 
 install_https() {
   local domain="$1"
-  local email="$2"
+  local redirect_domains="$2"
+  local email="$3"
+  local cert_domains=(-d "$domain")
+
+  if [[ -n "$redirect_domains" ]]; then
+    for redirect_domain in $redirect_domains; do
+      cert_domains+=(-d "$redirect_domain")
+    done
+  fi
 
   apt-get install -y certbot python3-certbot-nginx
-  certbot --nginx -d "$domain" --non-interactive --agree-tos --redirect -m "$email"
+  certbot --nginx "${cert_domains[@]}" --non-interactive --agree-tos --redirect -m "$email"
 }
 
 setup_firewall() {
@@ -207,8 +228,9 @@ main() {
   echo "DNS A-record for the domain must already point to this server."
   echo
 
-  local domain repo app_dir branch port admin_password session_secret origin run_user email
-  domain="$(ask "Domain, for example togoshol.ru")"
+  local domain redirect_domains repo app_dir branch port admin_password session_secret origin run_user email
+  domain="$(ask "Primary domain" "tog-pc.ru")"
+  redirect_domains="$(ask "Redirect domains, space-separated" "tog-pc.online")"
   repo="$(ask "Git repository URL" "$DEFAULT_REPO")"
   branch="$(ask "Git branch" "main")"
   app_dir="$(ask "Install directory" "$DEFAULT_DIR")"
@@ -228,11 +250,11 @@ main() {
   build_app "$app_dir"
   chown -R "$run_user:$run_user" "$app_dir/server/data" "$app_dir/server/uploads" "$app_dir/.env"
   write_service "$app_dir" "$run_user"
-  write_nginx "$domain" "$port"
+  write_nginx "$domain" "$redirect_domains" "$port"
 
   if yes_no "Enable HTTPS via Let's Encrypt?" "y"; then
     email="$(ask "Email for Let's Encrypt")"
-    install_https "$domain" "$email"
+    install_https "$domain" "$redirect_domains" "$email"
   fi
 
   if yes_no "Enable firewall for SSH + HTTP/HTTPS only?" "y"; then
@@ -248,6 +270,9 @@ main() {
   echo
   echo "Done."
   echo "Site: https://$domain"
+  if [[ -n "$redirect_domains" ]]; then
+    echo "Redirects: $redirect_domains -> https://$domain"
+  fi
   echo "Admin: https://$domain/admin"
   echo "Service: systemctl status ${APP_NAME}.service"
   echo "Logs: journalctl -u ${APP_NAME}.service -f"

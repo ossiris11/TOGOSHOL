@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { prisma } from '../db.js';
-import { sendBadRequest } from '../http.js';
+import { isPrismaErrorCode, sendBadRequest, sendNotFound } from '../http.js';
 import { requestInputSchema, requestStatusSchema } from '../schemas.js';
 import { getRequestIp, hashIp, requireAdmin } from '../security.js';
 
@@ -9,14 +9,20 @@ export async function registerRequestRoutes(app: FastifyInstance) {
     const parsed = requestInputSchema.safeParse(request.body);
     if (!parsed.success) return sendBadRequest(reply, 'Invalid request payload', parsed.error.flatten());
 
-    const created = await prisma.customerRequest.create({
-      data: {
-        ...parsed.data,
-        productId: parsed.data.productId || null,
-        ipHash: hashIp(getRequestIp(request)),
-        userAgent: request.headers['user-agent'] || '',
-      },
-    });
+    let created;
+    try {
+      created = await prisma.customerRequest.create({
+        data: {
+          ...parsed.data,
+          productId: parsed.data.productId || null,
+          ipHash: hashIp(getRequestIp(request)),
+          userAgent: request.headers['user-agent'] || '',
+        },
+      });
+    } catch (error) {
+      if (isPrismaErrorCode(error, 'P2003')) return sendNotFound(reply, 'Product not found');
+      throw error;
+    }
 
     await prisma.metricEvent.create({
       data: {
@@ -57,14 +63,24 @@ export async function registerRequestRoutes(app: FastifyInstance) {
     if (reply.sent) return;
     const parsed = requestStatusSchema.safeParse(request.body);
     if (!parsed.success) return sendBadRequest(reply, 'Invalid request status', parsed.error.flatten());
-    const updated = await prisma.customerRequest.update({ where: { id: request.params.id }, data: parsed.data });
-    return { ok: true, item: { ...updated, createdAt: updated.createdAt.toISOString(), updatedAt: updated.updatedAt.toISOString() } };
+    try {
+      const updated = await prisma.customerRequest.update({ where: { id: request.params.id }, data: parsed.data });
+      return { ok: true, item: { ...updated, createdAt: updated.createdAt.toISOString(), updatedAt: updated.updatedAt.toISOString() } };
+    } catch (error) {
+      if (isPrismaErrorCode(error, 'P2025')) return sendNotFound(reply, 'Request not found');
+      throw error;
+    }
   });
 
   app.delete<{ Params: { id: string } }>('/api/admin/requests/:id', async (request, reply) => {
     await requireAdmin(request, reply);
     if (reply.sent) return;
-    await prisma.customerRequest.update({ where: { id: request.params.id }, data: { status: 'archived' } });
-    return { ok: true };
+    try {
+      await prisma.customerRequest.update({ where: { id: request.params.id }, data: { status: 'archived' } });
+      return { ok: true };
+    } catch (error) {
+      if (isPrismaErrorCode(error, 'P2025')) return sendNotFound(reply, 'Request not found');
+      throw error;
+    }
   });
 }

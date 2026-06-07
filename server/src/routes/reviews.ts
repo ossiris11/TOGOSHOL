@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { prisma } from '../db.js';
-import { sendBadRequest } from '../http.js';
+import { isPrismaErrorCode, sendBadRequest, sendNotFound } from '../http.js';
 import { mapReview } from '../mappers.js';
 import { reviewInputSchema, reviewPatchSchema } from '../schemas.js';
 import { requireAdmin } from '../security.js';
@@ -35,14 +35,19 @@ export async function registerReviewRoutes(app: FastifyInstance) {
     const parsed = reviewInputSchema.safeParse(request.body);
     if (!parsed.success) return sendBadRequest(reply, 'Invalid review payload', parsed.error.flatten());
 
-    const review = await prisma.review.create({
-      data: {
-        ...parsed.data,
-        productId: parsed.data.productId || null,
-        publishedAt: publishedAtFor(parsed.data.status),
-      },
-    });
-    return reply.code(201).send({ ok: true, item: mapReview(review) });
+    try {
+      const review = await prisma.review.create({
+        data: {
+          ...parsed.data,
+          productId: parsed.data.productId || null,
+          publishedAt: publishedAtFor(parsed.data.status),
+        },
+      });
+      return reply.code(201).send({ ok: true, item: mapReview(review) });
+    } catch (error) {
+      if (isPrismaErrorCode(error, 'P2003')) return sendNotFound(reply, 'Product not found');
+      throw error;
+    }
   });
 
   app.post('/api/admin/reviews/import', async (request, reply) => {
@@ -51,15 +56,20 @@ export async function registerReviewRoutes(app: FastifyInstance) {
     const parsed = reviewInputSchema.safeParse(request.body);
     if (!parsed.success) return sendBadRequest(reply, 'Invalid imported review payload', parsed.error.flatten());
 
-    const review = await prisma.review.create({
-      data: {
-        ...parsed.data,
-        status: 'pending',
-        source: parsed.data.source || 'avito',
-        productId: parsed.data.productId || null,
-      },
-    });
-    return reply.code(201).send({ ok: true, item: mapReview(review) });
+    try {
+      const review = await prisma.review.create({
+        data: {
+          ...parsed.data,
+          status: 'pending',
+          source: parsed.data.source || 'avito',
+          productId: parsed.data.productId || null,
+        },
+      });
+      return reply.code(201).send({ ok: true, item: mapReview(review) });
+    } catch (error) {
+      if (isPrismaErrorCode(error, 'P2003')) return sendNotFound(reply, 'Product not found');
+      throw error;
+    }
   });
 
   app.patch<{ Params: { id: string } }>('/api/admin/reviews/:id', async (request, reply) => {
@@ -68,21 +78,32 @@ export async function registerReviewRoutes(app: FastifyInstance) {
     const parsed = reviewPatchSchema.safeParse(request.body);
     if (!parsed.success) return sendBadRequest(reply, 'Invalid review patch', parsed.error.flatten());
 
-    const review = await prisma.review.update({
-      where: { id: request.params.id },
-      data: {
-        ...parsed.data,
-        productId: parsed.data.productId || undefined,
-        publishedAt: parsed.data.status === 'published' ? new Date() : undefined,
-      },
-    });
-    return { ok: true, item: mapReview(review) };
+    try {
+      const review = await prisma.review.update({
+        where: { id: request.params.id },
+        data: {
+          ...parsed.data,
+          productId: parsed.data.productId || undefined,
+          publishedAt: parsed.data.status === 'published' ? new Date() : undefined,
+        },
+      });
+      return { ok: true, item: mapReview(review) };
+    } catch (error) {
+      if (isPrismaErrorCode(error, 'P2025')) return sendNotFound(reply, 'Review not found');
+      if (isPrismaErrorCode(error, 'P2003')) return sendNotFound(reply, 'Product not found');
+      throw error;
+    }
   });
 
   app.delete<{ Params: { id: string } }>('/api/admin/reviews/:id', async (request, reply) => {
     await requireAdmin(request, reply);
     if (reply.sent) return;
-    await prisma.review.update({ where: { id: request.params.id }, data: { status: 'hidden', deletedAt: new Date() } });
-    return { ok: true };
+    try {
+      await prisma.review.update({ where: { id: request.params.id }, data: { status: 'hidden', deletedAt: new Date() } });
+      return { ok: true };
+    } catch (error) {
+      if (isPrismaErrorCode(error, 'P2025')) return sendNotFound(reply, 'Review not found');
+      throw error;
+    }
   });
 }

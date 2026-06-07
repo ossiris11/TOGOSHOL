@@ -61,7 +61,7 @@ npm run dev -- --port 5173
 - Админка: `http://127.0.0.1:5173/admin`
 - Backend healthcheck: `http://127.0.0.1:8787/api/health`
 
-Текущий стартовый пароль админки: `1111000010`.
+Для локальной разработки стартовый пароль задается через `ADMIN_PASSWORD`.
 После входа пароль можно поменять в настройках панели.
 
 ## Переменные окружения
@@ -152,7 +152,7 @@ systemctl restart togoshol.service
 ```bash
 npm ci
 npm run db:generate
-npm run db:push
+npm run db:migrate
 npm run db:seed
 npm run build
 npm run start:prod
@@ -205,8 +205,21 @@ npm run db:generate
 npm run db:push
 npm run db:seed
 npm run build
+npm run smoke:prod
 npm run start:prod
 npm run import:vk
+```
+
+Production smoke-check после деплоя:
+
+```bash
+SMOKE_BASE_URL="https://ваш-домен" npm run smoke:prod
+```
+
+Проверка последнего бэкапа:
+
+```bash
+BACKUP_DIR="/var/backups/togoshol" npm run backup:check
 ```
 
 Импорт товаров из VK/VK Market запускается только при наличии токена:
@@ -222,5 +235,6 @@ VK_TOKEN=your_token npm run import:vk
 - `docs/BACKEND_PLAN.md` - план развития backend.
 - `docs/PRODUCTION_RUNBOOK.md` - подробный production runbook.
 - `docs/API_CONTRACT.md` - контракт API.
+- `docs/DEPLOY_CHECKLIST.md` - чеклист перед выкладкой и после обновления production.
 - `00_README.md` - `08_QA_CHECKLIST.md` - исходные проектные материалы и чеклисты.
 - `09_SITE_AUDIT_FIXES.md` - аудит фронта, исправления и дальнейшие улучшения.

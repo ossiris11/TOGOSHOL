@@ -1,5 +1,5 @@
-export const schemaStatements = [
-  `CREATE TABLE IF NOT EXISTS "Product" (
+-- CreateTable
+CREATE TABLE "Product" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "title" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
@@ -30,10 +30,12 @@ export const schemaStatements = [
     "sourceType" TEXT NOT NULL DEFAULT 'manual',
     "externalId" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
     "deletedAt" DATETIME
-  )`,
-  `CREATE TABLE IF NOT EXISTS "CustomerRequest" (
+);
+
+-- CreateTable
+CREATE TABLE "CustomerRequest" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "status" TEXT NOT NULL DEFAULT 'new',
     "source" TEXT NOT NULL DEFAULT 'contact',
@@ -55,10 +57,12 @@ export const schemaStatements = [
     "ipHash" TEXT,
     "userAgent" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
     CONSTRAINT "CustomerRequest_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product" ("id") ON DELETE SET NULL ON UPDATE CASCADE
-  )`,
-  `CREATE TABLE IF NOT EXISTS "Review" (
+);
+
+-- CreateTable
+CREATE TABLE "Review" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "status" TEXT NOT NULL DEFAULT 'pending',
     "authorName" TEXT NOT NULL,
@@ -73,12 +77,14 @@ export const schemaStatements = [
     "sortOrder" INTEGER NOT NULL DEFAULT 1000,
     "isPinned" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
     "publishedAt" DATETIME,
     "deletedAt" DATETIME,
     CONSTRAINT "Review_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product" ("id") ON DELETE SET NULL ON UPDATE CASCADE
-  )`,
-  `CREATE TABLE IF NOT EXISTS "MetricEvent" (
+);
+
+-- CreateTable
+CREATE TABLE "MetricEvent" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "type" TEXT NOT NULL,
     "pagePath" TEXT,
@@ -89,14 +95,18 @@ export const schemaStatements = [
     "userAgent" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "MetricEvent_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product" ("id") ON DELETE SET NULL ON UPDATE CASCADE
-  )`,
-  `CREATE TABLE IF NOT EXISTS "PageBlock" (
+);
+
+-- CreateTable
+CREATE TABLE "PageBlock" (
     "key" TEXT NOT NULL PRIMARY KEY,
     "title" TEXT NOT NULL,
     "itemsJson" TEXT NOT NULL DEFAULT '[]',
-    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-  )`,
-  `CREATE TABLE IF NOT EXISTS "AdminSession" (
+    "updatedAt" DATETIME NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "AdminSession" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "tokenHash" TEXT NOT NULL,
     "expiresAt" DATETIME NOT NULL,
@@ -104,13 +114,17 @@ export const schemaStatements = [
     "lastSeenAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "ipHash" TEXT,
     "userAgent" TEXT
-  )`,
-  `CREATE TABLE IF NOT EXISTS "AdminSetting" (
+);
+
+-- CreateTable
+CREATE TABLE "AdminSetting" (
     "key" TEXT NOT NULL PRIMARY KEY,
     "value" TEXT NOT NULL,
-    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-  )`,
-  `CREATE TABLE IF NOT EXISTS "ComponentOption" (
+    "updatedAt" DATETIME NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "ComponentOption" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "category" TEXT NOT NULL,
     "title" TEXT NOT NULL,
@@ -122,10 +136,12 @@ export const schemaStatements = [
     "sortOrder" INTEGER NOT NULL DEFAULT 1000,
     "description" TEXT NOT NULL DEFAULT '',
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
     "deletedAt" DATETIME
-  )`,
-  `CREATE TABLE IF NOT EXISTS "AuditLog" (
+);
+
+-- CreateTable
+CREATE TABLE "AuditLog" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "action" TEXT NOT NULL,
     "target" TEXT NOT NULL,
@@ -137,19 +153,47 @@ export const schemaStatements = [
     "ipHash" TEXT,
     "userAgent" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-  )`,
-  `CREATE UNIQUE INDEX IF NOT EXISTS "Product_slug_key" ON "Product"("slug")`,
-  `CREATE INDEX IF NOT EXISTS "Product_status_deletedAt_sortOrder_idx" ON "Product"("status", "deletedAt", "sortOrder")`,
-  `CREATE INDEX IF NOT EXISTS "Product_isFeatured_featuredSlot_idx" ON "Product"("isFeatured", "featuredSlot")`,
-  `CREATE INDEX IF NOT EXISTS "CustomerRequest_status_createdAt_idx" ON "CustomerRequest"("status", "createdAt")`,
-  `CREATE INDEX IF NOT EXISTS "CustomerRequest_productId_idx" ON "CustomerRequest"("productId")`,
-  `CREATE INDEX IF NOT EXISTS "Review_status_sortOrder_idx" ON "Review"("status", "sortOrder")`,
-  `CREATE INDEX IF NOT EXISTS "Review_productId_idx" ON "Review"("productId")`,
-  `CREATE INDEX IF NOT EXISTS "MetricEvent_type_createdAt_idx" ON "MetricEvent"("type", "createdAt")`,
-  `CREATE INDEX IF NOT EXISTS "MetricEvent_productId_idx" ON "MetricEvent"("productId")`,
-  `CREATE UNIQUE INDEX IF NOT EXISTS "AdminSession_tokenHash_key" ON "AdminSession"("tokenHash")`,
-  `CREATE INDEX IF NOT EXISTS "AdminSession_expiresAt_idx" ON "AdminSession"("expiresAt")`,
-  `CREATE INDEX IF NOT EXISTS "ComponentOption_category_status_sortOrder_idx" ON "ComponentOption"("category", "status", "sortOrder")`,
-  `CREATE INDEX IF NOT EXISTS "AuditLog_createdAt_idx" ON "AuditLog"("createdAt")`,
-  `CREATE INDEX IF NOT EXISTS "AuditLog_target_createdAt_idx" ON "AuditLog"("target", "createdAt")`,
-];
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Product_slug_key" ON "Product"("slug");
+
+-- CreateIndex
+CREATE INDEX "Product_status_deletedAt_sortOrder_idx" ON "Product"("status", "deletedAt", "sortOrder");
+
+-- CreateIndex
+CREATE INDEX "Product_isFeatured_featuredSlot_idx" ON "Product"("isFeatured", "featuredSlot");
+
+-- CreateIndex
+CREATE INDEX "CustomerRequest_status_createdAt_idx" ON "CustomerRequest"("status", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "CustomerRequest_productId_idx" ON "CustomerRequest"("productId");
+
+-- CreateIndex
+CREATE INDEX "Review_status_sortOrder_idx" ON "Review"("status", "sortOrder");
+
+-- CreateIndex
+CREATE INDEX "Review_productId_idx" ON "Review"("productId");
+
+-- CreateIndex
+CREATE INDEX "MetricEvent_type_createdAt_idx" ON "MetricEvent"("type", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "MetricEvent_productId_idx" ON "MetricEvent"("productId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AdminSession_tokenHash_key" ON "AdminSession"("tokenHash");
+
+-- CreateIndex
+CREATE INDEX "AdminSession_expiresAt_idx" ON "AdminSession"("expiresAt");
+
+-- CreateIndex
+CREATE INDEX "ComponentOption_category_status_sortOrder_idx" ON "ComponentOption"("category", "status", "sortOrder");
+
+-- CreateIndex
+CREATE INDEX "AuditLog_createdAt_idx" ON "AuditLog"("createdAt");
+
+-- CreateIndex
+CREATE INDEX "AuditLog_target_createdAt_idx" ON "AuditLog"("target", "createdAt");
+

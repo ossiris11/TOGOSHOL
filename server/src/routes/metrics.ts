@@ -1,5 +1,6 @@
 import os from 'node:os';
 import type { FastifyInstance } from 'fastify';
+import { config } from '../config.js';
 import { prisma } from '../db.js';
 import { sendBadRequest } from '../http.js';
 import { metricEventSchema } from '../schemas.js';
@@ -43,6 +44,22 @@ function getServerStats() {
   };
 }
 
+const contactMetricTypes = ['contact_click_vk', 'contact_click_telegram', 'contact_click_instagram', 'contact_click_avito', 'contact_click_max'];
+const clickMetricTypes = [...contactMetricTypes, 'product_cta_click', 'product_details_click', 'custom_pc_modal_open'];
+const requestMetricTypes = ['request_created', 'configurator_submit'];
+let lastMetricPurgeAt = 0;
+
+async function purgeOldMetricEvents() {
+  if (config.metricRetentionDays <= 0) return;
+  const now = Date.now();
+  if (now - lastMetricPurgeAt < 12 * 60 * 60 * 1000) return;
+  lastMetricPurgeAt = now;
+
+  await prisma.metricEvent.deleteMany({
+    where: { createdAt: { lt: daysAgo(config.metricRetentionDays) } },
+  });
+}
+
 export async function registerMetricRoutes(app: FastifyInstance) {
   app.post('/api/metrics/events', { config: { rateLimit: { max: 120, timeWindow: '1 hour' } } }, async (request, reply) => {
     const parsed = metricEventSchema.safeParse(request.body);
@@ -59,6 +76,7 @@ export async function registerMetricRoutes(app: FastifyInstance) {
         userAgent: request.headers['user-agent'] || '',
       },
     });
+    await purgeOldMetricEvents().catch((error) => request.log.warn({ error }, 'failed to purge old metric events'));
     return reply.code(204).send();
   });
 
@@ -72,7 +90,7 @@ export async function registerMetricRoutes(app: FastifyInstance) {
       prisma.metricEvent.count({ where: { createdAt: { gte: daysAgo(7) } } }),
       prisma.metricEvent.count({ where: { type: 'page_view', createdAt: { gte: daysAgo(1) } } }),
       prisma.metricEvent.count({ where: { type: 'page_view', createdAt: { gte: daysAgo(7) } } }),
-      prisma.metricEvent.count({ where: { type: { in: ['contact_click_vk', 'contact_click_telegram', 'contact_click_max', 'product_cta_click'] }, createdAt: { gte: daysAgo(7) } } }),
+      prisma.metricEvent.count({ where: { type: { in: clickMetricTypes }, createdAt: { gte: daysAgo(7) } } }),
       prisma.customerRequest.count({ where: { status: 'new' } }),
       prisma.review.count({ where: { status: 'pending', deletedAt: null } }),
       prisma.product.count({ where: { deletedAt: null, status: { in: ['available', 'preorder'] } } }),
@@ -86,7 +104,7 @@ export async function registerMetricRoutes(app: FastifyInstance) {
       }),
       prisma.metricEvent.groupBy({
         by: ['type'],
-        where: { type: { in: ['contact_click_vk', 'contact_click_telegram', 'contact_click_max', 'product_cta_click'] }, createdAt: { gte: daysAgo(30) } },
+        where: { type: { in: contactMetricTypes }, createdAt: { gte: daysAgo(30) } },
         _count: { _all: true },
       }),
       prisma.metricEvent.findMany({
@@ -115,8 +133,8 @@ export async function registerMetricRoutes(app: FastifyInstance) {
       const item = byDate.get(dayKey(event.createdAt));
       if (!item) continue;
       if (event.type === 'page_view') item.pageViews += 1;
-      if (['contact_click_vk', 'contact_click_telegram', 'contact_click_max', 'product_cta_click'].includes(event.type)) item.clicks += 1;
-      if (['request_created', 'configurator_submit'].includes(event.type)) item.requests += 1;
+      if ((clickMetricTypes as readonly string[]).includes(event.type)) item.clicks += 1;
+      if ((requestMetricTypes as readonly string[]).includes(event.type)) item.requests += 1;
     }
 
     return {
@@ -139,7 +157,7 @@ export async function registerMetricRoutes(app: FastifyInstance) {
         count: event._count._all,
       })),
       topPages: topPages.map((event) => ({ path: event.pagePath || '/', count: event._count._all })),
-      contacts: contactEvents.map((event) => ({ type: event.type, count: event._count._all })),
+      contacts: contactEvents.map((event) => ({ type: event.type, count: event._count?._all || 0 })),
     };
   });
 }

@@ -13,17 +13,18 @@ import { Footer } from '../components/Footer/Footer';
 import { NotFound } from '../components/NotFound/NotFound';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { trackEvent } from '../lib/api';
+import { useAppRoute } from './router';
 
 export function App() {
   useScrollReveal();
-  const pathname = window.location.pathname;
+  const { pathname, route } = useAppRoute();
 
   useEffect(() => {
     if (!pathname.startsWith('/admin')) trackEvent('page_view', { pathname });
   }, [pathname]);
 
-  if (pathname.startsWith('/admin')) return <AdminApp />;
-  if (pathname !== '/') return <NotFound />;
+  if (route === 'admin') return <AdminApp />;
+  if (route === 'not-found') return <NotFound />;
 
   return (
     <>

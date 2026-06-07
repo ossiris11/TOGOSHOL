@@ -19,7 +19,7 @@ import premiumPc04 from '../../assets/catalog-pc-premium-04-cutout.webp';
 import premiumPc05 from '../../assets/catalog-pc-premium-05-cutout.webp';
 import premiumPc06 from '../../assets/catalog-pc-premium-06-cutout.webp';
 import premiumPc07 from '../../assets/catalog-pc-premium-07-cutout.webp';
-import heroPc from '../../assets/hero-pc.png';
+import heroPc from '../../assets/hero-pc-2026-cutout.webp';
 import intelLogo from '../../assets/intel-logo.svg';
 import './ProductCatalog.css';
 
@@ -149,7 +149,7 @@ export function ProductCatalog() {
   const closeSpecTimer = useRef<number | null>(null);
   const productSpecDrawerRef = useRef<HTMLElement | null>(null);
   const lastFocusedElementRef = useRef<HTMLElement | null>(null);
-  const { products: storefrontProducts } = useProducts();
+  const { products: storefrontProducts, error: productsError, source: productSource } = useProducts();
   const products = useMemo(() => getProductViews(storefrontProducts), [storefrontProducts]);
   const filteredProducts = useMemo(() => {
     return products
@@ -231,6 +231,12 @@ export function ProductCatalog() {
           <h2 className="sectionTitle">Сборки TOGOSHOL</h2>
         </div>
 
+        {productSource === 'fallback' && productsError && (
+          <p className="catalogNotice" role="status">
+            {productsError} Актуальное наличие лучше уточнить перед заказом.
+          </p>
+        )}
+
         <div className="catalogFilters" aria-label="Фильтр по бюджету" data-reveal>
           <span>Бюджет</span>
           {filters.map((filter) => (
@@ -255,6 +261,7 @@ export function ProductCatalog() {
             const fps = getFpsEstimate(product.priceValue, product.gpuTier);
             const orderMessage = buildOrderText(product);
             const catalogImage = getCatalogImage(product, index);
+            const productImage = product.image || catalogImage;
             const specs = [
               ['GPU', 'Видеокарта', product.details.gpu],
               ['CPU', 'Процессор', product.details.cpu],
@@ -271,7 +278,7 @@ export function ProductCatalog() {
                   <ProcessorBrandLogo brand={processorBrand.brand} label={processorBrand.badge} />
                   <img
                     className="productImage"
-                    src={catalogImage}
+                    src={productImage}
                     alt={product.normalizedTitle}
                     loading="lazy"
                     decoding="async"

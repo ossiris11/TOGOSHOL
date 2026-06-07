@@ -20,11 +20,11 @@
   }
 
   .desktopNav {
-    gap: clamp(16px, 2vw, 28px);
+    gap: clamp(14px, 1.6vw, 22px);
   }
 
   .desktopNav a {
-    font-size: 0.78rem;
+    font-size: 0.76rem;
   }
 
   .headerActions {

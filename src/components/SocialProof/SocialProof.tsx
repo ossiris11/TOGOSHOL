@@ -2,7 +2,7 @@ import { contacts } from '../../data/contacts';
 import { trackEvent } from '../../lib/api';
 import { useProducts } from '../../hooks/useProducts';
 import { getProductKey, getProductViews } from '../../lib/products';
-import heroPc from '../../assets/hero-pc.png';
+import heroPc from '../../assets/hero-pc-2026-cutout.webp';
 import './SocialProof.css';
 
 export function SocialProof() {

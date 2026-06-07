@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
+import amdLogo from '../assets/amd-logo.svg';
+import intelLogo from '../assets/intel-logo.svg';
 import './AdminApp.css';
 
-type AdminTab = 'dashboard' | 'blocks' | 'products' | 'components' | 'requests' | 'reviews' | 'settings';
+type AdminTab = 'dashboard' | 'blocks' | 'products' | 'components' | 'requests' | 'reviews' | 'media' | 'settings';
 
 type AdminProduct = {
   id: string;
@@ -74,6 +76,14 @@ type AdminComponent = {
   deletedAt?: string | null;
 };
 
+type AdminUpload = {
+  name: string;
+  url: string;
+  thumbUrl: string;
+  size: number;
+  updatedAt: string;
+};
+
 type DashboardPayload = {
   stats: Record<string, number>;
   server: {
@@ -106,6 +116,7 @@ const tabs: Array<{ id: AdminTab; label: string }> = [
   { id: 'components', label: 'Комплектующие' },
   { id: 'requests', label: 'Заявки' },
   { id: 'reviews', label: 'Отзывы' },
+  { id: 'media', label: 'Медиа' },
   { id: 'settings', label: 'Настройки' },
 ];
 
@@ -174,13 +185,25 @@ const emptyReview: ReviewDraft = {
   productId: '',
 };
 
+function readCookie(name: string) {
+  return document.cookie
+    .split(';')
+    .map((item) => item.trim())
+    .find((item) => item.startsWith(`${name}=`))
+    ?.slice(name.length + 1);
+}
+
 async function adminApi<T>(url: string, options?: RequestInit): Promise<T> {
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), 8000);
   const method = options?.method?.toUpperCase() || 'GET';
   const headers = new Headers(options?.headers);
-  if (!(options?.body instanceof FormData)) headers.set('Content-Type', 'application/json');
-  if (!['GET', 'HEAD', 'OPTIONS'].includes(method)) headers.set('X-TOGOSHOL-Admin', '1');
+  if (options?.body && !(options.body instanceof FormData)) headers.set('Content-Type', 'application/json');
+  if (!['GET', 'HEAD', 'OPTIONS'].includes(method)) {
+    headers.set('X-TOGOSHOL-Admin', '1');
+    const csrfToken = readCookie('togoshol_admin_csrf');
+    if (csrfToken) headers.set('X-CSRF-Token', decodeURIComponent(csrfToken));
+  }
 
   try {
     const response = await fetch(url, {
@@ -253,8 +276,12 @@ function contactLabel(type: string) {
   const labels: Record<string, string> = {
     contact_click_vk: 'VK',
     contact_click_telegram: 'Telegram',
+    contact_click_instagram: 'Instagram',
+    contact_click_avito: 'Avito',
     contact_click_max: 'Max',
     product_cta_click: 'CTA товаров',
+    product_details_click: 'Детали товара',
+    custom_pc_modal_open: 'Модалка custom PC',
   };
   return labels[type] || type;
 }
@@ -357,9 +384,54 @@ export function AdminApp() {
         {activeTab === 'components' && <ComponentsPage />}
         {activeTab === 'requests' && <RequestsPage />}
         {activeTab === 'reviews' && <ReviewsPage />}
+        {activeTab === 'media' && <MediaPage />}
         {activeTab === 'settings' && <SettingsPage />}
       </section>
     </main>
+  );
+}
+
+function MediaPage() {
+  const [items, setItems] = useState<AdminUpload[]>([]);
+  const [message, setMessage] = useState('');
+
+  const load = () => adminApi<{ items: AdminUpload[] }>('/api/admin/uploads/images').then((payload) => setItems(payload.items));
+  useEffect(() => void load(), []);
+
+  const copyUrl = async (url: string) => {
+    await navigator.clipboard.writeText(url);
+    setMessage('URL скопирован');
+  };
+
+  const remove = async (name: string) => {
+    await adminApi(`/api/admin/uploads/images/${encodeURIComponent(name)}`, { method: 'DELETE' });
+    setMessage('Файл удален');
+    await load();
+  };
+
+  return (
+    <AdminPanel title="Медиатека" note="Загруженные изображения. Новые JPG/PNG/WebP конвертируются в WebP и получают миниатюру.">
+      {message && <p className="adminNotice">{message}</p>}
+      {items.length === 0 ? (
+        <p className="adminEmptyState">Загруженных изображений пока нет. Добавь фото в форме товара или отзыва.</p>
+      ) : (
+        <div className="mediaGrid">
+          {items.map((item) => (
+            <article className="mediaCard" key={item.name}>
+              <img src={item.thumbUrl} alt="" loading="lazy" decoding="async" />
+              <div>
+                <strong>{item.name}</strong>
+                <span>{Math.round(item.size / 1024)} KB · {new Date(item.updatedAt).toLocaleString('ru-RU')}</span>
+              </div>
+              <div className="mediaActions">
+                <button type="button" onClick={() => copyUrl(item.url)}>URL</button>
+                <button type="button" onClick={() => remove(item.name)}>Удалить</button>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+    </AdminPanel>
   );
 }
 
@@ -570,63 +642,153 @@ function BlocksPage() {
 function ProductsPage() {
   const [products, setProducts] = useState<AdminProduct[]>([]);
   const [query, setQuery] = useState('');
+  const [viewMode, setViewMode] = useState<'active' | 'trash'>('active');
   const [draft, setDraft] = useState<ProductDraft>(emptyProduct);
   const [message, setMessage] = useState('');
+  const [uploadMessage, setUploadMessage] = useState('');
 
   const load = () => adminApi<{ items: AdminProduct[] }>('/api/admin/products').then((payload) => setProducts(payload.items));
   useEffect(() => void load(), []);
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
-    return products.filter((product) => !needle || [product.title, product.gpu, product.cpu, product.priceText].join(' ').toLowerCase().includes(needle));
-  }, [products, query]);
+    return products
+      .filter((product) => (viewMode === 'trash' ? Boolean(product.deletedAt) : !product.deletedAt))
+      .filter((product) => !needle || [product.title, product.gpu, product.cpu, product.ram, product.storage, product.priceText, product.status].join(' ').toLowerCase().includes(needle));
+  }, [products, query, viewMode]);
+
+  const activeCount = products.filter((product) => !product.deletedAt).length;
+  const trashCount = products.length - activeCount;
+
+  const editProduct = (product: AdminProduct) => {
+    setDraft(productToDraft(product));
+    setMessage(`Редактируешь: ${product.title}`);
+    setUploadMessage('');
+  };
+
+  const createNew = () => {
+    setDraft(emptyProduct);
+    setMessage('Новый товар');
+    setUploadMessage('');
+  };
 
   const save = async () => {
+    setMessage('Сохраняю...');
     const method = draft.id ? 'PATCH' : 'POST';
     const url = draft.id ? `/api/admin/products/${draft.id}` : '/api/admin/products';
-    await adminApi(url, { method, body: JSON.stringify(draftToPayload(draft)) });
-    setMessage('Сохранено');
-    setDraft(emptyProduct);
-    await load();
+    try {
+      await adminApi(url, { method, body: JSON.stringify(draftToPayload(draft)) });
+      setMessage(draft.id ? 'Товар обновлен' : 'Товар добавлен');
+      setDraft(emptyProduct);
+      await load();
+    } catch {
+      setMessage('Не удалось сохранить товар. Проверь обязательные поля.');
+    }
   };
 
   const remove = async (id: string) => {
     await adminApi(`/api/admin/products/${id}`, { method: 'DELETE' });
+    if (draft.id === id) setDraft(emptyProduct);
+    setMessage('Товар перемещен в корзину. Через 15 дней он удалится навсегда.');
+    await load();
+  };
+
+  const restore = async (id: string) => {
+    await adminApi(`/api/admin/products/${id}/restore`, { method: 'POST', body: '{}' });
+    setMessage('Товар восстановлен. Статус поставлен "Скрыт", проверь перед публикацией.');
+    await load();
+  };
+
+  const removeForever = async (id: string) => {
+    await adminApi(`/api/admin/products/${id}/permanent`, { method: 'DELETE' });
+    if (draft.id === id) setDraft(emptyProduct);
+    setMessage('Товар удален навсегда.');
     await load();
   };
 
   const upload = async (file: File | null) => {
     if (!file) return;
+    setUploadMessage('Загружаю фото...');
     const form = new FormData();
     form.set('file', file);
-    const result = await adminApi<{ url: string }>('/api/admin/uploads/images', { method: 'POST', body: form });
-    setDraft((current) => ({ ...current, imageUrl: result.url }));
+    try {
+      const result = await adminApi<{ url: string }>('/api/admin/uploads/images', { method: 'POST', body: form });
+      setDraft((current) => ({ ...current, imageUrl: result.url }));
+      setUploadMessage('Фото загружено и подставлено в карточку');
+    } catch {
+      setUploadMessage('Не удалось загрузить фото. Нужен jpg, png, webp или gif до 6 МБ.');
+    }
   };
 
   return (
-    <div className="adminGrid">
-      <AdminPanel title="Каталог">
-        <input className="adminInput" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Поиск по CPU, GPU, цене" />
-        <div className="adminTable">
+    <div className="productsAdmin">
+      <AdminPanel title="Товары каталога" note="Выбирай строку для редактирования. Изменения сохраняются только после кнопки сохранения.">
+        <div className="productToolbar">
+          <input className="adminInput" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Поиск по названию, CPU, GPU, RAM, цене или статусу" />
+          <button className="adminPrimary" type="button" onClick={createNew}>Добавить товар</button>
+        </div>
+        <div className="productModeTabs" role="tablist" aria-label="Режим списка товаров">
+          <button className={viewMode === 'active' ? 'isActive' : ''} type="button" onClick={() => setViewMode('active')}>
+            Каталог <span>{activeCount}</span>
+          </button>
+          <button className={viewMode === 'trash' ? 'isActive' : ''} type="button" onClick={() => setViewMode('trash')}>
+            Корзина <span>{trashCount}</span>
+          </button>
+        </div>
+        {viewMode === 'trash' && <p className="trashNotice">Товары в корзине автоматически удаляются навсегда через 15 дней. Их можно восстановить до очистки.</p>}
+        <div className="productAdminTable" role="table" aria-label="Товары">
+          <div className="productAdminHead" role="row">
+            <span>Фото</span>
+            <span>Товар</span>
+            <span>Железо</span>
+            <span>Цена</span>
+            <span>Статус</span>
+            <span>Действия</span>
+          </div>
           {filtered.map((product) => (
-            <div className={product.deletedAt ? 'isMuted' : ''} key={product.id}>
-              <span>{product.title}</span>
-              <b>{product.priceText}</b>
-              <small>{product.status}</small>
-              <button type="button" onClick={() => setDraft(productToDraft(product))}>Редактировать</button>
-              <button type="button" onClick={() => void remove(product.id)}>Архив</button>
+            <div className={`productAdminRow ${product.deletedAt ? 'isMuted' : ''} ${draft.id === product.id ? 'isSelected' : ''}`} key={product.id} role="row">
+              <button className="productThumbButton" type="button" onClick={() => editProduct(product)} aria-label={`Редактировать ${product.title}`}>
+                {product.imageUrl ? <img src={product.imageUrl} alt="" /> : <span>Нет фото</span>}
+              </button>
+              <div>
+                <b>{product.title}</b>
+                <small>{product.shortDescription || product.scenario || product.productClass}</small>
+              </div>
+              <div>
+                <span>{product.cpu || 'CPU не указан'}</span>
+                <small>{product.gpu || 'GPU не указана'} · {product.ram || 'RAM'} · {product.storage || 'SSD'}</small>
+              </div>
+              <strong>{product.priceText}</strong>
+              <span className={`productAdminStatus is-${product.status}`}>{product.status}</span>
+              <div className="productRowActions">
+                {!product.deletedAt ? (
+                  <>
+                    <button type="button" onClick={() => editProduct(product)}>Править</button>
+                    <button className="isDanger" type="button" onClick={() => void remove(product.id)}>Удалить</button>
+                  </>
+                ) : (
+                  <>
+                    <button type="button" onClick={() => void restore(product.id)}>Вернуть</button>
+                    <button className="isDanger" type="button" onClick={() => void removeForever(product.id)}>Навсегда</button>
+                  </>
+                )}
+              </div>
             </div>
           ))}
+          {filtered.length === 0 && <p className="adminEmpty">По такому запросу товаров нет.</p>}
         </div>
       </AdminPanel>
 
-      <AdminPanel title={draft.id ? 'Редактировать товар' : 'Новый товар'} note={message}>
-        <ProductForm draft={draft} setDraft={setDraft} upload={upload} />
-        <div className="adminActions">
-          <button className="adminPrimary" type="button" onClick={save}>Сохранить товар</button>
-          <button type="button" onClick={() => setDraft(emptyProduct)}>Очистить</button>
-        </div>
-      </AdminPanel>
+      <section className="productEditorPanel">
+        <ProductPreview draft={draft} />
+        <AdminPanel title={draft.id ? 'Редактировать товар' : 'Добавить товар'} note={message || 'Заполни карточку, загрузи фото и проверь предпросмотр перед сохранением.'}>
+          <ProductForm draft={draft} setDraft={setDraft} upload={upload} uploadMessage={uploadMessage} />
+          <div className="adminActions productEditorActions">
+            <button className="adminPrimary" type="button" onClick={save}>Сохранить товар</button>
+            <button type="button" onClick={createNew}>Очистить</button>
+          </div>
+        </AdminPanel>
+      </section>
     </div>
   );
 }
@@ -814,39 +976,256 @@ function SettingsPage() {
   );
 }
 
-function ProductForm({ draft, setDraft, upload }: { draft: ProductDraft; setDraft: (value: ProductDraft) => void; upload: (file: File | null) => void }) {
+function ProductPreview({ draft }: { draft: ProductDraft }) {
+  const priceValue = Number(draft.price) || 0;
+  const price = draft.priceText || (draft.price ? new Intl.NumberFormat('ru-RU').format(Number(draft.price)) + ' ₽' : '0 ₽');
+  const processorBrand = getAdminProcessorBrand(draft.cpu || draft.title);
+  const gpuTier = getAdminGpuTier(draft.productClass, priceValue);
+  const fps = getAdminFpsEstimate(priceValue, gpuTier);
+  const specs = [
+    ['GPU', 'Видеокарта', draft.gpu || 'На выбор'],
+    ['CPU', 'Процессор', draft.cpu || 'На выбор'],
+    ['RAM', 'Память', draft.ram || 'На выбор'],
+    ['SSD', 'Накопитель', draft.storage || 'На выбор'],
+  ];
+
   return (
-    <div className="adminForm">
-      <input value={draft.title} onChange={(event) => setDraft({ ...draft, title: event.target.value })} placeholder="Название" />
-      <div className="adminSplit">
-        <select value={draft.status} onChange={(event) => setDraft({ ...draft, status: event.target.value })}>
-          <option value="available">В наличии</option>
-          <option value="preorder">Под заказ</option>
-          <option value="hidden">Скрыт</option>
-          <option value="archived">Архив</option>
-        </select>
-        <input type="number" value={draft.price} onChange={(event) => setDraft({ ...draft, price: Number(event.target.value) })} placeholder="Цена" />
+    <section className="adminProductPreview" aria-label="Предпросмотр товара">
+      <article className="productCard adminPreviewProductCard">
+        <div className="productShowcase">
+          <AdminProcessorBrandLogo brand={processorBrand.brand} label={processorBrand.badge} />
+          <img className={`productImage ${draft.imageUrl ? '' : 'isPlaceholder'}`} src={draft.imageUrl || transparentPreviewImage} alt="" />
+          <div className="productIntro">
+            <span>TOG PC ({processorBrand.intro})</span>
+            <h3>{getAdminCardTitle(priceValue)}</h3>
+            <p>
+              <small>от</small>
+              {price}
+            </p>
+          </div>
+        </div>
+
+        <div className="productInfo">
+          <div className="productMetaLine">
+            <span className={`productStatus ${draft.badgeType === 'available' ? 'isAvailable' : ''}`}>{draft.badge || 'В наличии'}</span>
+            <span>{gpuTier}</span>
+          </div>
+
+          <div className="productActions">
+            <span className="productBuyButton">Написать по сборке <span>→</span></span>
+            <span className="productDetailsButton">Подробнее о сборке <span>›</span></span>
+          </div>
+
+          <div className="productFpsBox">
+            <div className="fpsRing">
+              <strong>{fps}</strong>
+              <small>FPS</small>
+            </div>
+            <div>
+              <b>Показатели в играх</b>
+              <span>{getAdminPerformanceLabel(gpuTier)}</span>
+            </div>
+          </div>
+
+          <dl className="productSpecsList">
+            {specs.map(([key, label, value]) => (
+              <div key={key}>
+                <span className="productSpecIcon" aria-hidden="true">
+                  {adminSpecIcons[key] || '•'}
+                </span>
+                <dt>{label}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </article>
+    </section>
+  );
+}
+
+function getAdminCardTitle(priceValue: number) {
+  if (priceValue < 65000) return 'Start';
+  if (priceValue < 85000) return 'Medium';
+  if (priceValue < 140000) return 'PRO';
+  return 'Ultra';
+}
+
+function getAdminGpuTier(productClass: string, priceValue: number) {
+  if (productClass === 'top') return 'Топ';
+  if (productClass === 'qhd') return '2K';
+  if (productClass === 'fullhd') return 'Full HD';
+  if (priceValue >= 150000) return 'Топ';
+  if (priceValue >= 90000) return '2K';
+  if (priceValue > 0) return 'Full HD';
+  return 'Custom';
+}
+
+function getAdminFpsEstimate(priceValue: number, tier: string) {
+  const base = tier === 'Топ' ? 170 : tier === '2K' ? 135 : tier === 'Full HD' ? 95 : 110;
+  const budgetBoost = Math.min(45, Math.max(0, Math.round((priceValue - 65000) / 4500)));
+  return Math.max(60, base + budgetBoost);
+}
+
+function getAdminPerformanceLabel(tier: string) {
+  if (tier === 'Топ') return '4K, стриминг и тяжелые проекты';
+  if (tier === '2K') return 'Комфортный 2K и запас на апгрейд';
+  if (tier === 'Full HD') return 'Full HD, киберспорт и учеба';
+  return 'Под игры, работу и бюджет';
+}
+
+function getAdminProcessorBrand(cpu: string) {
+  if (/ryzen|threadripper|\bamd\b/i.test(cpu)) return { badge: 'AMD', intro: 'AMD', brand: 'amd' as const };
+  if (/intel|core|celeron|pentium|\bi[3579][-\s]?\d/i.test(cpu)) return { badge: 'intel', intro: 'Intel', brand: 'intel' as const };
+  return { badge: 'CPU', intro: 'CPU', brand: 'cpu' as const };
+}
+
+function AdminProcessorBrandLogo({ brand, label }: { brand: 'amd' | 'intel' | 'cpu'; label: string }) {
+  if (brand === 'intel') {
+    return (
+      <span className="productBrandBadge isIntel" aria-label="Intel">
+        <img className="productBrandLogo productBrandLogo-intel" src={intelLogo} alt="" aria-hidden="true" />
+      </span>
+    );
+  }
+
+  if (brand === 'amd') {
+    return (
+      <span className="productBrandBadge isAmd" aria-label="AMD">
+        <img className="productBrandLogo productBrandLogo-amd" src={amdLogo} alt="" aria-hidden="true" />
+      </span>
+    );
+  }
+
+  return <span className="productBrandBadge isNeutral">{label}</span>;
+}
+
+const adminSpecIcons: Record<string, string> = {
+  GPU: '▣',
+  CPU: '◈',
+  RAM: '▤',
+  SSD: '◎',
+};
+
+const transparentPreviewImage = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="220" height="150" viewBox="0 0 220 150"%3E%3C/svg%3E';
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="adminField">
+      <span>{label}</span>
+      {children}
+    </label>
+  );
+}
+
+function ProductForm({ draft, setDraft, upload, uploadMessage }: { draft: ProductDraft; setDraft: (value: ProductDraft) => void; upload: (file: File | null) => void; uploadMessage: string }) {
+  return (
+    <div className="productEditorForm">
+      <div className="productFormSection">
+        <h3>Карточка на витрине</h3>
+        <div className="productFormGrid">
+          <Field label="Название">
+            <input value={draft.title} onChange={(event) => setDraft({ ...draft, title: event.target.value })} placeholder="Например: RTX 4070 / Ryzen 7" />
+          </Field>
+          <Field label="Цена, ₽">
+            <input type="number" value={draft.price} onChange={(event) => setDraft({ ...draft, price: Number(event.target.value) })} placeholder="149900" />
+          </Field>
+          <Field label="Текст цены">
+            <input value={draft.priceText} onChange={(event) => setDraft({ ...draft, priceText: event.target.value })} placeholder="Можно оставить пустым" />
+          </Field>
+          <Field label="Бейдж">
+            <input value={draft.badge} onChange={(event) => setDraft({ ...draft, badge: event.target.value })} placeholder="В наличии" />
+          </Field>
+          <Field label="Статус">
+            <select value={draft.status} onChange={(event) => setDraft({ ...draft, status: event.target.value })}>
+              <option value="available">В наличии</option>
+              <option value="preorder">Под заказ</option>
+              <option value="hidden">Скрыт</option>
+              <option value="archived">Архив</option>
+            </select>
+          </Field>
+          <Field label="Класс товара">
+            <select value={draft.productClass} onChange={(event) => setDraft({ ...draft, productClass: event.target.value })}>
+              <option value="fullhd">Full HD</option>
+              <option value="qhd">2K / QHD</option>
+              <option value="top">Топ</option>
+              <option value="work">Работа</option>
+              <option value="custom">Custom</option>
+            </select>
+          </Field>
+        </div>
       </div>
-      <input value={draft.imageUrl || ''} onChange={(event) => setDraft({ ...draft, imageUrl: event.target.value })} placeholder="Фото URL" />
-      <input type="file" accept="image/*" onChange={(event) => void upload(event.target.files?.[0] || null)} />
-      <div className="adminSplit">
-        <input value={draft.cpu} onChange={(event) => setDraft({ ...draft, cpu: event.target.value })} placeholder="CPU" />
-        <input value={draft.gpu} onChange={(event) => setDraft({ ...draft, gpu: event.target.value })} placeholder="GPU" />
+
+      <div className="productFormSection">
+        <h3>Фото</h3>
+        <div className="productUploadBox">
+          <div>
+            {draft.imageUrl ? <img src={draft.imageUrl} alt="" /> : <span>Нет фото</span>}
+          </div>
+          <div>
+            <Field label="URL фото">
+              <input value={draft.imageUrl || ''} onChange={(event) => setDraft({ ...draft, imageUrl: event.target.value })} placeholder="/uploads/photo.webp или https://..." />
+            </Field>
+            <label className="productFileButton">
+              <input type="file" accept="image/*" onChange={(event) => void upload(event.target.files?.[0] || null)} />
+              Загрузить фото с компьютера
+            </label>
+            {uploadMessage && <p>{uploadMessage}</p>}
+          </div>
+        </div>
       </div>
-      <div className="adminSplit">
-        <input value={draft.ram} onChange={(event) => setDraft({ ...draft, ram: event.target.value })} placeholder="RAM" />
-        <input value={draft.storage} onChange={(event) => setDraft({ ...draft, storage: event.target.value })} placeholder="SSD" />
+
+      <div className="productFormSection">
+        <h3>Комплектующие</h3>
+        <div className="productFormGrid">
+          <Field label="Процессор">
+            <input value={draft.cpu} onChange={(event) => setDraft({ ...draft, cpu: event.target.value })} placeholder="Ryzen 5 7500F" />
+          </Field>
+          <Field label="Видеокарта">
+            <input value={draft.gpu} onChange={(event) => setDraft({ ...draft, gpu: event.target.value })} placeholder="RTX 4070 Super" />
+          </Field>
+          <Field label="Оперативная память">
+            <input value={draft.ram} onChange={(event) => setDraft({ ...draft, ram: event.target.value })} placeholder="32GB DDR5" />
+          </Field>
+          <Field label="Накопитель">
+            <input value={draft.storage} onChange={(event) => setDraft({ ...draft, storage: event.target.value })} placeholder="1TB NVMe" />
+          </Field>
+          <Field label="Блок питания">
+            <input value={draft.psu} onChange={(event) => setDraft({ ...draft, psu: event.target.value })} placeholder="750W Gold" />
+          </Field>
+          <Field label="Охлаждение">
+            <input value={draft.cooling} onChange={(event) => setDraft({ ...draft, cooling: event.target.value })} placeholder="СЖО 240 мм" />
+          </Field>
+          <Field label="Корпус">
+            <input value={draft.caseName} onChange={(event) => setDraft({ ...draft, caseName: event.target.value })} placeholder="Аквариум RGB" />
+          </Field>
+          <Field label="Сценарий">
+            <input value={draft.scenario} onChange={(event) => setDraft({ ...draft, scenario: event.target.value })} placeholder="2K gaming, стриминг" />
+          </Field>
+        </div>
       </div>
-      <div className="adminSplit">
-        <input value={draft.psu} onChange={(event) => setDraft({ ...draft, psu: event.target.value })} placeholder="БП" />
-        <input value={draft.cooling} onChange={(event) => setDraft({ ...draft, cooling: event.target.value })} placeholder="Охлаждение" />
+
+      <div className="productFormSection">
+        <h3>Описание и порядок</h3>
+        <Field label="Короткое описание">
+          <input value={draft.shortDescription} onChange={(event) => setDraft({ ...draft, shortDescription: event.target.value })} placeholder="Коротко для таблицы/админки" />
+        </Field>
+        <Field label="Характеристики списком">
+          <textarea value={draft.specsText} onChange={(event) => setDraft({ ...draft, specsText: event.target.value })} placeholder="Каждая характеристика с новой строки" />
+        </Field>
+        <Field label="Полное описание">
+          <textarea value={draft.description} onChange={(event) => setDraft({ ...draft, description: event.target.value })} placeholder="Описание для админки и будущей карточки товара" />
+        </Field>
+        <div className="productFormGrid isCompact">
+          <Field label="Порядок">
+            <input type="number" value={draft.sortOrder} onChange={(event) => setDraft({ ...draft, sortOrder: Number(event.target.value) })} placeholder="1000" />
+          </Field>
+          <label className="adminCheckbox">
+            <input type="checkbox" checked={draft.isFeatured} onChange={(event) => setDraft({ ...draft, isFeatured: event.target.checked })} />
+            Рекомендуемый товар
+          </label>
+        </div>
       </div>
-      <textarea value={draft.specsText} onChange={(event) => setDraft({ ...draft, specsText: event.target.value })} placeholder="Характеристики, каждая с новой строки" />
-      <textarea value={draft.description} onChange={(event) => setDraft({ ...draft, description: event.target.value })} placeholder="Описание" />
-      <label className="adminCheckbox">
-        <input type="checkbox" checked={draft.isFeatured} onChange={(event) => setDraft({ ...draft, isFeatured: event.target.checked })} />
-        Рекомендуемый товар
-      </label>
     </div>
   );
 }
