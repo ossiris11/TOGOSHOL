@@ -661,7 +661,25 @@
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.07);
   color: #ffffff;
-  font-size: 1.55rem;
+  line-height: 1;
+}
+
+.customOrderClose::before,
+.customOrderClose::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 3px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.customOrderClose::before {
+  transform: rotate(45deg);
+}
+
+.customOrderClose::after {
+  transform: rotate(-45deg);
 }
 
 .customOrderModal h2 {
@@ -951,7 +969,7 @@
 @media (max-width: 768px) {
   .hero {
     min-height: 0;
-    padding: 70px 0 24px;
+    padding: 88px 0 24px;
     background:
       radial-gradient(circle at 62% 44%, rgba(122, 70, 255, 0.16), transparent 32%),
       radial-gradient(circle at 72% 58%, rgba(0, 229, 255, 0.12), transparent 34%),
@@ -984,13 +1002,16 @@
   }
 
   .heroTitle {
+    position: relative;
+    z-index: 3;
     order: 1;
-    max-width: 100%;
+    max-width: min(100%, 360px);
     margin: 2px 0 0;
-    font-size: clamp(2.12rem, 9.8vw, 3.24rem);
+    font-size: clamp(2rem, 8.8vw, 2.95rem);
     font-style: italic;
-    line-height: 0.88;
+    line-height: 0.92;
     text-transform: uppercase;
+    text-wrap: balance;
   }
 
   .heroSubtitle {
@@ -1072,7 +1093,8 @@
 
   .heroVisual {
     order: 2;
-    margin: 4px -18px -6px;
+    z-index: 1;
+    margin: 12px -10px 2px;
   }
 
   .heroVisual::before {
@@ -1099,14 +1121,14 @@
   }
 
   .heroVisualInner {
-    min-height: min(66vw, 330px);
+    min-height: clamp(236px, 62vw, 318px);
     transform: none;
     transition: none;
   }
 
   .heroPcPhotoFrame {
-    width: min(104%, 410px);
-    min-height: min(64vw, 320px);
+    width: min(100%, 390px);
+    min-height: clamp(232px, 60vw, 306px);
     transform: translateX(0);
   }
 
@@ -1123,8 +1145,8 @@
   }
 
   .heroPcPhotoFrame img {
-    width: min(108%, 420px);
-    max-height: 330px;
+    width: min(102%, 390px);
+    max-height: 310px;
   }
 
   .customPcBand {
@@ -1231,7 +1253,8 @@
 
 @media (max-width: 420px) {
   .heroTitle {
-    font-size: clamp(2rem, 9.2vw, 2.7rem);
+    max-width: 330px;
+    font-size: clamp(1.88rem, 8.5vw, 2.38rem);
   }
 
   .heroBadge {
@@ -1240,13 +1263,13 @@
   }
 
   .heroPcPhotoFrame {
-    width: min(104%, 370px);
-    min-height: min(64vw, 290px);
+    width: min(100%, 350px);
+    min-height: clamp(224px, 59vw, 280px);
   }
 
   .heroPcPhotoFrame img {
-    width: min(108%, 380px);
-    max-height: 300px;
+    width: min(102%, 360px);
+    max-height: 286px;
   }
 
   .customPcCard,

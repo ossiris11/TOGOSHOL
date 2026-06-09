@@ -176,12 +176,12 @@ export function Hero() {
           <span className="badge heroBadge">Готовые и кастомные игровые компьютеры</span>
           <h1 className="heroTitle">
             <span>Игровые</span>
-            <span><b>компьютеры</b></span>
-            <span>по <b>всей России</b></span>
+            <span><b>ПК</b></span>
+            <span>в <b>Великом Новгороде</b></span>
           </h1>
           <p className="heroSubtitle">
-            Собираем игровые ПК под твои задачи: игры, стриминг и работу.
-            <strong> Доставка по всей России, офис и выдача в Великом Новгороде.</strong>
+            Готовые игровые компьютеры и сборка ПК на заказ под игры, стриминг и работу.
+            <strong> Самовывоз в Великом Новгороде, доставка по России.</strong>
           </p>
           <div className="heroActions">
             <a className="button buttonPrimary" href="#custom">
@@ -269,7 +269,7 @@ export function Hero() {
       {isCustomModalOpen && (
         <div className="customOrderOverlay" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && closeCustomModal()}>
           <div className="customOrderModal" role="dialog" aria-modal="true" aria-labelledby="custom-order-title" ref={modalRef}>
-            <button type="button" className="customOrderClose" aria-label="Закрыть" onClick={closeCustomModal}>×</button>
+            <button type="button" className="customOrderClose" aria-label="Закрыть" onClick={closeCustomModal} />
             <h2 id="custom-order-title">Сборка на заказ</h2>
             <p>Заполните пожелания, и мы подберём идеальное решение.</p>
 

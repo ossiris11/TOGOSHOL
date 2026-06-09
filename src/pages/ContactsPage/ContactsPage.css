@@ -1,0 +1,108 @@
+.contactsPage {
+  padding-top: 92px;
+}
+
+.contactsHero {
+  padding-block: 92px 46px;
+}
+
+.contactsHeroGrid,
+.contactsLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+  gap: 34px;
+  align-items: start;
+}
+
+.contactsHero h1 {
+  max-width: 860px;
+  margin: 20px 0 0;
+  font-size: clamp(2.45rem, 6vw, 5.3rem);
+  line-height: 0.95;
+}
+
+.contactsHero p,
+.contactsContent p {
+  max-width: 760px;
+  margin: 22px 0 0;
+  color: var(--text-muted);
+  font-size: clamp(1rem, 1.25vw, 1.16rem);
+  line-height: 1.72;
+}
+
+.contactsAddress {
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 8px;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.055);
+  font-style: normal;
+}
+
+.contactsAddress span,
+.contactsAddress p {
+  color: var(--text-muted);
+}
+
+.contactsAddress strong {
+  display: block;
+  margin-top: 12px;
+  font-size: 1.25rem;
+  line-height: 1.35;
+}
+
+.contactsContent h2 {
+  margin: 0;
+  font-size: clamp(1.8rem, 3.2vw, 2.8rem);
+}
+
+.contactsLinkGrid {
+  display: grid;
+  gap: 12px;
+}
+
+.contactsLinkGrid a {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 8px;
+  padding: 16px 18px;
+  background: rgba(255, 255, 255, 0.045);
+  text-decoration: none;
+}
+
+.contactsLinkGrid span,
+.contactsLinkGrid b {
+  overflow-wrap: anywhere;
+}
+
+.contactsLinkGrid b {
+  color: var(--cyan);
+}
+
+@media (max-width: 820px) {
+  .contactsHeroGrid,
+  .contactsLayout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .contactsPage {
+    padding-top: 78px;
+  }
+
+  .contactsHero {
+    padding-block: 54px 24px;
+  }
+
+  .contactsHero h1 {
+    font-size: clamp(2.1rem, 13vw, 3.25rem);
+  }
+
+  .contactsLinkGrid a {
+    min-height: 58px;
+  }
+}

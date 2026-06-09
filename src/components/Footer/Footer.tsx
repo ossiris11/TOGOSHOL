@@ -2,10 +2,18 @@ import { contacts } from '../../data/contacts';
 import './Footer.css';
 
 const sectionLinks = [
-  { label: 'Сборки', href: '#catalog' },
-  { label: 'Под заказ', href: '#custom' },
-  { label: 'Почему мы', href: '#why' },
-  { label: 'Как заказать', href: '#process' },
+  { label: 'Сборки', href: '/#catalog' },
+  { label: 'Под заказ', href: '/#custom' },
+  { label: 'Игровые ПК в Великом Новгороде', href: '/igrovye-pk-velikiy-novgorod' },
+  { label: 'Сборка ПК на заказ', href: '/sborka-pk-na-zakaz-velikiy-novgorod' },
+  { label: 'Апгрейд ПК', href: '/upgrade-pc-velikiy-novgorod' },
+  { label: 'ПК Full HD', href: '/catalog/full-hd' },
+  { label: 'ПК 2K', href: '/catalog/2k' },
+  { label: 'ПК 4K', href: '/catalog/4k' },
+  { label: 'ПК RTX', href: '/catalog/rtx' },
+  { label: 'ПК Ryzen', href: '/catalog/ryzen' },
+  { label: 'ПК Intel', href: '/catalog/intel' },
+  { label: 'Контакты', href: '/contacts' },
 ];
 
 export function Footer() {
@@ -30,7 +38,7 @@ export function Footer() {
           <a href={contacts.avito} target="_blank" rel="noreferrer">
             Avito
           </a>
-          <a href={contacts.email}>Email</a>
+          <a href={contacts.phone}>{contacts.phoneText}</a>
         </div>
         <div className="footerColumn">
           <h2>Разделы</h2>

@@ -156,7 +156,7 @@
   }
 
   .hero {
-    padding-top: 70px;
+    padding-top: 88px;
   }
 
   .productSpecOverlay,
@@ -322,7 +322,7 @@
   }
 
   .hero {
-    padding-top: 64px;
+    padding-top: 84px;
   }
 
   .heroSubtitle {
@@ -406,7 +406,7 @@
 
 @media (orientation: landscape) and (max-height: 520px) and (max-width: 940px) {
   .hero {
-    padding-top: 62px;
+    padding-top: 72px;
   }
 
   .heroVisual {

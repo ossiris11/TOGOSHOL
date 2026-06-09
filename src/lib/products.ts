@@ -154,3 +154,32 @@ export function getProductSearchText(product: ProductView) {
 export function getProductKey(product: ProductView) {
   return `${product.normalizedTitle}-${product.priceValue}-${product.image || product.title}`;
 }
+
+export function slugifyProductPath(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9а-яё]+/gi, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 90);
+}
+
+export function getProductSlug(product: ProductView) {
+  return product.sourceId || slugifyProductPath(`${product.normalizedTitle}-${product.priceValue}`);
+}
+
+export function getProductBySlug(products: Build[], slug: string) {
+  return getProductViews(products).find((product) => getProductSlug(product) === slug);
+}
+
+export function getProductsByCategory(products: Build[], category: string) {
+  const views = getProductViews(products).filter((product) => product.priceValue > 0);
+
+  if (category === 'full-hd') return views.filter((product) => product.gpuTier === 'Full HD' || /full hd/i.test(product.subtitle));
+  if (category === '2k') return views.filter((product) => product.gpuTier === '2K' || /2k/i.test(product.subtitle));
+  if (category === '4k') return views.filter((product) => product.gpuTier === 'Топ' || /4k/i.test(product.subtitle));
+  if (category === 'rtx') return views.filter((product) => /rtx/i.test(`${product.normalizedTitle} ${product.details.gpu}`));
+  if (category === 'ryzen') return views.filter((product) => /ryzen|\br\d/i.test(`${product.normalizedTitle} ${product.details.cpu}`));
+  if (category === 'intel') return views.filter((product) => /intel|core|\bi[3579]/i.test(`${product.normalizedTitle} ${product.details.cpu}`));
+
+  return [];
+}

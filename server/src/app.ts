@@ -59,6 +59,7 @@ export async function buildApp() {
 
   app.addHook('preHandler', async (request, reply) => {
     if (!request.url.startsWith('/api/admin/')) return;
+    if (request.url.startsWith('/api/admin/login')) return;
     if (['GET', 'HEAD', 'OPTIONS'].includes(request.method)) return;
     if (request.headers['x-togoshol-admin'] === '1') return;
     return reply.code(403).send({ ok: false, message: 'Admin request header required' });

@@ -3,7 +3,8 @@ export const contacts = {
   telegram: 'https://t.me/tog_pc',
   instagram: 'https://www.instagram.com/tog.pc/',
   avito: 'https://www.avito.ru/brands/i112007990',
-  email: 'mailto:hello@togoshol.ru',
+  phone: 'tel:+79524839393',
+  phoneText: '+7 952 483-93-93',
 };
 
 export function buildContactMessage(text: string) {

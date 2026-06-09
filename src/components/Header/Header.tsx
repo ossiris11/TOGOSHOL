@@ -6,10 +6,12 @@ import logo from '../../assets/togoshol-logo.svg';
 import './Header.css';
 
 const navLinks: Array<{ label: string; href: string; external?: boolean; action?: 'customParts' }> = [
-  { label: 'Каталог ПК', href: '#catalog' },
-  { label: 'Этапы работы', href: '#process' },
-  { label: 'Отзывы', href: '#reviews' },
-  { label: 'Под заказ', href: '#custom-parts', action: 'customParts' },
+  { label: 'Каталог ПК', href: '/#catalog' },
+  { label: 'Этапы работы', href: '/#process' },
+  { label: 'Отзывы', href: '/#reviews' },
+  { label: 'Под заказ', href: '/#custom-parts', action: 'customParts' },
+  { label: 'Апгрейд', href: '/upgrade-pc-velikiy-novgorod' },
+  { label: 'Контакты', href: '/contacts' },
 ];
 
 const socialLinks = [
@@ -76,6 +78,11 @@ export function Header() {
   };
   const handleNavClick = (event: MouseEvent<HTMLAnchorElement>, action?: 'customParts') => {
     if (action === 'customParts') {
+      if (window.location.pathname !== '/') {
+        closeMenu();
+        return;
+      }
+
       event.preventDefault();
       window.dispatchEvent(new CustomEvent('togoshol:open-custom-parts'));
     }
@@ -107,7 +114,7 @@ export function Header() {
   return (
     <header className={`header ${isScrolled ? 'isScrolled' : ''}`}>
       <div className="headerInner container">
-        <a className="brand" href="#top" onClick={() => closeMenu()} aria-label="TOGOSHOL, на главный экран">
+        <a className="brand" href="/" onClick={() => closeMenu()} aria-label="TOGOSHOL, на главный экран">
           <img src={logo} alt="T-PC" />
         </a>
 

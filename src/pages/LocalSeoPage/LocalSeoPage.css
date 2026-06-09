@@ -1,0 +1,154 @@
+.localSeoPage {
+  padding-top: 92px;
+}
+
+.localHero {
+  min-height: min(760px, calc(100svh - 40px));
+  display: grid;
+  align-items: center;
+  padding-block: 72px 48px;
+}
+
+.localHeroGrid,
+.localSeoLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.02fr) minmax(280px, 0.72fr);
+  gap: 48px;
+  align-items: center;
+}
+
+.localHeroCopy h1 {
+  max-width: 850px;
+  margin: 20px 0 0;
+  font-size: clamp(2.45rem, 6.4vw, 5.8rem);
+  line-height: 0.94;
+  letter-spacing: 0;
+}
+
+.localHeroCopy p,
+.localSeoContent p {
+  max-width: 780px;
+  margin: 22px 0 0;
+  color: var(--text-muted);
+  font-size: clamp(1rem, 1.35vw, 1.18rem);
+  line-height: 1.7;
+}
+
+.localHeroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 30px;
+}
+
+.localHeroMedia {
+  position: relative;
+  min-height: 360px;
+  display: grid;
+  place-items: center;
+}
+
+.localHeroMedia::before {
+  content: "";
+  position: absolute;
+  inset: 14% 6%;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.2), rgba(255, 59, 212, 0.15));
+  filter: blur(34px);
+}
+
+.localHeroMedia img {
+  position: relative;
+  width: min(100%, 430px);
+  height: auto;
+  filter: drop-shadow(0 34px 70px rgba(0, 0, 0, 0.42));
+}
+
+.localSeoContent h2 {
+  margin: 0;
+  font-size: clamp(1.8rem, 3.5vw, 3rem);
+  line-height: 1.02;
+}
+
+.localIntentPanel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-content: start;
+}
+
+.localIntentPanel span {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.86rem;
+  line-height: 1.25;
+}
+
+.localBenefitsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.localBenefit {
+  min-height: 190px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 22px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.localBenefit h3 {
+  margin: 0;
+  font-size: 1.08rem;
+}
+
+.localBenefit p {
+  margin: 14px 0 0;
+  color: var(--text-muted);
+  line-height: 1.65;
+}
+
+@media (max-width: 900px) {
+  .localHeroGrid,
+  .localSeoLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .localHeroMedia {
+    min-height: 280px;
+  }
+
+  .localBenefitsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .localSeoPage {
+    padding-top: 78px;
+  }
+
+  .localHero {
+    padding-block: 46px 30px;
+  }
+
+  .localHeroCopy h1 {
+    font-size: clamp(2.15rem, 13vw, 3.25rem);
+  }
+
+  .localHeroActions {
+    display: grid;
+  }
+
+  .localHeroMedia {
+    min-height: 230px;
+  }
+
+  .localIntentPanel span {
+    width: 100%;
+  }
+}

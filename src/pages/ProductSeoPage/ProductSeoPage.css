@@ -1,0 +1,104 @@
+.productSeoPage {
+  padding-top: 92px;
+}
+
+.productSeoHero {
+  padding-block: 92px 38px;
+}
+
+.productSeoGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 380px);
+  gap: 32px;
+  align-items: start;
+}
+
+.productSeoHero h1 {
+  max-width: 980px;
+  margin: 20px 0 0;
+  font-size: clamp(2.25rem, 5.2vw, 4.9rem);
+  line-height: 0.98;
+}
+
+.productSeoHero p,
+.productSeoPrice p {
+  max-width: 780px;
+  margin: 20px 0 0;
+  color: var(--text-muted);
+  line-height: 1.72;
+}
+
+.productSeoActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 30px;
+}
+
+.productSeoPrice {
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 8px;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.productSeoPrice span {
+  color: var(--text-muted);
+}
+
+.productSeoPrice strong {
+  display: block;
+  margin-top: 10px;
+  font-size: 2rem;
+}
+
+.productSeoSpecGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0;
+}
+
+.productSeoSpecGrid div {
+  min-height: 116px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.productSeoSpecGrid dt {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.productSeoSpecGrid dd {
+  margin: 10px 0 0;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+@media (max-width: 860px) {
+  .productSeoGrid,
+  .productSeoSpecGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .productSeoPage {
+    padding-top: 78px;
+  }
+
+  .productSeoHero {
+    padding-block: 54px 24px;
+  }
+
+  .productSeoHero h1 {
+    font-size: clamp(2rem, 11vw, 3.05rem);
+  }
+
+  .productSeoActions {
+    display: grid;
+  }
+}

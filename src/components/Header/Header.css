@@ -199,18 +199,28 @@
   transition: opacity 180ms ease;
 }
 
-.menuButton span {
-  position: relative;
-  display: block;
-  width: 17px;
-  height: 2px;
+.menuButton::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 22px;
+  height: 18px;
+  background:
+    linear-gradient(currentColor, currentColor) center top / 22px 2px no-repeat,
+    linear-gradient(currentColor, currentColor) center center / 22px 2px no-repeat,
+    linear-gradient(currentColor, currentColor) center bottom / 22px 2px no-repeat;
   border-radius: 999px;
-  background: var(--text-main);
-  box-shadow: 0 0 10px rgba(0, 229, 255, 0.18);
+  color: var(--text-main);
+  filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.18));
+  transform: translate(-50%, -50%);
   transition:
-    transform 200ms ease,
-    opacity 160ms ease,
-    background 180ms ease;
+    background 180ms ease,
+    transform 200ms ease;
+}
+
+.menuButton span {
+  display: none;
 }
 
 .menuButton:hover,
@@ -229,16 +239,21 @@
   opacity: 1;
 }
 
-.menuButton[aria-expanded="true"] span:nth-child(1) {
-  transform: translateY(3px) rotate(45deg);
+.menuButton[aria-expanded="true"]::after {
+  height: 22px;
+  background:
+    linear-gradient(currentColor, currentColor) center / 22px 2px no-repeat,
+    linear-gradient(currentColor, currentColor) center / 2px 22px no-repeat;
+  filter: none;
+  transform: translate(-50%, -50%) rotate(45deg);
 }
 
-.menuButton[aria-expanded="true"] span:nth-child(2) {
-  opacity: 0;
+.menuButton[aria-expanded="true"] {
+  color: var(--text-main);
 }
 
-.menuButton[aria-expanded="true"] span:nth-child(3) {
-  transform: translateY(-3px) rotate(-45deg);
+.menuButton[aria-expanded="true"]::before {
+  transform: rotate(45deg);
 }
 
 .mobileMenu {
@@ -272,7 +287,6 @@
     display: grid;
     align-self: start;
     justify-self: end;
-    gap: 1px;
   }
 
   .mobileMenu {
@@ -337,11 +351,6 @@
   .menuButton {
     width: 38px;
     height: 38px;
-    gap: 1px;
-  }
-
-  .menuButton span {
-    width: 17px;
   }
 
   .mobileMenu {
