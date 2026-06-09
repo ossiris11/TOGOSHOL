@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { contacts } from '../../data/contacts';
 import { useProducts } from '../../hooks/useProducts';
-import { createCustomerRequest, fetchCustomComponents, trackEvent, type ComponentOption } from '../../lib/api';
+import { fetchCustomComponents, trackEvent, type ComponentOption } from '../../lib/api';
 import { getClosestProducts, getProductKey } from '../../lib/products';
 import './CustomBuild.css';
 
@@ -40,20 +40,32 @@ const componentLabels: Record<ComponentOption['category'], string> = {
 };
 
 const componentOrder: ComponentOption['category'][] = ['gpu', 'cpu', 'motherboard', 'ram', 'storage', 'psu', 'cooling', 'case', 'os', 'service'];
+const contactChannels = [
+  { key: 'avito', label: 'Avito', href: contacts.avito, event: 'contact_click_avito' },
+  { key: 'vk', label: 'VK', href: contacts.vk, event: 'contact_click_vk' },
+  { key: 'telegram', label: 'Telegram', href: contacts.telegram, event: 'contact_click_telegram' },
+] as const;
 
 function formatPrice(value: number) {
   return new Intl.NumberFormat('ru-RU').format(value) + ' ₽';
 }
 
-function getContactError(value: string) {
-  const contact = value.trim();
-  if (!contact) return 'Укажи телефон, Telegram или VK, чтобы мы могли ответить.';
-  if (contact.length < 3) return 'Контакт выглядит слишком коротким.';
-  if (/^@[\w.]{3,}$/i.test(contact)) return '';
-  if (/t\.me\/|vk\.com\/|vk\.me\/|telegram/i.test(contact)) return '';
-  if (/^\+?[\d\s()-]{7,}$/.test(contact)) return '';
-  if (/^[\w.+-]+@[\w.-]+\.[a-z]{2,}$/i.test(contact)) return '';
-  return 'Напиши телефон, @telegram, ссылку VK или email.';
+async function copyTextToClipboard(text: string) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    document.body.append(textarea);
+    textarea.select();
+    const copied = document.execCommand('copy');
+    textarea.remove();
+    return copied;
+  }
 }
 
 function getBuildClass(budget: number, resolution: Resolution) {
@@ -111,13 +123,11 @@ export function CustomBuild() {
   const [storageChoice, setStorageChoice] = useState<StorageOption>('1TB');
   const [caseStyle, setCaseStyle] = useState<CaseStyle>('RGB');
   const [copied, setCopied] = useState(false);
-  const [contact, setContact] = useState('');
-  const [requestState, setRequestState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  const [requestState, setRequestState] = useState<'idle' | 'copying' | 'ready' | 'error'>('idle');
   const [customOpen, setCustomOpen] = useState(false);
   const [componentOptions, setComponentOptions] = useState<ComponentOption[]>([]);
   const [selectedComponents, setSelectedComponents] = useState<Partial<Record<ComponentOption['category'], string>>>({});
-  const [customContact, setCustomContact] = useState('');
-  const [customRequestState, setCustomRequestState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  const [customRequestState, setCustomRequestState] = useState<'idle' | 'copying' | 'ready' | 'error'>('idle');
   const { products } = useProducts();
   const customPartsModalRef = useRef<HTMLDivElement | null>(null);
   const lastFocusedElementRef = useRef<HTMLElement | null>(null);
@@ -219,61 +229,36 @@ SSD: ${storageChoice}
 Рекомендация сайта: ${recommendation.buildClass}, ${recommendation.cpu}, ${recommendation.gpu}, ${recommendation.ram}, ${recommendation.storage}.`;
 
   const copyMessage = async () => {
-    await navigator.clipboard.writeText(messageText);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1800);
+    const didCopy = await copyTextToClipboard(messageText);
+    setCopied(didCopy);
+    if (didCopy) window.setTimeout(() => setCopied(false), 1800);
   };
 
   const submitRequest = async () => {
-    if (getContactError(contact)) {
-      setRequestState('error');
-      return;
-    }
-
-    setRequestState('sending');
-    try {
-      const result = await createCustomerRequest({
-        source: 'configurator',
-        contact,
-        contactType: contact.includes('@') ? 'messenger' : 'phone',
-        message: messageText,
-        budget,
-        game,
-        resolution,
-        partsCondition: partCondition,
-        ram: ramChoice,
-        storage: storageChoice,
-        pagePath: window.location.pathname + window.location.hash,
-      });
-      trackEvent('configurator_submit', { requestId: result.requestId, budget, game, resolution });
-      setRequestState('sent');
-    } catch {
-      setRequestState('error');
-    }
+    setRequestState('copying');
+    const didCopy = await copyTextToClipboard(messageText);
+    trackEvent('configurator_submit', { budget, game, resolution, copied: didCopy });
+    setRequestState(didCopy ? 'ready' : 'error');
   };
 
   const submitCustomRequest = async () => {
-    if (getContactError(customContact) || selectedList.length === 0) {
+    if (selectedList.length === 0) {
       setCustomRequestState('error');
       return;
     }
 
     const summary = selectedList.map((item) => `${componentLabels[item.category]}: ${item.title}`).join('\n');
-    setCustomRequestState('sending');
-    try {
-      const result = await createCustomerRequest({
-        source: 'configurator',
-        contact: customContact,
-        contactType: customContact.includes('@') ? 'messenger' : 'phone',
-        budget: customTotal,
-        message: `Хочу сборку из доступных комплектующих:\n${summary}\n\nОценка: ${formatPrice(customTotal)}. Потребление выбранных активных компонентов: ~${customWattage}W.`,
-        pagePath: window.location.pathname + window.location.hash,
-      });
-      trackEvent('configurator_submit', { requestId: result.requestId, customTotal, selectedCount: selectedList.length });
-      setCustomRequestState('sent');
-    } catch {
-      setCustomRequestState('error');
-    }
+    const customMessage = `Здравствуйте! Хочу сборку из доступных комплектующих TOGOSHOL:
+${summary}
+
+Оценка: ${formatPrice(customTotal)}.
+Потребление выбранных активных компонентов: ~${customWattage}W.
+
+Проверьте, пожалуйста, совместимость и наличие.`;
+    setCustomRequestState('copying');
+    const didCopy = await copyTextToClipboard(customMessage);
+    trackEvent('configurator_submit', { customTotal, selectedCount: selectedList.length, copied: didCopy });
+    setCustomRequestState(didCopy ? 'ready' : 'error');
   };
 
   return (
@@ -438,25 +423,30 @@ SSD: ${storageChoice}
               </button>
             </div>
             <div className="configLeadForm" aria-label="Оставить заявку">
-              <label className="configContactField">
-                <span>Контакт для ответа</span>
-                <input
-                  type="text"
-                  value={contact}
-                  onChange={(event) => {
-                    setContact(event.target.value);
-                    if (requestState === 'error') setRequestState('idle');
-                  }}
-                  placeholder="Телефон, @telegram или VK"
-                  aria-invalid={requestState === 'error'}
-                />
-              </label>
-              <button className="button buttonPrimary" type="button" onClick={submitRequest} disabled={requestState === 'sending'}>
-                {requestState === 'sending' ? 'Отправляем' : requestState === 'sent' ? 'Заявка отправлена' : 'Оставить заявку'}
+              <button className="button buttonPrimary" type="button" onClick={submitRequest} disabled={requestState === 'copying'}>
+                {requestState === 'copying' ? 'Копируем заявку' : requestState === 'ready' ? 'Заявка скопирована' : 'Отправить заявку'}
               </button>
             </div>
-            {requestState === 'error' && <p className="configWarning">{getContactError(contact)}</p>}
-            {requestState === 'sent' && <p className="configSuccess">Заявка ушла. Ответим по указанному контакту и уточним наличие комплектующих.</p>}
+            {requestState === 'error' && <p className="configWarning">Не удалось автоматически скопировать заявку. Нажми “Скопировать конфигурацию” и выбери удобный канал ниже.</p>}
+            {(requestState === 'ready' || requestState === 'error') && (
+              <div className="configChannelPanel" aria-live="polite">
+                <p>{requestState === 'ready' ? 'Заявка скопирована. Выбери канал и просто вставь текст в диалог.' : 'Выбери канал связи, затем вставь текст в диалог.'}</p>
+                <div className="configChannelActions">
+                  {contactChannels.map((channel) => (
+                    <a
+                      key={channel.key}
+                      className="button buttonSecondary"
+                      href={channel.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={() => trackEvent(channel.event, { placement: 'configurator_after_copy' })}
+                    >
+                      {channel.label}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
             <p className="configNote">
               Расчёт ориентировочный. Итоговую конфигурацию уточним по наличию, ценам комплектующих и состоянию деталей.
             </p>
@@ -620,23 +610,29 @@ SSD: ${storageChoice}
                 {missingCore.length > 0 && selectedList.length > 0 && (
                   <p className="partsHint">Не хватает: {missingCore.map((category) => componentLabels[category]).join(', ')}.</p>
                 )}
-                <label className="customContactField">
-                  <span>Контакт для ответа</span>
-                  <input
-                    value={customContact}
-                    onChange={(event) => {
-                      setCustomContact(event.target.value);
-                      if (customRequestState === 'error') setCustomRequestState('idle');
-                    }}
-                    placeholder="Телефон, @telegram или VK"
-                    aria-invalid={customRequestState === 'error'}
-                  />
-                </label>
-                <button className="button buttonPrimary" type="button" onClick={submitCustomRequest} disabled={customRequestState === 'sending'}>
-                  {customRequestState === 'sending' ? 'Отправляем' : customRequestState === 'sent' ? 'Заявка отправлена' : 'Отправить сборку'}
+                <button className="button buttonPrimary" type="button" onClick={submitCustomRequest} disabled={customRequestState === 'copying'}>
+                  {customRequestState === 'copying' ? 'Копируем сборку' : customRequestState === 'ready' ? 'Сборка скопирована' : 'Отправить сборку'}
                 </button>
-                {customRequestState === 'error' && <p className="partsHint isError">{selectedList.length === 0 ? 'Выбери хотя бы одну деталь.' : getContactError(customContact)}</p>}
-                {customRequestState === 'sent' && <p className="partsHint isSuccess">Сборка отправлена. Мы проверим совместимость и ответим по контакту.</p>}
+                {customRequestState === 'error' && <p className="partsHint isError">{selectedList.length === 0 ? 'Выбери хотя бы одну деталь.' : 'Не удалось автоматически скопировать сборку. Попробуй нажать кнопку ещё раз.'}</p>}
+                {customRequestState === 'ready' && (
+                  <div className="partsContactPanel">
+                    <p className="partsHint isSuccess">Сборка скопирована. Выбери канал и просто вставь текст в диалог.</p>
+                    <div className="partsContactActions">
+                      {contactChannels.map((channel) => (
+                        <a
+                          key={channel.key}
+                          className="button buttonSecondary"
+                          href={channel.href}
+                          target="_blank"
+                          rel="noreferrer"
+                          onClick={() => trackEvent(channel.event, { placement: 'custom_parts_after_copy' })}
+                        >
+                          {channel.label}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </aside>
             </div>
           </div>

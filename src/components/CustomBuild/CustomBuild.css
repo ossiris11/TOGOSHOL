@@ -228,48 +228,48 @@
 
 .configLeadForm {
   display: grid;
-  grid-template-columns: minmax(220px, 1fr) auto;
+  grid-template-columns: minmax(220px, 360px);
   gap: 12px;
   margin-top: 14px;
   max-width: 620px;
 }
 
-.configContactField,
-.customContactField {
-  display: grid;
-  gap: 7px;
-}
-
-.configContactField span,
-.customContactField span {
-  color: var(--text-soft);
-  font-size: 0.72rem;
-  font-weight: 850;
-  text-transform: uppercase;
-}
-
-.configLeadForm input {
-  min-height: 52px;
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-pill);
-  padding: 0 18px;
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text-main);
-  outline: none;
-}
-
-.configLeadForm input:focus {
-  border-color: rgba(0, 229, 255, 0.42);
-}
-
-.configLeadForm input[aria-invalid="true"],
-.customPartsSummary input[aria-invalid="true"] {
-  border-color: rgba(255, 59, 78, 0.48);
-}
-
 .configLeadForm button:disabled {
   cursor: wait;
   opacity: 0.72;
+}
+
+.configChannelPanel,
+.partsContactPanel {
+  display: grid;
+  gap: 12px;
+  max-width: 620px;
+  margin-top: 14px;
+  border: 1px solid rgba(0, 229, 255, 0.22);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  background: rgba(0, 229, 255, 0.06);
+}
+
+.configChannelPanel p,
+.partsContactPanel p {
+  margin: 0;
+  color: var(--text-main);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.configChannelActions,
+.partsContactActions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.configChannelActions a,
+.partsContactActions a {
+  min-width: 0;
+  min-height: 44px;
 }
 
 .recommendationCard {
@@ -646,15 +646,6 @@
   font-size: 1.1rem;
 }
 
-.customPartsSummary input {
-  min-height: 48px;
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-pill);
-  padding: 0 16px;
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text-main);
-}
-
 .partsHint.isError {
   border: 1px solid rgba(255, 59, 78, 0.26);
   border-radius: var(--radius-sm);
@@ -669,6 +660,15 @@
   padding: 10px;
   background: rgba(77, 255, 136, 0.07);
   color: #c8ffd7;
+}
+
+.partsContactPanel {
+  margin-top: 0;
+  padding: 12px;
+}
+
+.partsContactPanel .partsHint.isSuccess {
+  margin: 0;
 }
 
 @media (max-width: 1024px) {
@@ -687,6 +687,64 @@
   .customPartsSummary {
     border-top: 1px solid var(--border-soft);
     border-left: 0;
+  }
+}
+
+@media (min-width: 1025px) and (max-width: 1366px) {
+  .configurator {
+    grid-template-columns: minmax(0, 1.08fr) minmax(280px, 0.72fr);
+    gap: clamp(18px, 2.6vw, 30px);
+    padding: clamp(22px, 2.8vw, 34px);
+  }
+
+  .configuratorCopy h2 {
+    max-width: 560px;
+    font-size: clamp(2rem, 3.2vw, 2.75rem);
+  }
+
+  .configuratorCopy p,
+  .configWarning,
+  .configNote,
+  .configSuccess,
+  .configChannelPanel,
+  .configLeadForm {
+    max-width: 560px;
+  }
+
+  .configControls {
+    gap: 16px;
+    padding: 20px;
+  }
+
+  .segmented {
+    gap: 8px;
+  }
+
+  .segmented button {
+    min-height: 42px;
+    padding-inline: 8px;
+    font-size: 0.86rem;
+  }
+
+  .recommendationCard {
+    padding: 22px;
+  }
+
+  .recommendationCard h3 {
+    font-size: clamp(1.35rem, 2vw, 1.72rem);
+  }
+
+  .specTable div {
+    grid-template-columns: minmax(92px, 0.72fr) minmax(0, 1.28fr);
+    gap: 10px;
+  }
+
+  .closestProducts a {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .closestProducts b {
+    white-space: normal;
   }
 }
 
@@ -734,6 +792,11 @@
   }
 
   .configLeadForm {
+    grid-template-columns: 1fr;
+  }
+
+  .configChannelActions,
+  .partsContactActions {
     grid-template-columns: 1fr;
   }
 
