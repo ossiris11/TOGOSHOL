@@ -852,19 +852,17 @@
 
   .catalogFilters {
     gap: 8px;
-    margin-right: -6px;
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    padding-bottom: 4px;
-    scrollbar-width: none;
-  }
-
-  .catalogFilters::-webkit-scrollbar {
-    display: none;
+    margin-right: 0;
+    overflow-x: visible;
+    flex-wrap: wrap;
+    padding-bottom: 0;
   }
 
   .catalogFilters button {
-    flex: 0 0 auto;
+    flex: 1 1 calc(50% - 8px);
+    min-width: 0;
+    padding-inline: 12px;
+    white-space: normal;
   }
 
   .productActions {

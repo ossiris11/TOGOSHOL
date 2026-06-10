@@ -62,3 +62,40 @@ test('admin route renders login surface without horizontal overflow', async ({ p
   await expect(page.getByRole('button', { name: /войти/i })).toBeVisible();
   await expectNoHorizontalOverflow(page);
 });
+
+test('mobile menu opens in the visible viewport after scrolling', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await page.evaluate(() => window.scrollTo(0, 1400));
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(500);
+  const scrollBeforeOpen = await page.evaluate(() => window.scrollY);
+
+  await page.getByRole('button', { name: /открыть меню/i }).click();
+
+  const menu = page.locator('#mobile-menu');
+  await expect(menu).toHaveClass(/isOpen/);
+  await expect(page.getByRole('navigation', { name: /мобильная навигация/i })).toBeVisible();
+  await expect(page.getByRole('link', { name: /каталог пк/i })).toBeVisible();
+
+  const metrics = await page.evaluate(() => {
+    const menuRect = document.querySelector('#mobile-menu')?.getBoundingClientRect();
+    const firstLinkRect = document.querySelector('#mobile-menu a')?.getBoundingClientRect();
+    return {
+      scrollY: window.scrollY,
+      menuTop: menuRect?.top,
+      menuBottom: menuRect?.bottom,
+      firstLinkTop: firstLinkRect?.top,
+      viewportHeight: window.innerHeight,
+    };
+  });
+
+  expect(metrics.scrollY).toBeGreaterThan(500);
+  expect(metrics.menuTop).toBeLessThanOrEqual(1);
+  expect(metrics.menuBottom).toBeGreaterThan(metrics.viewportHeight - 12);
+  expect(metrics.firstLinkTop).toBeGreaterThan(50);
+  expect(metrics.firstLinkTop).toBeLessThan(metrics.viewportHeight);
+  await expectNoHorizontalOverflow(page);
+
+  await page.getByRole('button', { name: /закрыть меню/i }).click();
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(scrollBeforeOpen - 120);
+});

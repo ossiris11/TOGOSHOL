@@ -96,73 +96,76 @@ export function Header() {
     if (!isMobileMenuOpen) return undefined;
 
     const previousOverflow = document.body.style.overflow;
-    const firstLink = mobileMenuRef.current?.querySelector<HTMLAnchorElement>('a');
+    const previousHtmlOverflow = document.documentElement.style.overflow;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') closeMenu(true);
     };
 
     document.body.style.overflow = 'hidden';
-    firstLink?.focus();
+    document.documentElement.style.overflow = 'hidden';
+    window.setTimeout(() => mobileMenuRef.current?.focus({ preventScroll: true }), 0);
     window.addEventListener('keydown', handleKeyDown);
 
     return () => {
       document.body.style.overflow = previousOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [isMobileMenuOpen]);
 
   return (
-    <header className={`header ${isScrolled ? 'isScrolled' : ''}`}>
-      <div className="headerInner container">
-        <a className="brand" href="/" onClick={() => closeMenu()} aria-label="TOGOSHOL, на главный экран">
-          <img src={logo} alt="T-PC" />
-        </a>
+    <>
+      <header className={`header ${isScrolled ? 'isScrolled' : ''}`}>
+        <div className="headerInner container">
+          <a className="brand" href="/" onClick={() => closeMenu()} aria-label="TOGOSHOL, на главный экран">
+            <img src={logo} alt="T-PC" />
+          </a>
 
-        <nav className="desktopNav" aria-label="Основная навигация">
-          {navLinks.map((link) => (
-            <a key={link.href} href={link.href} target={link.external ? '_blank' : undefined} rel={link.external ? 'noreferrer' : undefined} onClick={(event) => handleNavClick(event, link.action)}>
-              {link.label}
-            </a>
-          ))}
-        </nav>
-
-        <div className="headerActions">
-          <div className="headerSocials" aria-label="Социальные сети">
-            {socialLinks.map((link) => (
-              <a
-                key={link.channel}
-                className={`socialIcon socialIcon-${link.channel}`}
-                href={link.href}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={`${link.label} TOGOSHOL`}
-                title={link.title}
-                onClick={() => trackContact(link.channel, 'header_socials')}
-              >
-                <SocialIcon channel={link.channel} />
+          <nav className="desktopNav" aria-label="Основная навигация">
+            {navLinks.map((link) => (
+              <a key={link.href} href={link.href} target={link.external ? '_blank' : undefined} rel={link.external ? 'noreferrer' : undefined} onClick={(event) => handleNavClick(event, link.action)}>
+                {link.label}
               </a>
             ))}
+          </nav>
+
+          <div className="headerActions">
+            <div className="headerSocials" aria-label="Социальные сети">
+              {socialLinks.map((link) => (
+                <a
+                  key={link.channel}
+                  className={`socialIcon socialIcon-${link.channel}`}
+                  href={link.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={`${link.label} TOGOSHOL`}
+                  title={link.title}
+                  onClick={() => trackContact(link.channel, 'header_socials')}
+                >
+                  <SocialIcon channel={link.channel} />
+                </a>
+              ))}
+            </div>
+            <a className="button buttonPrimary headerButton" href={contacts.vk} target="_blank" rel="noreferrer" onClick={() => trackContact('vk', 'header_button')}>
+              Консультация
+            </a>
           </div>
-          <a className="button buttonPrimary headerButton" href={contacts.vk} target="_blank" rel="noreferrer" onClick={() => trackContact('vk', 'header_button')}>
-            Консультация
-          </a>
+
+          <button
+            ref={menuButtonRef}
+            className="menuButton"
+            type="button"
+            aria-label={isMobileMenuOpen ? 'Закрыть меню' : 'Открыть меню'}
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-menu"
+            onClick={() => setIsMobileMenuOpen((value) => !value)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
         </div>
-
-        <button
-          ref={menuButtonRef}
-          className="menuButton"
-          type="button"
-          aria-label={isMobileMenuOpen ? 'Закрыть меню' : 'Открыть меню'}
-          aria-expanded={isMobileMenuOpen}
-          aria-controls="mobile-menu"
-          onClick={() => setIsMobileMenuOpen((value) => !value)}
-        >
-          <span />
-          <span />
-          <span />
-        </button>
-      </div>
-
+      </header>
       <div
         id="mobile-menu"
         className={`mobileMenu ${isMobileMenuOpen ? 'isOpen' : ''}`}
@@ -171,7 +174,7 @@ export function Header() {
           if (event.target === event.currentTarget) closeMenu(true);
         }}
       >
-        <nav ref={mobileMenuRef} className="mobileMenuInner container" aria-label="Мобильная навигация">
+        <nav ref={mobileMenuRef} className="mobileMenuInner container" aria-label="Мобильная навигация" tabIndex={-1}>
           {navLinks.map((link) => (
             <a
               key={link.href}
@@ -200,6 +203,6 @@ export function Header() {
           </a>
         </nav>
       </div>
-    </header>
+    </>
   );
 }
