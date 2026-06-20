@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { rankCatalogProducts } from '../src/lib/products';
+import { getProductBySlug, getProductSlug } from '../src/lib/products';
+import type { Build } from '../src/data/builds';
 
 test('catalog leads with popular products from each price range, then keeps popularity order', () => {
   const products = [
@@ -25,4 +27,22 @@ test('catalog leads with popular products from each price range, then keeps popu
     'premium-second',
   ]);
   assert.equal(new Set(ranked).size, products.length);
+});
+
+test('API slugs remain canonical while product IDs keep working as compatible routes', () => {
+  const product: Build = {
+    badge: 'В наличии',
+    title: 'Test PC',
+    subtitle: 'Test',
+    specs: ['RTX 5060'],
+    price: '100 000 ₽',
+    cta: 'Написать',
+    sourceId: 'database-id',
+    slug: 'test-pc',
+  };
+
+  const view = getProductBySlug([product], 'test-pc');
+  assert.ok(view);
+  assert.equal(getProductSlug(view), 'test-pc');
+  assert.equal(getProductBySlug([product], 'database-id')?.sourceId, 'database-id');
 });

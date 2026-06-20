@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import amdLogo from '../assets/amd-logo.svg';
 import intelLogo from '../assets/intel-logo.svg';
 import { resolveCatalogProductImage } from '../lib/catalogImages';
+import { notifyProductDataChanged } from '../lib/productSync';
 import './AdminApp.css';
 
 type AdminTab = 'dashboard' | 'blocks' | 'products' | 'components' | 'requests' | 'reviews' | 'media' | 'settings';
@@ -208,6 +209,7 @@ async function adminApi<T>(url: string, options?: RequestInit): Promise<T> {
 
   try {
     const response = await fetch(url, {
+      cache: 'no-store',
       credentials: 'include',
       ...options,
       headers,
@@ -240,6 +242,7 @@ function draftToPayload(draft: ProductDraft) {
       .filter(Boolean),
     imageUrl: draft.imageUrl || null,
     externalId: draft.externalId || null,
+    isFeatured: undefined,
     specsText: undefined,
     id: undefined,
   };
@@ -621,6 +624,7 @@ function BlocksPage() {
 
   const save = async () => {
     await adminApi('/api/admin/page-blocks', { method: 'PATCH', body: JSON.stringify(blocks) });
+    notifyProductDataChanged();
     load();
   };
 
@@ -679,6 +683,7 @@ function ProductsPage() {
     const url = draft.id ? `/api/admin/products/${draft.id}` : '/api/admin/products';
     try {
       await adminApi(url, { method, body: JSON.stringify(draftToPayload(draft)) });
+      notifyProductDataChanged();
       setMessage(draft.id ? 'Товар обновлен' : 'Товар добавлен');
       setDraft(emptyProduct);
       await load();
@@ -689,6 +694,7 @@ function ProductsPage() {
 
   const remove = async (id: string) => {
     await adminApi(`/api/admin/products/${id}`, { method: 'DELETE' });
+    notifyProductDataChanged();
     if (draft.id === id) setDraft(emptyProduct);
     setMessage('Товар перемещен в корзину. Через 15 дней он удалится навсегда.');
     await load();
@@ -696,12 +702,14 @@ function ProductsPage() {
 
   const restore = async (id: string) => {
     await adminApi(`/api/admin/products/${id}/restore`, { method: 'POST', body: '{}' });
+    notifyProductDataChanged();
     setMessage('Товар восстановлен. Статус поставлен "Скрыт", проверь перед публикацией.');
     await load();
   };
 
   const removeForever = async (id: string) => {
     await adminApi(`/api/admin/products/${id}/permanent`, { method: 'DELETE' });
+    notifyProductDataChanged();
     if (draft.id === id) setDraft(emptyProduct);
     setMessage('Товар удален навсегда.');
     await load();
@@ -1220,10 +1228,7 @@ function ProductForm({ draft, setDraft, upload, uploadMessage }: { draft: Produc
           <Field label="Порядок">
             <input type="number" value={draft.sortOrder} onChange={(event) => setDraft({ ...draft, sortOrder: Number(event.target.value) })} placeholder="1000" />
           </Field>
-          <label className="adminCheckbox">
-            <input type="checkbox" checked={draft.isFeatured} onChange={(event) => setDraft({ ...draft, isFeatured: event.target.checked })} />
-            Рекомендуемый товар
-          </label>
+          <p>Рекомендуемые товары и их порядок настраиваются во вкладке «Блоки сайта».</p>
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import { faqItems } from './faq';
 import { contacts } from './contacts';
-import { vkProducts } from './vkProducts';
 import { getProductViews } from '../lib/products';
+import type { Build } from './builds';
 
 export const siteUrl = 'https://tog-pc.ru';
 
@@ -115,8 +115,8 @@ export function getCanonicalUrl(path: string) {
   return `${siteUrl}${path === '/' ? '/' : path}`;
 }
 
-export function getHomeJsonLd() {
-  const products = getProductViews(vkProducts)
+export function getHomeJsonLd(sourceProducts: Build[]) {
+  const products = getProductViews(sourceProducts)
     .filter((product) => product.priceValue > 0)
     .slice(0, 8)
     .map((product) => ({

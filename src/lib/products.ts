@@ -189,11 +189,11 @@ export function slugifyProductPath(value: string) {
 }
 
 export function getProductSlug(product: ProductView) {
-  return product.sourceId || slugifyProductPath(`${product.normalizedTitle}-${product.priceValue}`);
+  return product.slug || product.sourceId || slugifyProductPath(`${product.normalizedTitle}-${product.priceValue}`);
 }
 
 export function getProductBySlug(products: Build[], slug: string) {
-  return getProductViews(products).find((product) => getProductSlug(product) === slug);
+  return getProductViews(products).find((product) => getProductSlug(product) === slug || product.sourceId === slug);
 }
 
 export function getProductsByCategory(products: Build[], category: string) {

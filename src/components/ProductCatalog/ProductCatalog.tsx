@@ -130,7 +130,7 @@ export function ProductCatalog() {
   const productSpecDrawerRef = useRef<HTMLElement | null>(null);
   const checkoutModalRef = useRef<HTMLDivElement | null>(null);
   const lastFocusedElementRef = useRef<HTMLElement | null>(null);
-  const { products: storefrontProducts, error: productsError, source: productSource } = useProducts();
+  const { products: storefrontProducts, error: productsError } = useProducts();
   const products = useMemo(() => storefrontProducts.map(toProductView), [storefrontProducts]);
   const filteredProducts = useMemo(() => {
     if (activeFilter === 'Все') return rankCatalogProducts(products);
@@ -272,7 +272,7 @@ export function ProductCatalog() {
           <h2 className="sectionTitle">Сборки TOGOSHOL</h2>
         </div>
 
-        {productSource === 'fallback' && productsError && (
+        {productsError && (
           <p className="catalogNotice" role="status">
             {productsError} Актуальное наличие лучше уточнить перед заказом.
           </p>

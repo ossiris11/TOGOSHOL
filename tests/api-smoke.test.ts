@@ -18,6 +18,7 @@ const { prisma } = await import('../server/src/db.js');
 const app = await buildApp();
 let adminCookie = '';
 let csrfToken = '';
+let createdProductId = '';
 
 function getSetCookies(response: { headers: Record<string, unknown> }) {
   const header = response.headers['set-cookie'];
@@ -63,6 +64,7 @@ test('health endpoint responds', async () => {
   const response = await app.inject({ method: 'GET', url: '/api/health' });
   assert.equal(response.statusCode, 200);
   assert.equal(response.json().ok, true);
+  assert.equal(response.headers['cache-control'], 'no-store');
 });
 
 test('admin login creates an http-only session cookie', async () => {
@@ -117,6 +119,7 @@ test('admin can create a product and storefront can read it', async () => {
 
   assert.equal(createResponse.statusCode, 201);
   assert.equal(createResponse.json().item.title, 'Smoke Test PC');
+  createdProductId = createResponse.json().item.id;
 
   const listResponse = await app.inject({ method: 'GET', url: '/api/products' });
   assert.equal(listResponse.statusCode, 200);
@@ -140,6 +143,53 @@ test('duplicate product slug returns conflict instead of server error', async ()
 
   assert.equal(response.statusCode, 409);
   assert.equal(response.json().ok, false);
+});
+
+test('page blocks, featured ranking and published products stay synchronized', async () => {
+  const saveBlocksResponse = await app.inject({
+    method: 'PATCH',
+    url: '/api/admin/page-blocks',
+    headers: adminHeaders(),
+    payload: {
+      heroProductIds: [createdProductId],
+      featuredProductIds: [createdProductId],
+      finalCtaProductIds: [createdProductId],
+    },
+  });
+  assert.equal(saveBlocksResponse.statusCode, 200);
+
+  const blocksResponse = await app.inject({ method: 'GET', url: '/api/page-blocks' });
+  assert.equal(blocksResponse.statusCode, 200);
+  assert.deepEqual(blocksResponse.json().blocks, {
+    heroProductIds: [createdProductId],
+    featuredProductIds: [createdProductId],
+    finalCtaProductIds: [createdProductId],
+  });
+  assert.equal(blocksResponse.json().products.hero[0].id, createdProductId);
+  assert.equal(blocksResponse.json().products.featured[0].id, createdProductId);
+  assert.equal(blocksResponse.json().products.finalCta[0].id, createdProductId);
+
+  const productsResponse = await app.inject({ method: 'GET', url: '/api/products' });
+  assert.equal(productsResponse.json().items[0].isFeatured, true);
+  assert.equal(productsResponse.json().items[0].featuredSlot, 0);
+
+  const archiveResponse = await app.inject({
+    method: 'DELETE',
+    url: `/api/admin/products/${createdProductId}`,
+    headers: adminHeaders(),
+  });
+  assert.equal(archiveResponse.statusCode, 200);
+
+  const prunedBlocksResponse = await app.inject({ method: 'GET', url: '/api/page-blocks' });
+  assert.deepEqual(prunedBlocksResponse.json().blocks, {
+    heroProductIds: [],
+    featuredProductIds: [],
+    finalCtaProductIds: [],
+  });
+  assert.deepEqual(prunedBlocksResponse.json().products, { hero: [], featured: [], finalCta: [] });
+
+  const publishedProductsResponse = await app.inject({ method: 'GET', url: '/api/products' });
+  assert.deepEqual(publishedProductsResponse.json().items, []);
 });
 
 test('admin audit log records successful admin writes', async () => {

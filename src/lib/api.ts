@@ -2,6 +2,7 @@ import type { Build } from '../data/builds';
 
 export type ApiProduct = {
   id: string;
+  slug: string;
   title: string;
   status: string;
   badge: string;
@@ -54,6 +55,7 @@ export type ComponentOption = {
 
 async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
   const response = await fetch(url, {
+    cache: 'no-store',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json', ...(options?.headers || {}) },
     ...options,
@@ -76,6 +78,7 @@ export function apiProductToBuild(product: ApiProduct): Build {
     price: product.priceText || new Intl.NumberFormat('ru-RU').format(product.price) + ' ₽',
     cta: 'Написать',
     sourceId: product.id,
+    slug: product.slug,
     image: product.imageUrl || product.image || undefined,
     sortOrder: product.sortOrder,
     isFeatured: product.isFeatured,

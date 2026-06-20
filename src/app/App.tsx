@@ -18,11 +18,13 @@ import { ProductSeoPage } from '../pages/ProductSeoPage/ProductSeoPage';
 import { LocalSeoPage } from '../pages/LocalSeoPage/LocalSeoPage';
 import { categorySeoPages, getHomeJsonLd, getLocalPageJsonLd, seoPages, type CategorySlug } from '../data/seo';
 import { useScrollReveal } from '../hooks/useScrollReveal';
+import { useProducts } from '../hooks/useProducts';
 import { trackEvent } from '../lib/api';
 import { useAppRoute } from './router';
 
 export function App() {
   useScrollReveal();
+  const { products } = useProducts();
   const { pathname, route } = useAppRoute();
 
   useEffect(() => {
@@ -103,7 +105,7 @@ export function App() {
 
   return (
     <>
-      <SeoHead {...seoPages.home} jsonLd={getHomeJsonLd()} />
+      <SeoHead {...seoPages.home} jsonLd={getHomeJsonLd(products)} />
       <Header />
       <main>
         <Hero />

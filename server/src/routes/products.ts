@@ -69,7 +69,7 @@ export async function registerProductRoutes(app: FastifyInstance) {
     const input = parsed.data;
     try {
       const product = await prisma.product.create({
-        data: productInputToDb({ ...input, slug: input.slug || slugify(input.title) }) as Prisma.ProductCreateInput,
+        data: productInputToDb({ ...input, slug: input.slug || slugify(input.title), isFeatured: false, featuredSlot: null }) as Prisma.ProductCreateInput,
       });
       return reply.code(201).send({ ok: true, item: mapProduct(product) });
     } catch (error) {
@@ -85,9 +85,12 @@ export async function registerProductRoutes(app: FastifyInstance) {
     if (!parsed.success) return sendBadRequest(reply, 'Invalid product patch', parsed.error.flatten());
 
     try {
+      const productPatch = { ...parsed.data };
+      delete productPatch.isFeatured;
+      delete productPatch.featuredSlot;
       const product = await prisma.product.update({
         where: { id: request.params.id },
-        data: productInputToDb(parsed.data) as Prisma.ProductUpdateInput,
+        data: productInputToDb(productPatch) as Prisma.ProductUpdateInput,
       });
       return { ok: true, item: mapProduct(product) };
     } catch (error) {

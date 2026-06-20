@@ -10,10 +10,20 @@ const blockKeys = ['heroProductIds', 'featuredProductIds', 'finalCtaProductIds']
 async function getBlockValues() {
   const blocks = await prisma.pageBlock.findMany();
   const byKey = new Map(blocks.map((block) => [block.key, parseJsonArray(block.itemsJson).filter((item): item is string => typeof item === 'string')]));
+  const requestedIds = [...new Set(blockKeys.flatMap((key) => byKey.get(key) || []))];
+  const activeProducts = requestedIds.length
+    ? await prisma.product.findMany({
+        where: { id: { in: requestedIds }, deletedAt: null, status: { in: ['available', 'preorder'] } },
+        select: { id: true },
+      })
+    : [];
+  const activeIds = new Set(activeProducts.map((product) => product.id));
+  const clean = (key: (typeof blockKeys)[number]) => [...new Set(byKey.get(key) || [])].filter((id) => activeIds.has(id));
+
   return {
-    heroProductIds: byKey.get('heroProductIds') || [],
-    featuredProductIds: byKey.get('featuredProductIds') || [],
-    finalCtaProductIds: byKey.get('finalCtaProductIds') || [],
+    heroProductIds: clean('heroProductIds'),
+    featuredProductIds: clean('featuredProductIds'),
+    finalCtaProductIds: clean('finalCtaProductIds'),
   };
 }
 
@@ -55,15 +65,31 @@ export async function registerPageBlockRoutes(app: FastifyInstance) {
     const parsed = pageBlocksSchema.safeParse(request.body);
     if (!parsed.success) return sendBadRequest(reply, 'Invalid page blocks payload', parsed.error.flatten());
 
-    await prisma.$transaction(
-      blockKeys.map((key) =>
-        prisma.pageBlock.upsert({
+    const requestedIds = [...new Set(blockKeys.flatMap((key) => parsed.data[key]))];
+    const activeProducts = requestedIds.length
+      ? await prisma.product.findMany({
+          where: { id: { in: requestedIds }, deletedAt: null, status: { in: ['available', 'preorder'] } },
+          select: { id: true },
+        })
+      : [];
+    const activeIds = new Set(activeProducts.map((product) => product.id));
+    const invalidIds = requestedIds.filter((id) => !activeIds.has(id));
+    if (invalidIds.length > 0) return sendBadRequest(reply, 'Page blocks contain hidden or deleted products');
+
+    await prisma.$transaction(async (transaction) => {
+      for (const key of blockKeys) {
+        await transaction.pageBlock.upsert({
           where: { key },
           update: { itemsJson: JSON.stringify(parsed.data[key]) },
           create: { key, title: key, itemsJson: JSON.stringify(parsed.data[key]) },
-        }),
-      ),
-    );
+        });
+      }
+
+      await transaction.product.updateMany({ data: { isFeatured: false, featuredSlot: null } });
+      for (const [featuredSlot, id] of parsed.data.featuredProductIds.entries()) {
+        await transaction.product.update({ where: { id }, data: { isFeatured: true, featuredSlot } });
+      }
+    });
     return { ok: true, blocks: parsed.data };
   });
 }

@@ -7,6 +7,7 @@ export type Build = {
   price: string;
   cta: string;
   sourceId?: string;
+  slug?: string;
   image?: string;
   sortOrder?: number;
   isFeatured?: boolean;

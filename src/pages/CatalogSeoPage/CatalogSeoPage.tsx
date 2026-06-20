@@ -1,6 +1,6 @@
 import { contacts } from '../../data/contacts';
 import { categorySeoPages, getLocalPageJsonLd, type CategorySlug } from '../../data/seo';
-import { vkProducts } from '../../data/vkProducts';
+import { useProducts } from '../../hooks/useProducts';
 import { getProductSlug, getProductsByCategory } from '../../lib/products';
 import { SeoHead } from '../../components/SeoHead/SeoHead';
 import './CatalogSeoPage.css';
@@ -11,7 +11,8 @@ type CatalogSeoPageProps = {
 
 export function CatalogSeoPage({ slug }: CatalogSeoPageProps) {
   const page = categorySeoPages[slug];
-  const products = getProductsByCategory(vkProducts, slug).slice(0, 12);
+  const { products: storefrontProducts, loading, error } = useProducts();
+  const products = getProductsByCategory(storefrontProducts, slug).slice(0, 12);
 
   return (
     <main className="catalogSeoPage">
@@ -49,6 +50,7 @@ export function CatalogSeoPage({ slug }: CatalogSeoPageProps) {
               </article>
             ))}
           </div>
+          {products.length === 0 && <p className="sectionText">{loading ? 'Загружаем актуальные сборки…' : error || 'Подходящих опубликованных сборок пока нет.'}</p>}
         </div>
       </section>
     </main>

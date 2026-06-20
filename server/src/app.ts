@@ -41,6 +41,7 @@ export async function buildApp() {
     reply.header('X-Frame-Options', 'DENY');
     reply.header('Referrer-Policy', 'strict-origin-when-cross-origin');
     reply.header('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+    if (_request.url.startsWith('/api/')) reply.header('Cache-Control', 'no-store');
     reply.header(
       'Content-Security-Policy',
       [

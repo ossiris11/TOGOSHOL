@@ -1,7 +1,7 @@
 import { contacts } from '../../data/contacts';
 import { getBusinessJsonLd, siteUrl } from '../../data/seo';
-import { vkProducts } from '../../data/vkProducts';
 import { SeoHead } from '../../components/SeoHead/SeoHead';
+import { useProducts } from '../../hooks/useProducts';
 import { getProductBySlug, getProductSlug } from '../../lib/products';
 import './ProductSeoPage.css';
 
@@ -10,20 +10,28 @@ type ProductSeoPageProps = {
 };
 
 export function ProductSeoPage({ slug }: ProductSeoPageProps) {
-  const product = getProductBySlug(vkProducts, slug);
+  const { products, loading, source } = useProducts();
+  const product = getProductBySlug(products, slug);
 
   if (!product) {
+    const unavailable = source === 'unavailable';
+    const stateTitle = loading ? 'Загрузка игрового ПК - TOGOSHOL' : unavailable ? 'Каталог временно недоступен - TOGOSHOL' : 'Сборка не найдена - TOGOSHOL';
+    const stateDescription = loading ? 'Получаем актуальные данные об игровом компьютере.' : 'Эта сборка сейчас недоступна. Посмотрите актуальный каталог игровых ПК TOGOSHOL.';
+
     return (
-      <main className="productSeoPage">
-        <section className="productSeoHero">
-          <div className="container">
-            <span className="badge">Каталог</span>
-            <h1>Сборка не найдена</h1>
-            <p>Возможно, компьютер уже продан или страница была обновлена. Посмотри актуальный каталог или напиши нам.</p>
-            <a className="button buttonPrimary" href="/#catalog">Вернуться в каталог</a>
-          </div>
-        </section>
-      </main>
+      <>
+        <SeoHead title={stateTitle} description={stateDescription} path={`/catalog/${slug}`} />
+        <main className="productSeoPage">
+          <section className="productSeoHero">
+            <div className="container">
+              <span className="badge">Каталог</span>
+              <h1>{loading ? 'Загружаем сборку' : unavailable ? 'Каталог временно недоступен' : 'Сборка не найдена'}</h1>
+              <p>{loading ? 'Получаем актуальные данные из админки.' : 'Возможно, компьютер уже продан или скрыт. Посмотри актуальный каталог или напиши нам.'}</p>
+              <a className="button buttonPrimary" href="/#catalog">Вернуться в каталог</a>
+            </div>
+          </section>
+        </main>
+      </>
     );
   }
 
