@@ -2,32 +2,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { buildContactMessage, contacts } from '../../data/contacts';
 import { useProducts } from '../../hooks/useProducts';
 import { trackEvent } from '../../lib/api';
+import { getCatalogFallbackImage, resolveCatalogProductImage } from '../../lib/catalogImages';
 import { getBudgetLabel, getProductKey, getProductSlug, rankCatalogProducts, toProductView } from '../../lib/products';
 import type { ProductView } from '../../lib/products';
 import amdLogo from '../../assets/amd-logo.svg';
-import budgetPc01 from '../../assets/catalog-pc-budget-01-cutout.webp';
-import budgetPc02 from '../../assets/catalog-pc-budget-02-cutout.webp';
-import budgetPc03 from '../../assets/catalog-pc-budget-03-cutout.webp';
-import budgetPc04 from '../../assets/catalog-pc-budget-04-cutout.webp';
-import budgetPc05 from '../../assets/catalog-pc-budget-05-cutout.webp';
-import budgetPc06 from '../../assets/catalog-pc-budget-06-cutout.webp';
-import budgetPc07 from '../../assets/catalog-pc-budget-07-cutout.webp';
-import premiumPc01 from '../../assets/catalog-pc-premium-01-cutout.webp';
-import premiumPc02 from '../../assets/catalog-pc-premium-02-cutout.webp';
-import premiumPc03 from '../../assets/catalog-pc-premium-03-cutout.webp';
-import premiumPc04 from '../../assets/catalog-pc-premium-04-cutout.webp';
-import premiumPc05 from '../../assets/catalog-pc-premium-05-cutout.webp';
-import premiumPc06 from '../../assets/catalog-pc-premium-06-cutout.webp';
-import premiumPc07 from '../../assets/catalog-pc-premium-07-cutout.webp';
-import heroPc from '../../assets/hero-pc-2026-cutout.webp';
 import intelLogo from '../../assets/intel-logo.svg';
 import './ProductCatalog.css';
 
 const filters = ['Все', 'до 60k', '60–90k', '90–150k', '150k+'] as const;
 const specDrawerCloseMs = 420;
-const budgetCatalogImages = [budgetPc01, budgetPc02, budgetPc03, budgetPc04, budgetPc05, budgetPc06, budgetPc07] as const;
-const premiumCatalogImages = [premiumPc01, premiumPc02, premiumPc03, premiumPc04, premiumPc05, premiumPc06, premiumPc07] as const;
-
 type Filter = (typeof filters)[number];
 
 function getCardTitle(priceValue: number) {
@@ -35,11 +18,6 @@ function getCardTitle(priceValue: number) {
   if (priceValue < 85000) return 'Medium';
   if (priceValue < 140000) return 'PRO';
   return 'Ultra';
-}
-
-function getCatalogImage(product: ProductView, index: number) {
-  const images = product.priceValue <= 90000 ? budgetCatalogImages : premiumCatalogImages;
-  return images[index % images.length];
 }
 
 function getProcessorBrand(cpu: string) {
@@ -318,12 +296,13 @@ export function ProductCatalog() {
         </div>
 
         <div className="catalogGrid" key={`${activeFilter}-${showAll ? 'all' : 'limited'}`}>
-          {visibleProducts.map((product, index) => {
+          {visibleProducts.map((product) => {
             const cardTitle = getCardTitle(product.priceValue);
             const processorBrand = getProcessorBrand(product.details.cpu || product.normalizedTitle);
             const fps = getFpsEstimate(product.priceValue, product.gpuTier);
-            const catalogImage = getCatalogImage(product, index);
-            const productImage = product.image || catalogImage;
+            const stableImageKey = product.sourceId || product.normalizedTitle;
+            const catalogImage = getCatalogFallbackImage(product.priceValue, stableImageKey);
+            const productImage = resolveCatalogProductImage(product.image, product.priceValue, stableImageKey);
             const specs = [
               ['GPU', 'Видеокарта', product.details.gpu],
               ['CPU', 'Процессор', product.details.cpu],
@@ -345,7 +324,7 @@ export function ProductCatalog() {
                     loading="lazy"
                     decoding="async"
                     onError={(event) => {
-                      event.currentTarget.src = heroPc;
+                      event.currentTarget.src = catalogImage;
                     }}
                   />
                   <div className="productIntro">

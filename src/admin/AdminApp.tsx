@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import amdLogo from '../assets/amd-logo.svg';
 import intelLogo from '../assets/intel-logo.svg';
+import { resolveCatalogProductImage } from '../lib/catalogImages';
 import './AdminApp.css';
 
 type AdminTab = 'dashboard' | 'blocks' | 'products' | 'components' | 'requests' | 'reviews' | 'media' | 'settings';
@@ -748,7 +749,7 @@ function ProductsPage() {
           {filtered.map((product) => (
             <div className={`productAdminRow ${product.deletedAt ? 'isMuted' : ''} ${draft.id === product.id ? 'isSelected' : ''}`} key={product.id} role="row">
               <button className="productThumbButton" type="button" onClick={() => editProduct(product)} aria-label={`Редактировать ${product.title}`}>
-                {product.imageUrl ? <img src={product.imageUrl} alt="" /> : <span>Нет фото</span>}
+                <img src={resolveCatalogProductImage(product.imageUrl, product.price, product.id)} alt="" />
               </button>
               <div>
                 <b>{product.title}</b>
@@ -982,6 +983,7 @@ function ProductPreview({ draft }: { draft: ProductDraft }) {
   const processorBrand = getAdminProcessorBrand(draft.cpu || draft.title);
   const gpuTier = getAdminGpuTier(draft.productClass, priceValue);
   const fps = getAdminFpsEstimate(priceValue, gpuTier);
+  const previewImage = resolveCatalogProductImage(draft.imageUrl, priceValue, draft.id || draft.title || 'new-product');
   const specs = [
     ['GPU', 'Видеокарта', draft.gpu || 'На выбор'],
     ['CPU', 'Процессор', draft.cpu || 'На выбор'],
@@ -994,7 +996,7 @@ function ProductPreview({ draft }: { draft: ProductDraft }) {
       <article className="productCard adminPreviewProductCard">
         <div className="productShowcase">
           <AdminProcessorBrandLogo brand={processorBrand.brand} label={processorBrand.badge} />
-          <img className={`productImage ${draft.imageUrl ? '' : 'isPlaceholder'}`} src={draft.imageUrl || transparentPreviewImage} alt="" />
+          <img className="productImage" src={previewImage} alt="" />
           <div className="productIntro">
             <span>TOG PC ({processorBrand.intro})</span>
             <h3>{getAdminCardTitle(priceValue)}</h3>
@@ -1107,8 +1109,6 @@ const adminSpecIcons: Record<string, string> = {
   SSD: '◎',
 };
 
-const transparentPreviewImage = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="220" height="150" viewBox="0 0 220 150"%3E%3C/svg%3E';
-
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="adminField">
@@ -1160,7 +1160,7 @@ function ProductForm({ draft, setDraft, upload, uploadMessage }: { draft: Produc
         <h3>Фото</h3>
         <div className="productUploadBox">
           <div>
-            {draft.imageUrl ? <img src={draft.imageUrl} alt="" /> : <span>Нет фото</span>}
+            <img src={resolveCatalogProductImage(draft.imageUrl, Number(draft.price) || 0, draft.id || draft.title || 'new-product')} alt="" />
           </div>
           <div>
             <Field label="URL фото">
