@@ -1184,23 +1184,15 @@
   }
 
   .customSpecRow {
-    opacity: 1;
-    transform: none;
-    animation: none;
+    transform: translateY(10px);
   }
 
   .customSpecRow strong span {
-    max-width: 100%;
-    animation: none;
+    animation-name: specTypeCycleMobile;
   }
 
   .customSpecRow strong span::after {
-    display: none;
-  }
-
-  .customSpecRow i::before {
-    transform: translateX(0);
-    animation: none;
+    display: inline-block;
   }
 
   .customPcContacts {
