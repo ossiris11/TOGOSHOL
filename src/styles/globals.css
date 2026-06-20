@@ -44,7 +44,11 @@ textarea {
 }
 
 button {
+  max-width: 100%;
   cursor: pointer;
+  hyphens: none;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 
 img,

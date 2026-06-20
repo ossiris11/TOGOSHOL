@@ -27,8 +27,7 @@
 }
 
 .sectionTitle,
-.sectionText,
-.button {
+.sectionText {
   overflow-wrap: anywhere;
 }
 
@@ -54,6 +53,7 @@
 
 .button {
   display: inline-flex;
+  max-width: 100%;
   min-height: 46px;
   align-items: center;
   justify-content: center;
@@ -61,7 +61,12 @@
   border-radius: var(--radius-pill);
   padding: 12px 22px;
   font-weight: 700;
+  hyphens: none;
+  line-height: 1.25;
+  overflow-wrap: normal;
+  text-align: center;
   text-decoration: none;
+  word-break: normal;
   transition:
     transform 220ms ease,
     background 220ms ease,

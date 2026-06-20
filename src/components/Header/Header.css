@@ -267,7 +267,7 @@
   display: none;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1180px) {
   .desktopNav,
   .headerActions {
     display: none;
