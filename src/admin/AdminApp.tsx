@@ -749,7 +749,7 @@ function ProductsPage() {
           {filtered.map((product) => (
             <div className={`productAdminRow ${product.deletedAt ? 'isMuted' : ''} ${draft.id === product.id ? 'isSelected' : ''}`} key={product.id} role="row">
               <button className="productThumbButton" type="button" onClick={() => editProduct(product)} aria-label={`Редактировать ${product.title}`}>
-                <img src={resolveCatalogProductImage(product.imageUrl, product.price, product.id)} alt="" />
+                <img src={resolveCatalogProductImage(product.imageUrl, product.price, `${product.id}:${product.title}`)} alt="" />
               </button>
               <div>
                 <b>{product.title}</b>
@@ -983,7 +983,7 @@ function ProductPreview({ draft }: { draft: ProductDraft }) {
   const processorBrand = getAdminProcessorBrand(draft.cpu || draft.title);
   const gpuTier = getAdminGpuTier(draft.productClass, priceValue);
   const fps = getAdminFpsEstimate(priceValue, gpuTier);
-  const previewImage = resolveCatalogProductImage(draft.imageUrl, priceValue, draft.id || draft.title || 'new-product');
+  const previewImage = resolveCatalogProductImage(draft.imageUrl, priceValue, `${draft.id || 'new-product'}:${draft.title}`);
   const specs = [
     ['GPU', 'Видеокарта', draft.gpu || 'На выбор'],
     ['CPU', 'Процессор', draft.cpu || 'На выбор'],
@@ -1160,7 +1160,7 @@ function ProductForm({ draft, setDraft, upload, uploadMessage }: { draft: Produc
         <h3>Фото</h3>
         <div className="productUploadBox">
           <div>
-            <img src={resolveCatalogProductImage(draft.imageUrl, Number(draft.price) || 0, draft.id || draft.title || 'new-product')} alt="" />
+            <img src={resolveCatalogProductImage(draft.imageUrl, Number(draft.price) || 0, `${draft.id || 'new-product'}:${draft.title}`)} alt="" />
           </div>
           <div>
             <Field label="URL фото">

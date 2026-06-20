@@ -300,7 +300,7 @@ export function ProductCatalog() {
             const cardTitle = getCardTitle(product.priceValue);
             const processorBrand = getProcessorBrand(product.details.cpu || product.normalizedTitle);
             const fps = getFpsEstimate(product.priceValue, product.gpuTier);
-            const stableImageKey = product.sourceId || product.normalizedTitle;
+            const stableImageKey = `${product.sourceId || 'product'}:${product.normalizedTitle}`;
             const catalogImage = getCatalogFallbackImage(product.priceValue, stableImageKey);
             const productImage = resolveCatalogProductImage(product.image, product.priceValue, stableImageKey);
             const specs = [

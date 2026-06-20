@@ -12,6 +12,7 @@ import premiumPc04 from '../assets/catalog-pc-premium-04-cutout.webp';
 import premiumPc05 from '../assets/catalog-pc-premium-05-cutout.webp';
 import premiumPc06 from '../assets/catalog-pc-premium-06-cutout.webp';
 import premiumPc07 from '../assets/catalog-pc-premium-07-cutout.webp';
+import intelI513400fRtx5060White from '../assets/product-intel-i5-13400f-rtx5060-white-cutout.webp';
 
 const budgetCatalogImages = [budgetPc01, budgetPc02, budgetPc03, budgetPc04, budgetPc05, budgetPc06, budgetPc07] as const;
 const premiumCatalogImages = [premiumPc01, premiumPc02, premiumPc03, premiumPc04, premiumPc05, premiumPc06, premiumPc07] as const;
@@ -27,6 +28,8 @@ export function isLegacyProductImage(image: string | null | undefined) {
 }
 
 export function getCatalogFallbackImage(priceValue: number, stableKey: string) {
+  if (priceValue === 105_000 && /i5[-\s]?13400f.*rtx\s?5060/i.test(stableKey)) return intelI513400fRtx5060White;
+
   const images = priceValue <= 90_000 ? budgetCatalogImages : premiumCatalogImages;
   return images[getStableImageIndex(stableKey, images.length)];
 }
