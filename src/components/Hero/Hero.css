@@ -1189,11 +1189,12 @@
   }
 
   .customSpecRow strong span {
-    animation-name: specTypeCycleMobile;
+    max-width: 100%;
+    animation: none;
   }
 
   .customSpecRow strong span::after {
-    display: inline-block;
+    display: none;
   }
 
   .customPcContacts {
@@ -1327,23 +1328,6 @@
   .customOrderCopy .customSocialArrow {
     width: 28px;
     height: 28px;
-  }
-}
-
-@keyframes specTypeCycleMobile {
-  0%,
-  8% {
-    max-width: 0;
-  }
-
-  42%,
-  68% {
-    max-width: 100%;
-  }
-
-  92%,
-  100% {
-    max-width: 0;
   }
 }
 
