@@ -18,6 +18,9 @@ export type ApiProduct = {
   specs?: string[];
   sourceType?: string;
   externalId?: string | null;
+  sortOrder?: number;
+  isFeatured?: boolean;
+  featuredSlot?: number | null;
 };
 
 export type ApiReview = {
@@ -74,6 +77,9 @@ export function apiProductToBuild(product: ApiProduct): Build {
     cta: 'Написать',
     sourceId: product.id,
     image: product.imageUrl || product.image || undefined,
+    sortOrder: product.sortOrder,
+    isFeatured: product.isFeatured,
+    featuredSlot: product.featuredSlot,
   };
 }
 

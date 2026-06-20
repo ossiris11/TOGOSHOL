@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { buildContactMessage, contacts } from '../../data/contacts';
 import { useProducts } from '../../hooks/useProducts';
 import { trackEvent } from '../../lib/api';
-import { getBudgetLabel, getProductKey, getProductSlug, getProductViews } from '../../lib/products';
+import { getBudgetLabel, getProductKey, getProductSlug, rankCatalogProducts, toProductView } from '../../lib/products';
 import type { ProductView } from '../../lib/products';
 import amdLogo from '../../assets/amd-logo.svg';
 import budgetPc01 from '../../assets/catalog-pc-budget-01-cutout.webp';
@@ -153,11 +153,11 @@ export function ProductCatalog() {
   const checkoutModalRef = useRef<HTMLDivElement | null>(null);
   const lastFocusedElementRef = useRef<HTMLElement | null>(null);
   const { products: storefrontProducts, error: productsError, source: productSource } = useProducts();
-  const products = useMemo(() => getProductViews(storefrontProducts), [storefrontProducts]);
+  const products = useMemo(() => storefrontProducts.map(toProductView), [storefrontProducts]);
   const filteredProducts = useMemo(() => {
-    return products
-      .filter((product) => activeFilter === 'Все' || getBudgetLabel(product.priceValue) === activeFilter)
-      .sort((a, b) => b.priceValue - a.priceValue);
+    if (activeFilter === 'Все') return rankCatalogProducts(products);
+
+    return products.filter((product) => getBudgetLabel(product.priceValue) === activeFilter).sort((a, b) => b.priceValue - a.priceValue);
   }, [activeFilter, products]);
   const visibleProducts = showAll ? filteredProducts : filteredProducts.slice(0, 9);
 

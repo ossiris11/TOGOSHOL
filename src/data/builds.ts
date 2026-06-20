@@ -8,6 +8,9 @@ export type Build = {
   cta: string;
   sourceId?: string;
   image?: string;
+  sortOrder?: number;
+  isFeatured?: boolean;
+  featuredSlot?: number | null;
 };
 
 export const builds: Build[] = [

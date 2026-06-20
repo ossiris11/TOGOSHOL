@@ -121,6 +121,31 @@ export function getBudgetLabel(priceValue: number) {
   return '150k+';
 }
 
+const catalogLeadRanges = ['60–90k', 'до 60k', '90–150k', '150k+'] as const;
+
+export function rankCatalogProducts<T extends Pick<ProductView, 'priceValue' | 'isFeatured' | 'featuredSlot' | 'sortOrder'>>(products: T[]) {
+  const sourceOrder = new Map(products.map((product, index) => [product, index]));
+  const byPopularity = [...products].sort((a, b) => {
+    const featuredDifference = Number(Boolean(b.isFeatured)) - Number(Boolean(a.isFeatured));
+    if (featuredDifference) return featuredDifference;
+
+    const slotDifference = (a.featuredSlot ?? Number.MAX_SAFE_INTEGER) - (b.featuredSlot ?? Number.MAX_SAFE_INTEGER);
+    if (slotDifference) return slotDifference;
+
+    const sortDifference = (a.sortOrder ?? Number.MAX_SAFE_INTEGER) - (b.sortOrder ?? Number.MAX_SAFE_INTEGER);
+    if (sortDifference) return sortDifference;
+
+    return (sourceOrder.get(a) ?? 0) - (sourceOrder.get(b) ?? 0);
+  });
+
+  const leadProducts = catalogLeadRanges
+    .map((range) => byPopularity.find((product) => getBudgetLabel(product.priceValue) === range))
+    .filter((product): product is T => Boolean(product));
+  const selected = new Set(leadProducts);
+
+  return [...leadProducts, ...byPopularity.filter((product) => !selected.has(product))];
+}
+
 export function getGpuTier(value: string) {
   if (/5080|5070|4070|4070\s?ti|7800x3d/i.test(value)) return 'Топ';
   if (/3080|3070|6700|5060|4060/i.test(value)) return '2K';
