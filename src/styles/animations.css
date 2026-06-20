@@ -300,7 +300,7 @@
   .heroPcPhotoFrame::before,
   .heroPcPhotoGlow,
   .finalCtaCard {
-    animation-duration: 7s;
+    animation: none;
   }
 }
 
