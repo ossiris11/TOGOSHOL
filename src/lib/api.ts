@@ -9,14 +9,22 @@ export type ApiProduct = {
   badgeType?: 'default' | 'available';
   price: number;
   priceText: string;
+  oldPrice?: number | null;
   imageUrl?: string | null;
   image?: string | null;
+  gallery?: string[];
   cpu?: string;
   gpu?: string;
   ram?: string;
   storage?: string;
   psu?: string;
+  cooling?: string;
+  caseName?: string;
+  description?: string;
+  shortDescription?: string;
   specs?: string[];
+  productClass?: 'fullhd' | 'qhd' | 'top' | 'work' | 'custom';
+  scenario?: string;
   sourceType?: string;
   externalId?: string | null;
   sortOrder?: number;
@@ -80,6 +88,19 @@ export function apiProductToBuild(product: ApiProduct): Build {
     sourceId: product.id,
     slug: product.slug,
     image: product.imageUrl || product.image || undefined,
+    gallery: product.gallery || [],
+    oldPrice: product.oldPrice ?? null,
+    cpu: product.cpu || '',
+    gpu: product.gpu || '',
+    ram: product.ram || '',
+    storage: product.storage || '',
+    psu: product.psu || '',
+    cooling: product.cooling || '',
+    caseName: product.caseName || '',
+    description: product.description || '',
+    shortDescription: product.shortDescription || '',
+    productClass: product.productClass || 'custom',
+    scenario: product.scenario || '',
     sortOrder: product.sortOrder,
     isFeatured: product.isFeatured,
     featuredSlot: product.featuredSlot,

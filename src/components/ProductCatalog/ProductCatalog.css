@@ -254,12 +254,15 @@
 }
 
 .productIntro h3 {
+  max-width: 100%;
   margin: 0;
   color: #ffffff;
-  font-size: clamp(1.42rem, 2.2vw, 1.82rem);
+  font-size: clamp(0.96rem, 1.35vw, 1.16rem);
   font-weight: 950;
   letter-spacing: -0.02em;
-  line-height: 1;
+  line-height: 1.16;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
   text-shadow: 0 0 26px rgba(0, 229, 255, 0.22);
 }
 
@@ -614,6 +617,13 @@
   gap: 12px;
 }
 
+.productSpecDescription {
+  margin: 14px 0 0;
+  color: rgba(255, 255, 255, 0.68);
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
 .checkoutOverlay {
   position: fixed;
   inset: 0;
@@ -914,7 +924,7 @@
   }
 
   .productIntro h3 {
-    font-size: 1.85rem;
+    font-size: 1.08rem;
     letter-spacing: 0;
   }
 
@@ -1073,7 +1083,7 @@
   }
 
   .productIntro h3 {
-    font-size: 1.7rem;
+    font-size: 1rem;
   }
 
   .fpsRing {

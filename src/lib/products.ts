@@ -6,6 +6,8 @@ export type ProductDetails = {
   ram: string;
   storage: string;
   psu: string;
+  cooling: string;
+  caseName: string;
 };
 
 export type ProductView = Build & {
@@ -23,6 +25,8 @@ const emptyDetails: ProductDetails = {
   ram: '',
   storage: '',
   psu: '',
+  cooling: '',
+  caseName: '',
 };
 
 function cleanText(value: string) {
@@ -50,13 +54,14 @@ export function getProductDetails(product: Build): ProductDetails {
   const specs = product.specs.map(cleanText);
 
   return {
-    cpu: findSpec(specs, [/процессор/i, /\bcpu\b/i]) || extractFromTitle(product.title, /(Ryzen\s?\d\s?\w*|R\d\s?\d+|i[3579][-\s]?\d+\w*)/i),
+    cpu: cleanText(product.cpu || findSpec(specs, [/процессор/i, /\bcpu\b/i]) || extractFromTitle(product.title, /(Ryzen\s?\d\s?\w*|R\d\s?\d+|i[3579][-\s]?\d+\w*)/i)),
     gpu:
-      findSpec(specs, [/видеокарта/i, /\bgpu\b/i]) ||
-      extractFromTitle(product.title, /(RTX\s?\d+\s?(?:Ti|Super)?|RX\s?\d+\s?XT?|GTX\s?\d+)/i),
-    ram: findSpec(specs, [/оператив/i, /\bram\b/i]) || extractFromTitle(product.title, /(\d+\s?GB(?:\s?DDR[45])?)/i),
-    storage: findSpec(specs, [/накопитель/i, /\bssd\b/i]) || '',
-    psu: findSpec(specs, [/блок питания/i, /\bpsu\b/i]) || '',
+      cleanText(product.gpu || findSpec(specs, [/видеокарта/i, /\bgpu\b/i]) || extractFromTitle(product.title, /(RTX\s?\d+\s?(?:Ti|Super)?|RX\s?\d+\s?XT?|GTX\s?\d+)/i)),
+    ram: cleanText(product.ram || findSpec(specs, [/оператив/i, /\bram\b/i]) || extractFromTitle(product.title, /(\d+\s?GB(?:\s?DDR[45])?)/i)),
+    storage: cleanText(product.storage || findSpec(specs, [/накопитель/i, /\bssd\b/i]) || ''),
+    psu: cleanText(product.psu || findSpec(specs, [/блок питания/i, /\bpsu\b/i]) || ''),
+    cooling: cleanText(product.cooling || findSpec(specs, [/охлаж/i, /cool/i, /\bсжо\b/i]) || ''),
+    caseName: cleanText(product.caseName || findSpec(specs, [/корпус/i, /\bcase\b/i, /airflow/i, /frgb/i, /argb/i]) || ''),
   };
 }
 
@@ -66,7 +71,7 @@ function extractFromTitle(title: string, pattern: RegExp) {
 
 export function getCleanSpecs(product: Build) {
   const details = getProductDetails(product);
-  const specs = [details.cpu, details.gpu, details.ram, details.storage, details.psu]
+  const specs = [details.cpu, details.gpu, details.ram, details.storage, details.psu, details.cooling, details.caseName]
     .filter(Boolean)
     .map(cleanText);
 
@@ -98,9 +103,17 @@ export function toProductView(product: Build): ProductView {
     details: { ...emptyDetails, ...details },
     priceValue: parsePriceValue(product.price),
     normalizedTitle: normalizeProductTitle(product),
-    gpuTier: getGpuTier(details.gpu || product.title),
-    useCase: getUseCase(details.gpu || product.title, parsePriceValue(product.price)),
+    gpuTier: getGpuTierFromClass(product.productClass) || getGpuTier(details.gpu || product.title),
+    useCase: product.scenario || getUseCase(details.gpu || product.title, parsePriceValue(product.price)),
   };
+}
+
+function getGpuTierFromClass(productClass: Build['productClass']) {
+  if (productClass === 'fullhd') return 'Full HD';
+  if (productClass === 'qhd') return '2K';
+  if (productClass === 'top') return 'Топ';
+  if (productClass === 'work') return 'Работа';
+  return '';
 }
 
 export function getProductViews(products: Build[]) {

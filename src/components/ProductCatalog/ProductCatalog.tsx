@@ -83,25 +83,17 @@ function getOptionalSpecValue(product: ProductView, patterns: RegExp[]) {
   return match.split(':').slice(1).join(':').trim() || match.trim();
 }
 
-function getSpecValue(product: ProductView, patterns: RegExp[]) {
-  const specs = [...product.cleanSpecs, ...product.specs];
-  const match = specs.find((spec) => patterns.some((pattern) => pattern.test(spec)));
-  if (!match) return 'На выбор';
-
-  return match.split(':').slice(1).join(':').trim() || match.trim();
-}
-
 function getSpecificationRows(product: ProductView) {
   return [
-    ['Видеокарта', product.details.gpu || getSpecValue(product, [/видеокарта/i, /\bgpu\b/i])],
-    ['Процессор', product.details.cpu || getSpecValue(product, [/процессор/i, /\bcpu\b/i])],
-    ['Материнская плата', getSpecValue(product, [/материн/i, /motherboard/i, /\b[abzhx]\d{3,4}\b/i, /\bh\d{3}\b/i])],
-    ['Оперативная память', product.details.ram || getSpecValue(product, [/оператив/i, /\bram\b/i, /\bddr[45]\b/i])],
-    ['SSD накопитель', product.details.storage || getSpecValue(product, [/накопитель/i, /\bssd\b/i])],
-    ['Охлаждение', getSpecValue(product, [/охлаж/i, /cool/i, /\bсжо\b/i])],
-    ['Блок питания', product.details.psu || getSpecValue(product, [/блок питания/i, /\bpsu\b/i])],
-    ['Корпус', getSpecValue(product, [/корпус/i, /\bcase\b/i, /airflow/i, /frgb/i, /argb/i])],
-  ];
+    ['Видеокарта', product.details.gpu || getOptionalSpecValue(product, [/видеокарта/i, /\bgpu\b/i])],
+    ['Процессор', product.details.cpu || getOptionalSpecValue(product, [/процессор/i, /\bcpu\b/i])],
+    ['Материнская плата', getOptionalSpecValue(product, [/материн/i, /motherboard/i, /\b[abzhx]\d{3,4}\b/i, /\bh\d{3}\b/i])],
+    ['Оперативная память', product.details.ram || getOptionalSpecValue(product, [/оператив/i, /\bram\b/i, /\bddr[45]\b/i])],
+    ['SSD накопитель', product.details.storage || getOptionalSpecValue(product, [/накопитель/i, /\bssd\b/i])],
+    ['Охлаждение', product.details.cooling || getOptionalSpecValue(product, [/охлаж/i, /cool/i, /\bсжо\b/i])],
+    ['Блок питания', product.details.psu || getOptionalSpecValue(product, [/блок питания/i, /\bpsu\b/i])],
+    ['Корпус', product.details.caseName || getOptionalSpecValue(product, [/корпус/i, /\bcase\b/i, /airflow/i, /frgb/i, /argb/i])],
+  ].filter((row): row is [string, string] => Boolean(row[1]));
 }
 
 function buildOrderText(product: ProductView) {
@@ -111,7 +103,7 @@ function buildOrderText(product: ProductView) {
 
   return `— Заявка с сайта TOG PC —
 Бюджет: ${product.price}
-Сборка: TOG PC ${getCardTitle(product.priceValue)}
+Сборка: ${product.title}
 
 — Конфигурация —
 ${rows}
@@ -307,7 +299,7 @@ export function ProductCatalog() {
               ['GPU', 'Видеокарта', product.details.gpu],
               ['CPU', 'Процессор', product.details.cpu],
               ['RAM', 'ОЗУ', product.details.ram],
-              ['COOL', 'Охлаждение', getOptionalSpecValue(product, [/охлаж/i, /cool/i, /\bсжо\b/i])],
+              ['COOL', 'Охлаждение', product.details.cooling || getOptionalSpecValue(product, [/охлаж/i, /cool/i, /\bсжо\b/i])],
               ['MB', 'Мат. плата', getOptionalSpecValue(product, [/материн/i, /motherboard/i, /\b[abzhx]\d{3,4}\b/i, /\bh\d{3}\b/i])],
               ['SSD', 'Накопитель', product.details.storage],
               ['PSU', 'Питание', product.details.psu],
@@ -328,8 +320,8 @@ export function ProductCatalog() {
                     }}
                   />
                   <div className="productIntro">
-                    <span>TOG PC ({processorBrand.intro})</span>
-                    <h3>{cardTitle}</h3>
+                    <span>TOG PC ({processorBrand.intro}) · {cardTitle}</span>
+                    <h3>{product.title}</h3>
                     <p>
                       <small>от</small>
                       {product.price}
@@ -424,7 +416,7 @@ export function ProductCatalog() {
         >
           <aside ref={productSpecDrawerRef} className="productSpecDrawer" role="dialog" aria-modal="true" aria-labelledby="product-spec-title">
             <header className="productSpecHeader">
-              <h3 id="product-spec-title">Спецификация {getCardTitle(selectedProduct.priceValue)}</h3>
+              <h3 id="product-spec-title">{selectedProduct.title}</h3>
               <button type="button" className="productSpecClose" aria-label="Закрыть спецификацию" onClick={closeSpecDrawer}>
                 ×
               </button>
@@ -432,6 +424,9 @@ export function ProductCatalog() {
 
             <div className="productSpecBody">
               <span className="productSpecEyebrow">Комплектующие</span>
+              {(selectedProduct.description || selectedProduct.shortDescription) && (
+                <p className="productSpecDescription">{selectedProduct.description || selectedProduct.shortDescription}</p>
+              )}
               <dl className="productSpecTable">
                 {getSpecificationRows(selectedProduct).map(([label, value]) => (
                   <div key={label}>
