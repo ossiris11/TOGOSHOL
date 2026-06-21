@@ -630,9 +630,7 @@ function BlocksPage() {
 
   return (
     <div className="adminStack">
-      <AdminPanel title="Hero / верхний блок" note="Выбери главный компьютер. Скрытые и архивные товары не показываются на сайте.">
-        <ProductSelect products={activeProducts} ids={blocks.heroProductIds} max={1} onChange={(ids) => setBlocks({ ...blocks, heroProductIds: ids })} />
-      </AdminPanel>
+      <AdminPanel title="Hero / верхний блок" note="Главное изображение закреплено в дизайне сайта: используется оптимизированный ПК с прозрачным фоном." />
       <AdminPanel title="Рекомендуемые сборки" note="3-6 сильных позиций для верхней горизонтальной витрины.">
         <ProductSelect products={activeProducts} ids={blocks.featuredProductIds} max={6} onChange={(ids) => setBlocks({ ...blocks, featuredProductIds: ids })} />
       </AdminPanel>

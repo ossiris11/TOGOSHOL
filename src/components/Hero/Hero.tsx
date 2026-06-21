@@ -1,10 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { useHeroParallax } from '../../hooks/useHeroParallax';
-import { useProducts } from '../../hooks/useProducts';
 import { contacts } from '../../data/contacts';
 import { trackEvent } from '../../lib/api';
-import { resolveCatalogProductImage } from '../../lib/catalogImages';
-import { toProductView } from '../../lib/products';
 import customPc from '../../assets/custom-pc-white-cutout.webp';
 import heroPc from '../../assets/hero-pc-2026-cutout.webp';
 import './Hero.css';
@@ -109,11 +106,6 @@ Wi-Fi/Bluetooth: ${wifi}
 
 export function Hero() {
   const visualRef = useHeroParallax<HTMLDivElement>();
-  const { heroProducts } = useProducts();
-  const heroProduct = heroProducts[0] ? toProductView(heroProducts[0]) : null;
-  const heroProductImage = heroProduct
-    ? resolveCatalogProductImage(heroProduct.image, heroProduct.priceValue, `${heroProduct.sourceId || 'hero'}:${heroProduct.normalizedTitle}`)
-    : heroPc;
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
   const [budget, setBudget] = useState('');
   const [look, setLook] = useState('');
@@ -222,7 +214,7 @@ export function Hero() {
         <div className="heroVisual" ref={visualRef}>
           <div className="heroVisualInner">
             <div className="heroPcPhotoFrame">
-              <img src={heroProductImage} alt={heroProduct ? `Игровой компьютер ${heroProduct.normalizedTitle}` : 'Топовый игровой компьютер 2026 без фона с RGB-подсветкой'} />
+              <img src={heroPc} alt="Топовый игровой компьютер 2026 без фона с RGB-подсветкой" />
               <span className="heroPcPhotoGlow" aria-hidden="true" />
             </div>
           </div>
