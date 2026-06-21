@@ -127,6 +127,31 @@ test('admin can create a product and storefront can read it', async () => {
   assert.equal(listResponse.json().items[0].slug, 'smoke-test-pc');
 });
 
+test('patching only a product image preserves all other product fields', async () => {
+  const beforeResponse = await app.inject({ method: 'GET', url: `/api/products/${createdProductId}` });
+  const before = beforeResponse.json().item;
+
+  const patchResponse = await app.inject({
+    method: 'PATCH',
+    url: `/api/admin/products/${createdProductId}`,
+    headers: adminHeaders(),
+    payload: { imageUrl: '/uploads/replacement.webp' },
+  });
+
+  assert.equal(patchResponse.statusCode, 200);
+  const after = patchResponse.json().item;
+  assert.equal(after.imageUrl, '/uploads/replacement.webp');
+  assert.equal(after.title, before.title);
+  assert.equal(after.price, before.price);
+  assert.equal(after.cpu, before.cpu);
+  assert.equal(after.gpu, before.gpu);
+  assert.equal(after.ram, before.ram);
+  assert.equal(after.storage, before.storage);
+  assert.equal(after.productClass, before.productClass);
+  assert.equal(after.sourceType, before.sourceType);
+  assert.equal(after.sortOrder, before.sortOrder);
+});
+
 test('duplicate product slug returns conflict instead of server error', async () => {
   const response = await app.inject({
     method: 'POST',
