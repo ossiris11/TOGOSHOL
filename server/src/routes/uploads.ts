@@ -40,7 +40,8 @@ async function removeIfExists(filePath: string) {
 }
 
 async function createWebpVariants(sourcePath: string, id: string) {
-  const image = sharp(sourcePath, { animated: false }).rotate();
+  const source = await fs.promises.readFile(sourcePath);
+  const image = sharp(source, { animated: false }).rotate();
   const name = `${id}.webp`;
   const thumbName = `${id}-thumb.webp`;
   const fullPath = path.join(config.uploadDir, name);
@@ -105,7 +106,7 @@ export async function registerUploadRoutes(app: FastifyInstance) {
 
     await fs.promises.mkdir(config.uploadDir, { recursive: true });
     const id = `${Date.now()}-${crypto.randomUUID()}`;
-    const tempName = `${id}${ext}`;
+    const tempName = ext === '.gif' ? `${id}${ext}` : `${id}-source${ext}`;
     const tempPath = path.join(config.uploadDir, tempName);
     await pipeline(file.file, fs.createWriteStream(tempPath));
 

@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { after, before, test } from 'node:test';
+import sharp from 'sharp';
 
 process.env.NODE_ENV = 'test';
 process.env.ADMIN_PASSWORD = '1111000010';
@@ -33,20 +34,21 @@ function adminHeaders() {
   };
 }
 
-function multipartImageBody() {
+async function multipartImageBody(filename = 'pixel.png', mimeType = 'image/png') {
   const boundary = `----togoshol-${Date.now()}`;
   const png = Buffer.from(
     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=',
     'base64',
   );
+  const image = mimeType === 'image/webp' ? await sharp(png).webp().toBuffer() : png;
   const head = Buffer.from(
-    `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="pixel.png"\r\nContent-Type: image/png\r\n\r\n`,
+    `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${filename}"\r\nContent-Type: ${mimeType}\r\n\r\n`,
     'utf8',
   );
   const tail = Buffer.from(`\r\n--${boundary}--\r\n`, 'utf8');
   return {
     boundary,
-    payload: Buffer.concat([head, png, tail]),
+    payload: Buffer.concat([head, image, tail]),
   };
 }
 
@@ -230,7 +232,7 @@ test('admin audit log records successful admin writes', async () => {
 });
 
 test('admin upload pipeline creates webp media entries that can be deleted', async () => {
-  const body = multipartImageBody();
+  const body = await multipartImageBody();
   const uploadResponse = await app.inject({
     method: 'POST',
     url: '/api/admin/uploads/images',
@@ -262,6 +264,30 @@ test('admin upload pipeline creates webp media entries that can be deleted', asy
   });
   assert.equal(deleteResponse.statusCode, 200);
   assert.equal(deleteResponse.json().ok, true);
+});
+
+test('admin upload pipeline accepts a webp source without rewriting it in place', async () => {
+  const body = await multipartImageBody('pixel.webp', 'image/webp');
+  const uploadResponse = await app.inject({
+    method: 'POST',
+    url: '/api/admin/uploads/images',
+    headers: {
+      ...adminHeaders(),
+      'Content-Type': `multipart/form-data; boundary=${body.boundary}`,
+    },
+    payload: body.payload,
+  });
+
+  assert.equal(uploadResponse.statusCode, 201);
+  const uploaded = uploadResponse.json() as { name: string };
+  assert.match(uploaded.name, /\.webp$/);
+
+  const deleteResponse = await app.inject({
+    method: 'DELETE',
+    url: `/api/admin/uploads/images/${uploaded.name}`,
+    headers: adminHeaders(),
+  });
+  assert.equal(deleteResponse.statusCode, 200);
 });
 
 test('public request endpoint stores a customer request', async () => {
